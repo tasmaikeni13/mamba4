@@ -1,0 +1,27 @@
+{
+  "protocol_version": 1,
+  "root_seed": 20261008,
+  "key_dim": 16,
+  "value_dim": 4,
+  "development_trials": 96,
+  "evaluation_trials": 1024,
+  "risk_trials": 4096,
+  "calibration_trials": 8192,
+  "repeated_trials": 4096,
+  "bootstrap_draws": 2000,
+  "geometries": ["orthogonal", "random", "clustered"],
+  "loads": [4, 8, 16, 24, 32],
+  "ridge_grid": [1e-8, 0.0001, 0.01, 0.1, 1.0],
+  "temperature_grid": [1.0, 4.0, 16.0, 64.0, 256.0],
+  "delta_grid": [0.25, 0.5, 1.0],
+  "mamba3_grid": [
+    {"trap": 1.0, "decay": 1.0, "angle": 0.0},
+    {"trap": 0.5, "decay": 1.0, "angle": 0.0},
+    {"trap": 0.75, "decay": 0.995, "angle": 0.02}
+  ],
+  "primary_metric": "Mean squared error per value coordinate, averaged within independent trial",
+  "primary_comparison": "development-selected ridge vs development-selected softmax per recall scenario",
+  "multiplicity": "Holm across all reported recall model/scenario comparisons; Bonferroni paired t and paired percentile-bootstrap intervals",
+  "scope": "Encoded-operator analysis only; no trained Mamba-3/Transformer/LM or TPU speed claim",
+  "holdout_policy": "Independent named seed streams for development, evaluation and resampling. Select each method on development loss only. Retain every evaluation result. No sequential stopping."
+}

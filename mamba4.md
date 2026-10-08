@@ -1,411 +1,322 @@
-# Mamba 4: Memory as Inference and the Dissolution of the Expressivity–Efficiency Frontier in Linear-Time Sequence Modeling
+# Mamba 4: conjugate sequence memory with audited recall and uncertainty
 
-*A condensed theoretical monograph. June 2026.*
+*Revised theoretical paper, 8 October 2026. Phases 01–02 investigation.*
 
 ## Abstract
 
-Recurrent and state-space models achieve linear-time training and constant-cost inference by compressing history into a fixed state, but lose associative recall, multi-hop reasoning, and faithful in-context learning. Attention avoids compression, but pays quadratic training and growing per-token inference. This paper argues both families compress the wrong object. The correct object is the **posterior belief over the latent operator that generated the context**.
-
-We derive **Mamba 4**, a conjugate-posterior sequence architecture, from four bedrock results:
-
-1. Exact recall of \(K\) arbitrary associations requires \(\Omega(K)\) state (Theorem 3.1).
-2. Parallel-in-time evaluation of general nonlinear recurrences is P-complete, so parallel training forces essentially linear state transitions (Theorem 3.2).
-3. State transitions whose composites span a finite-dimensional function space are exactly the linearly realizable ones (Lemma 3.5).
-4. Fixed-dimensional sufficient statistics exist only for exponential families; hence lossless history summarization relative to a hypothesis class forces conjugate posterior parameters, whose updates are linear and scannable (Theorems 4.1, 4.3, 4.4).
-
-Mamba 4 instantiates this with a matrix-Gaussian state: online ridge regression sufficient statistics. It achieves exact associative recall up to the information-theoretic capacity, strict per-access advantages over softmax attention, calibrated retrieval confidence, single-layer multi-hop retrieval, derived forgetting/input gates, \(\Theta(Nd^2)\) training with \(O(\log N)\) span, \(O(d^2)\) decode with a conditioning floor, and a dyadic cascade with \(\Theta(d\log N)\) selectable exact recalls and additive mergeable states.
-
----
-
-## 1. Thesis
-
-The usual frontier is false: one wall is universal, the rest are self-inflicted.
-
-- **Universal wall:** no fixed-size state can exactly recall unbounded adversarial associations.
-- **Self-inflicted wall:** recurrent models compress the signal, not the posterior; update with wrong algebra; read with the wrong estimator.
-
-Mamba 4 compresses the posterior over the latent structure future queries probe. The state is a conjugate natural parameter. The update is Bayes’ rule in natural coordinates, hence additive, associative, and scannable. The read is the posterior predictive, where all nonlinearity lives.
-
----
-
-## 2. Formal Preliminaries
-
-A streaming machine is \((U,R)\), state \(z_t=U(z_{t-1},x_t)\), read \(R(z_t,q)\). It is scan-realizable if there is a monoid \((\mathcal M,\bullet,e)\) and encoding \(\iota\) such that
-\[
-z_t=\alpha(\iota(x_t)\bullet\cdots\bullet\iota(x_1),z_0).
-\]
-Parallel prefix computes all \(z_t\) in \(\Theta(N)\) monoid products and \(O(\log N)\) span.
-
-Tasks:
-
-- \(\mathrm{EAR}(K,b)\): exact recall of \(K\) values of \(b\) bits.
-- Linear-functional recall: query \(q=\sum_j\alpha_j k_j\), target \(\sum_j\alpha_j v_j\).
-- \(H\)-hop chase: follow functional graph \(H\) steps.
-- Adaptive memory rounds: reads whose addressing depends on prior reads.
-
-Generative lens: latent linear map
-\[
-v_t=Wk_t+\beta_t^{-1/2}\xi_t,\qquad
-W\sim\mathcal{MN}(0,I_{d_v},\varepsilon^{-1}I_{d_k}).
-\]
-Inside the model we get Bayes-optimality; outside it, algebraic and computational guarantees remain.
-
----
-
-## 3. Three Walls and One Door
-
-### Theorem 3.1 — Exact recall requires linear state
-
-Any deterministic streaming machine solving \(\mathrm{EAR}(K,b)\) for every assignment must have state
-\[
-m\ge Kb \quad\text{bits}.
-\]
-Randomized machines require
-\[
-m\ge (1-H_2(\delta))Kb-1
-\]
-bits.
-
-*Proof idea:* Deterministic: \(m<Kb\) forces two assignments to share a state; query differing coordinate gives contradiction. Randomized: Fano.
-
-Consequences: “unbounded lossless context in \(O(1)\) state” is void. The real goal is selectable exactness at a state budget with optimal degradation.
-
-### Theorem 3.2 — No free parallelism
-
-The prefix-recurrence problem for general nonlinear \(f\),
-\[
-z_t=f(z_{t-1},x_t),
-\]
-is P-complete under logspace reductions. Unless \(\mathrm{NC}=\mathrm P\), no polylog-span parallel-in-time algorithm exists for general nonlinear recurrences.
-
-*Proof idea:* Reduce from the circuit value problem. State holds evaluated gates; token encodes gate type and inputs; \(f\) evaluates one gate per step.
-
-Consequence: every parallel-trainable architecture must restrict state transitions to an essentially linearizable class. Nonlinearity must migrate to token encoders and readout.
-
-### Theorem 3.3 — Capacity converse for value-linear memories
-
-If a memory has value-dependent state
-\[
-z_{\mathrm{val}}=\sum_i L(k_i)v_i
-\]
-and read linear in \(z_{\mathrm{val}}\), and it exactly recalls \(K\) associations of dimension \(d_v\), then
-\[
-Kd_v\le p_v,\qquad K\le \frac{p_v}{d_v}.
-\]
-*Proof idea:* The composite map from values to recalled values factors through \(\mathbb R^{p_v}\), so rank \(\le p_v\). Exactness forces rank \(Kd_v\).
-
-### Lemma 3.5 — Linearization of composition-closed transitions
-
-If a family \(\{f_x\}\) has a finite-dimensional space \(V\) of functions \(\mathcal Z\to\mathbb R\), \(\dim V=m\), invariant under precomposition \(v\mapsto v\circ f_x\), and separating reachable states, then there is an embedding \(\varphi:\mathcal Z\to\mathbb R^m\) and matrices \(A_x\) such that
-\[
-\varphi(f_x(z))=A_x\varphi(z).
-\]
-Thus the recurrence becomes a linear scan.
-
-*Proof idea:* Evaluate basis functions after \(f_x\), expand in basis, stack coefficients.
-
-This identifies the design space: expressive scannable recurrences are exactly useful finite-dimensional precomposition-invariant function spaces.
-
----
-
-## 4. Bridge: Bayesian Conjugacy Is the Algebra of Scannable Memory
-
-Let observations \(o\) have exponential-family likelihood
-\[
-\ell(o\mid\eta)=h(o)\exp(\langle T(o),\eta\rangle-A(\eta)).
-\]
-With conjugate prior \(\pi(\eta\mid\chi_0,\nu_0)\propto\exp(\langle\chi_0,\eta\rangle-\nu_0A(\eta))\), the posterior after \(o_1,\dots,o_t\) is
-\[
-\chi_t=\chi_0+\sum_{s\le t}T(o_s),\qquad
-\nu_t=\nu_0+t.
-\]
-With evidence weights \(\beta_t\) and tempering \(\lambda_t\),
-\[
-\boxed{\chi_t=\lambda_t\chi_{t-1}+\beta_tT(o_t),\qquad
-\nu_t=\lambda_t\nu_{t-1}+\beta_t.}
-\]
-
-### Theorem 4.1 — Conjugate updates are associative scans
-
-The maps
-\[
-u_t:(\chi,\nu)\mapsto(\lambda_t\chi+\beta_tT(o_t),\lambda_t\nu+\beta_t)
-\]
-are closed under composition. A block \(s..t\) has multiplier \(\Lambda_{s:t}=\prod_{r=s}^t\lambda_r\) and increment
-\[
-(X_{s:t},n_{s:t})=\sum_{r=s}^t\Lambda_{r+1:t}\beta_r(T(o_r),1).
-\]
-The combine
-\[
-(\Lambda_2,X_2)\bullet(\Lambda_1,X_1)
-=(\Lambda_2\Lambda_1,\;X_2+\Lambda_2X_1)
-\]
-is associative with identity \((1,0)\). Hence all prefix posteriors are computable in \(\Theta(N)\) work and \(O(\dim T\cdot\log N)\) span. For \(\lambda\equiv1\), the monoid is commutative: posterior is order-free.
-
-### Definition 4.2 — Mamba 4 layer
-
-A Mamba 4 layer has:
-
-1. Learned encoders producing observation \(o_t\), evidence \(\beta_t\ge0\), drift \(\lambda_t\in(0,1]\).
-2. State \((\chi_t,\nu_t)\), natural parameters of the running conjugate posterior.
-3. Learned query maps \(q_t\).
-4. Read: posterior predictive at \(q_t\), with optional uncertainty.
-5. Outputs of reads, concatenated over heads/hops, mixed by a learned projection.
-
-Between tokens: linear scan. At each token: nonlinear encoders and read. Across layers: reads feed encoders.
-
-### Theorem 4.3 — Sufficiency and minimality
-
-Under the conjugate exponential-family model, \((\chi_t,\nu_t)\) is sufficient for \(\eta\) given history. If the family is minimal, it is minimal sufficient.
-
-### Theorem 4.4 — Canonicity (Koopman–Pitman–Darmois)
-
-Among positive smooth densities with parameter-independent support, only exponential families admit sufficient statistics of dimension bounded in sample size.
-
-Thus the only fixed-size states that losslessly summarize unbounded history relative to an inference class are conjugate posterior parameters.
-
-### Corollary 4.5 — Mergeability
-
-With \(\lambda\equiv1\), the state of a union of streams is the sum of independently computed states:
-\[
-(\chi^{(1\cup2)},\nu^{(1\cup2)})
-=(\chi^{(1)}+\chi^{(2)},\nu^{(1)}+\nu^{(2)}).
-\]
-Attention cannot do this except by concatenating growing caches. Nonlinear RNNs cannot do it at all.
-
-### Proposition 4.6 — Gates derived, not designed
-
-- Discounting by \(\lambda\) is exact Bayesian tempering under maximum-entropy drift. For Gaussian families it is covariance inflation with process noise proportional to current uncertainty.
-- Evidence weight \(\beta\) is the precision of the token’s evidence.
-
-Thus forget gates are drift rates; input gates are evidence precisions.
-
----
-
-## 5. Gaussian Instance: Exact, Optimal, Introspective Associative Memory
-
-### Definition 5.1 — Gauss–Markov memory
-
-Per head, encoders emit \(k_t\in\mathbb R^{d_k}\), \(\|k_t\|=1\), \(v_t\in\mathbb R^{d_v}\), \(q_t\in\mathbb R^{d_k}\), \(\beta_t\ge0\), \(\lambda_t\in(0,1]\). State:
-\[
-S_t=\lambda_tS_{t-1}+\beta_tk_tk_t^\top,\qquad
-C_t=\lambda_tC_{t-1}+\beta_tv_tk_t^\top.
-\]
-Let \(A_t=S_t+\varepsilon I\). Read and confidence:
-\[
-\mathrm{read}_t(q)=C_tA_t^{-1}q,\qquad
-c_t(q)=q^\top A_t^{-1}q.
-\]
-Model-free, \(M_t=C_tA_t^{-1}\) solves discounted ridge regression:
-\[
-\min_M\sum_{s\le t}\Lambda_{s+1:t}\beta_s\|Mk_s-v_s\|^2+\varepsilon\|M\|_F^2.
-\]
-The recurrence has no inverse, normalization, or nonlinearity. The solve is the relocated nonlinearity.
-
-### Theorem 5.2 — Interpolation
-
-For \(\lambda\equiv1\), \(K\le d_k\), independent keys with Gram \(G=K^\top K\), weights \(\beta_i>0\),
-\[
-\|\mathrm{read}(k_i)-v_i\|
-\le \varepsilon\sqrt{\frac{\beta_{\max}}{\beta_i}}
-\frac{\|V\|_2}{\beta_{\min}\sigma_{\min}(G)+\varepsilon}.
-\]
-Thus \(\mathrm{read}(k_i)\to v_i\) as \(\varepsilon\to0\): exact recall with no crosstalk for arbitrary independent keys.
-
-### Proposition 5.3 — Whitened attention
-
-\[
-\mathrm{read}(q)=\sum_s w_s(q)v_s,\qquad
-w_s(q)=\Lambda_{s+1:t}\beta_sk_s^\top A_t^{-1}q.
-\]
-This is attention in Mahalanobis key geometry. Weights need not be positive or sum to one.
-
-### Theorem 5.4 — Optimal read
-
-- (Bayes) Under the latent linear-map model, \(\mathrm{read}_t(q)\) is the posterior mean of \(Wq\), minimizing expected squared retrieval error among all measurable functions of history.
-- (Gauss–Markov) As \(\varepsilon\to0\), for \(q\) in key span, the read is the minimum-variance unbiased estimator of \(W^*q\) among value-linear estimators.
-- (Optimal averaging) For \(n\) repeated noisy writes, risk is \(\sigma^2d_v/n\).
-
-### Proposition 5.5 — Smoothing versus solving
-
-A normalized smoothing read is \(\hat v(q)=\sum_sw_s(q)v_s\), \(w_s\ge0\), \(\sum w_s=1\).
-
-- Collision blindness: smoothing cannot exactly separate overlapping keys; Mamba 4 read does as \(\varepsilon\to0\).
-- Convex-hull confinement: smoothing lies in \(\mathrm{conv}\{v_s\}\); linear-functional queries outside the simplex cannot be realized. Mamba 4 read is linear in \(q\), so it realizes them exactly within capacity.
-- Suboptimal averaging: smoothing cannot implement inverse-variance weighting across unequal multiplicities.
-
-### Proposition 5.6 — Calibrated introspection
-
-Under the model, per-coordinate predictive variance is
-\[
-c_t(q)+\beta_q^{-1}.
-\]
-Model-free, \(c_t(q)\) is monotone in evidence and equals \(\varepsilon^{-1}\) on never-written directions. Thus retrieval confidence is exact in-model and meaningful outside.
-
-### Theorem 5.7 — In-context regression risk
-
-For \(v_i=W^*k_i+\sigma\xi_i\),
-\[
-\mathbb E\|\mathrm{read}(q)-W^*q\|^2
-=
-\underbrace{\varepsilon^2\|W^*A^{-1}q\|^2}_{\text{bias}}
-+
-\underbrace{\sigma^2d_v\,q^\top A^{-1}SA^{-1}q}_{\le\sigma^2d_v c_t(q)}.
-\]
-Each head performs ridge regression in context; with learned features, kernel ridge regression. The variance term is reported as \(c_t(q)\).
-
-### Theorem 5.8 — Multi-hop inside one layer
-
-With orthonormal codes and \(\le d_k\) edges, \(H\) chained reads
-\[
-q^{(j+1)}=\mathrm{read}(q^{(j)})
-\]
-return the \(H\)-th successor exactly as \(\varepsilon\to0\). For finite \(\varepsilon\), error is bounded by
-\[
-\epsilon_1\sum_{j<H}L^j,
-\]
-where \(L=\|CA^{-1}\|\le1\) under normalization. Thus one layer realizes \(H\) adaptive memory rounds.
-
-### Theorem 5.9 — Capacity optimality
-
-The Gauss–Markov memory with key dimension \(d_k\) exactly recalls \(K=d_k\) independent associations. No value-linear memory with \(p_v=d_kd_v\) exceeds \(K=d_k\). Thus capacity is met with equality, within factor \(1+d_k/d_v\) of the Shannon floor.
-
----
-
-## 6. Algorithms and Complexity
-
-### Proposition 6.1 — Scan element
-
-For recurrence (5.1), the per-token monoid element is
-\[
-(\lambda_t,\;\beta_tk_tk_t^\top,\;\beta_tv_tk_t^\top),
-\]
-with combine
-\[
-(\Lambda_2,S_2,C_2)\bullet(\Lambda_1,S_1,C_1)
-=(\Lambda_2\Lambda_1,\;S_2+\Lambda_2S_1,\;C_2+\Lambda_2C_1).
-\]
-Associative, identity \((1,0,0)\), size \(d_k^2+d_kd_v+1\), cost \(O(d_k^2+d_kd_v)\).
-
-### Theorem 6.2 — Training cost
-
-Chunked scan computes all reads with
-\[
-\Theta(N(d_k^2+d_kd_v))
-\]
-work, span \(O(c+\log(N/c))\), and linear activation memory.
-
-### Theorem 6.3 — Decode cost
-
-Maintaining Cholesky factor \(R_t^\top R_t\approx S_t+\varepsilon I\), per-token decode costs
-\[
-O(d_k^2+d_kd_v)
-\]
-operations and state \(d_k^2/2+d_kd_v+O(d_k)\), independent of context length.
-
-### Lemma 6.4 — Regularization floor
-
-Cycling phantom writes keep the floor diagonal entries within a few percent of \(\varepsilon\) after burn-in whenever \((1-\lambda)d_k\le1\). The prior precision is maintained forever without refactorization.
-
-### Lemma 6.5 — Adjoint scan
-
-The backward recurrence is also a scan:
-\[
-g_t=\partial\mathcal L/\partial z_t+\lambda_{t+1}g_{t+1}.
-\]
-Gradients through the read solve use the maintained factor at \(O(d_k^2)\) per token.
-
-### Theorem 6.6 — Stability
-
-With \(\|k_t\|=1\), \(\beta_t\le\beta_{\max}\), \(\lambda_t\le\lambda<1\):
-\[
-\|S_t\|\le\frac{\beta_{\max}}{1-\lambda},\qquad
-\kappa(A_t)\le1+\frac{\beta_{\max}}{\varepsilon(1-\lambda)}.
-\]
-Gradients cannot explode; vanishing is governed by learned \(\lambda\). Floating-point read error is \(O(\kappa(A_t)u)\) per token.
-
-### Ledger
-
-| | softmax attention | Hebbian fast weights | nonlinear RNN | Mamba 4 | Mamba 4 cascade |
-|---|---|---|---|---|---|
-| training work | \(\Theta(N^2d)\) | \(\Theta(Nd^2)\) | \(\Theta(Nd^2)\) | \(\Theta(Nd^2)\) | \(\Theta(Nd^2)\) |
-| training span | \(O(\log N)\) | \(O(c+\log N)\) | \(\Theta(N)\) | \(O(c+\log N)\) | \(O(c+\log N)\) |
-| decode per token | \(\Theta(Nd)\) | \(\Theta(d^2)\) | \(\Theta(d^2)\) | \(\Theta(d^2)\) | \(\Theta(d^2)\) |
-| state | \(\Theta(Nd)\) | \(\Theta(d^2)\) | \(\Theta(d)\)–\(\Theta(d^2)\) | \(\Theta(d^2)\) | \(\Theta(d^2\log N)\) |
-| exact recall | all stored | 0 non-orthogonal | unprincipled | \(d\) per head, optimal | \(\Theta(d\log N)\) selected |
-| confidence | none | none | none | calibrated | calibrated |
-| mergeable states | cache concat | additive | no | additive | additive |
-
----
-
-## 7. Hardware Execution
-
-### Proposition 7.1 — Training is compute-bound
-
-Per chunk/head, arithmetic intensity is \(\Theta(\min(c,d))\) FLOPs/word. With \(c\gtrsim\rho\) (machine balance), the kernel is compute-bound. All heavy operations are dense GEMMs, rank-one updates, and triangular solves; shapes are static; serial depth is \(c+\log(N/c)\).
-
-### Proposition 7.2 — Decode traffic is context-free
-
-Per layer/head, decode touches resident state \(d_k^2/2+d_kd_v\) and does \(O(d_k^2+d_kd_v)\) FLOPs per token. For \(d_k=d_v=64\), 16 heads, 48 layers, state is \(\approx25\) MB. Per-token latency is \(\Theta(\text{model size}/B)\), independent of \(N\).
-
----
-
-## 8. Dyadic Conjugate Cascade
-
-### Definition 8.1
-
-Fix base span \(c_0\). Maintain a live discounted state over the current block. At each level \(\ell\), keep at most one frozen undiscounted block \((S^{(\ell)},C^{(\ell)})\) spanning \(2^\ell c_0\) tokens. When two blocks meet at level \(\ell\), merge by addition into level \(\ell+1\). Reads address live memory plus levels, gated by recency-aware learned gates.
-
-### Theorem 8.2 — Maintenance is free
-
-Over \(N\) tokens there are at most \(N/c_0\) freezes and \(N/c_0-1\) merges, each \(O(d_k^2+d_kd_v)\). Amortized per-token cost is \(O(d_k)\) for \(c_0\ge d_k\).
-
-### Theorem 8.3 — Telescoped capacity
-
-If the write policy marks at most \(d_k\) independent associations per dyadic block, every marked item is exactly retrievable from its block. Total exact recall:
-\[
-\Theta(d_k\log(N/c_0)).
-\]
-This is order-optimal for the state and scale-uniformly Shannon-efficient up to \(1+d_k/d_v\). Unmarked residue is retained as the block’s Bayes-optimal ridge posterior.
-
-### Theorem 8.4 — Power-law forgetting
-
-An item of age \(A\) lies in a block of span at most \(2A\), holding \(\approx2rA\) competitors at write rate \(r\). Exactness holds while \(rA\lesssim d_k/2\). Beyond that, risk grows polynomially in \(rA/d_k\), not exponentially as \(\lambda^A\). Refresh is a learnable rehearsal operation.
-
-### Theorem 8.5 — Mergeability at scale
-
-Partition a corpus into \(P\) segments. Blockwise sums of the \(P\) cascades equal the cascade of the full corpus under block-respecting interleaving. Communication is \(O(Pd^2\log N)\) total, with constant-size messages. Parallel ingestion and knowledge handoff are state addition.
-
-### Proposition 8.6 — Routed reads
-
-Reading all levels costs \(O((d_k^2+d_kd_v)\log N)\). Escalating only when confidence \(c_t(q)\) indicates ignorance gives expected \(O(d_k^2+d_kd_v)\) per token under light-tailed query-age distributions; a budget of \(R\) levels gives worst-case \(O(Rd^2)\).
-
----
-
-## 9. Adversarial Self-Assessment
-
-- **Adversarial recall:** Fails beyond budget, as all equal-state architectures must (Theorem 3.1). Mamba 4 meets the bound at optimal exchange rate and returns calibrated warning.
-- **Key geometry:** Near-dependent keys amplify error, but capped by \(\varepsilon\); degradation converges to pseudo-inverse averaging, not garbage; confidence flags it.
-- **Abelian ceiling:** One layer’s state is an order-weighted sum and cannot track non-commutative structure in one pass. This is the price of parallel training, shared by attention. Multi-hop reads add rounds.
-- **\(d^2\) state:** Quadratic per head, but smaller than attention cache beyond short context. Sketches interpolate to Hebbian corner with quantifiable error.
-- **Distributional fragility:** Optimality and calibration are in-model. Outside, algebraic guarantees remain; failure modes are ridge-regression failure modes.
-- **Queries outside hypothesis class:** Universal. Any fixed-size sufficient state declares a class. Mamba 4 makes the class auditable and extensible.
-- **No empirical claims:** Training dynamics, gate learning, and key geometry are open.
-
----
-
-## 10. Adjacent Possible
-
-1. **Conjugate family zoo:** Dirichlet–multinomial, Gamma–Poisson, Wishart, von Mises–Fisher heads inherit the scan, cascade, and mergeability.
-2. **Learned conjugacy:** Feature maps define sufficient statistics, so representation learning is hypothesis-class learning.
-3. **Memory as commodity:** Additive belief states can be sharded, pooled, shipped, and consolidated.
-4. **Theory targets:** Rounds conservation law; tight constants for addressing overhead; cascade Pareto-optimality; beyond squared loss.
-5. **Method:** Do not design the state. Declare what future computation must know; find the family with fixed-size sufficient statistics; let Bayes’ rule write the update. All learning belongs to the hypothesis class and the read.
-
----
-
-## 11. Conclusion
-
-The expressivity–efficiency frontier was three walls and one door. Exact memory costs linear state. Parallel training forbids nonlinear transitions. Fixed budgets cap exact capacity. But a state need not be a vector being mixed; it can be a belief being updated. Mamba 4 does this: state is minimal sufficient statistic; update is Bayes’ rule in natural coordinates, hence an associative scan; read is posterior predictive, hence interpolating, optimal, and self-aware; gates are drift and evidence precision; capacity meets its converse; decode is constant-time with a conditioning floor; the cascade gives logarithmic state with selectable exactness at every scale; and memories add.
-
-What remains beyond Mamba 4 remains beyond every architecture. What lies within now has theorems.
+Mamba 4 is a sequence-memory proposal that stores weighted regression
+sufficient statistics and reads an estimate of a latent operator. Its
+evidence updates admit an associative affine scan. Under a static Gaussian
+linear model, the ridge read is a posterior mean with an explicit predictive
+variance. Within independent-key capacity, an unregularized left-inverse read
+exactly recovers associations and their signed linear combinations. Positive
+ridge introduces bias, and fixed state cannot retain unbounded arbitrary
+associations.
+
+We audit the original monograph, formalize 61 algebraic and finite-dimensional
+results across 15 Lean 4 modules, and run a reproducible NumPy/SciPy study
+against softmax, Mamba-3 recurrence primitives and additional memories. The
+study supports signed-query retrieval and in-model calibration, and exposes
+failures under overloaded or ill-conditioned keys, model mismatch and cascade
+merges. Protected QR anchors, redundant cascade banks and an initialized
+cyclic anisotropic prior provide explicit repairs with different resource
+and statistical contracts. No trained-model, universal peer-dominance or TPU
+speed claim is made.
+
+## 1. Hypothesis and existing work
+
+A recurrent state can retain a useful inference problem rather than arbitrary
+history. If future queries ask about a latent linear map, its regression
+statistics are a natural state. This is a modeling choice, not a unique
+universal solution. The regression-memory viewpoint has precedents in
+[test-time regression](https://arxiv.org/html/2501.12352v3), retention choices in
+[Miras](https://arxiv.org/html/2504.13173v1), and curvature-aware memories in
+[Preconditioned DeltaNet](https://arxiv.org/html/2604.21100v1).
+
+The candidate contribution here is the audited combination of scan evidence,
+conditional uncertainty, protected exact anchors and a guaranteed cyclic floor.
+Practical value and publication novelty require later full-model evaluation.
+
+## 2. Capacity and useful scan realizations
+
+**Finite-bit recall (original 3.1).** A deterministic m-bit state reconstructing
+all Kb-bit assignments must satisfy m>=Kb: encoding is injective and
+2^(Kb)<=2^m. Lean checks this counting theorem. Randomized entropy extensions
+need explicit error/randomness assumptions and are not Lean-formalized here.
+Real-coordinate counts do not imply bit capacity without finite precision.
+
+**General recurrence hardness (3.2).** Growing-state recurrences can simulate
+circuit evaluation. This generic worst-case obstruction does not forbid
+special nonlinear scans or require every efficient monoid to have a small
+linear realization. Representation and combine costs matter. This is a
+written complexity argument, not a Lean result.
+
+**Value-linear converse (3.3).** For fixed keys, exact retrieval factoring the
+identity on K*d_v real value coordinates linearly through p_v state coordinates
+requires K*d_v<=p_v. Lean proves injectivity and the finrank inequality. Extra
+stores and nonlinear encoders change the hypothesis.
+
+**Invariant features (3.5).** A finite basis of a precomposition-invariant
+function space yields a linear feature recurrence; state separation makes
+the feature map injective on that domain. Lean constructs these matrices.
+No practically small embedding or unconditional converse is asserted.
+
+## 3. Conjugacy, scan and prior semantics
+
+An exponential-family conjugate log kernel is
+$\langle\chi,\eta\rangle-\nu A(\eta)$. Power-weighted updates give
+$$
+\chi_t=\lambda_t\chi_{t-1}+\beta_tT(o_t),\qquad
+\nu_t=\lambda_t\nu_{t-1}+\beta_t.
+$$
+An affine summary $(\Lambda,X)$ acts as $z\mapsto\Lambda z+X$. Later after
+earlier is
+$$
+(\Lambda_2,X_2)\circ(\Lambda_1,X_1)
+=(\Lambda_2\Lambda_1,X_2+\Lambda_2X_1).
+$$
+The identity is (1,0); combine is associative. Lean proves composition and
+sequential-fold equality (4.1). A work-efficient tree scan uses O(Np)
+coordinate work for p-coordinate summaries and O(log N) combine dependency
+depth. Discounted summaries preserve chronology and generally do not commute.
+
+The proposed layer (4.2) learns token/query maps and mixes head/hop reads.
+Protected anchors and order-sensitive auxiliary scans are separate modules;
+their selection, state, addressing and gradients count toward the model.
+Their learnability is not established by an encoded-operator test.
+
+Likelihood factorization supplies model-relative sufficiency (4.3).
+Minimality requires regularity and removal of redundant/ancillary components.
+Pitman–Koopman–Darmois (4.4) concerns regular IID/common-support models and
+regular statistics; it does not force a conjugate prior or characterize
+arbitrary history encodings. See the
+[primary lecture notes](https://www.stat.umn.edu/geyer/8054/notes/expfam.html).
+Neither sufficiency theorem is claimed as fully Lean-formalized.
+
+Zero-initialized undiscounted evidence adds (4.5). Initialized posterior
+parameters merge by adding and subtracting one shared prior. Other additive
+memories can merge too. Evidence precision is a likelihood parameter when
+the noise model says so (4.6). Forgetting is a generalized-posterior choice
+unless an explicit dynamic model specifies the prediction. Pure covariance
+inflation and fixed-prior discount are different operations.
+
+## 4. Gaussian regression and exact protected recall
+
+For keys $k_t\in\mathbb R^d$, values $v_t\in\mathbb R^p$, nonnegative beta
+and decay in [0,1], zero-initialized evidence is
+$$
+S_t=\lambda_tS_{t-1}+\beta_tk_tk_t^\top,\quad
+C_t=\lambda_tC_{t-1}+\beta_tv_tk_t^\top,\quad
+A_t=S_t+\varepsilon I,\quad M_t=C_tA_t^{-1}.
+$$
+For epsilon>0, M uniquely minimizes (5.1)
+$$
+J(M)=\sum_{i\le t}a_{i,t}\|Mk_i-v_i\|^2+\varepsilon\|M\|_F^2,
+\quad a_{i,t}=\beta_i\prod_{j=i+1}^t\lambda_j.
+$$
+PSD/ridge positivity, the normal equation and completing-square optimizer
+inequality are Lean-checked. Numerically solve A*y=q; do not form an inverse.
+
+With no discount, independent noise of precision beta and prior
+$W\sim\mathcal{MN}(0,I_p,\varepsilon^{-1}I_d)$ give posterior
+$\mathcal{MN}(M,I_p,A^{-1})$ by square completion. With fixed-prior forgetting,
+the precision update also contains $(1-\lambda)\varepsilon I$; pure scaling
+of the old factor omits it and changes the model.
+
+For n independent keys, n<=d, positive weights and Gram $G=K^\top K$, the
+original interpolation bound (5.2) is valid under its assumptions:
+$$
+\|Mk_i-v_i\|\le
+\frac{\varepsilon\sqrt{\beta_{\max}/\beta_i}\|V\|_2}
+{\beta_{\min}\lambda_{\min}(G)+\varepsilon}.
+$$
+The analysis derives and numerically checks the bound; it is a convergence
+statement, not exact finite-ridge recall. The protected exact branch factors
+$K=QR$ and reads $VR^{-1}Q^\top q$. Its left-inverse property gives exact
+real-arithmetic protected recall and signed linear-functional retrieval.
+Lean proves the general left-inverse and Gram contracts. QR avoids squaring
+the key condition number, but rank/conditioning limits remain. It stores
+additional geometry/IDs and has no calibrated posterior variance.
+
+The ridge read uses signed coefficients $a_i k_i^\top A^{-1}q$ (5.3).
+The posterior mean is squared-loss optimal under the specified static model
+(5.4); Lean proves the finite-distribution mean-risk identity, not continuous
+Gaussian integration. Zero-ridge generalized least squares is BLUE only for
+estimable queries and correct independent-noise weights. Finite ridge is
+biased, and repeated-write risk includes that bias.
+
+A normalized positive smoother stays in the value convex hull (5.5), limiting
+signed extrapolation. However, sharp softmax separates distinct unit keys
+even beyond d stored associations, and log-precision score offsets implement
+inverse-variance smoothing. Identical conflicting keys cannot have distinct
+deterministic answers. The original stronger smoothing-impossibility claims
+are withdrawn.
+
+## 5. Uncertainty, corrected risk and dependent reads
+
+Under the static Gaussian model, latent per-coordinate variance is
+$c(q)=q^\top A^{-1}q$; new observation variance is $c(q)+\beta_q^{-1}$ (5.6).
+Adding PSD evidence with the same prior lowers c, as Lean proves by a
+variational identity. For an unwritten direction, $c(q)=\|q\|^2/\varepsilon$.
+Conflicting labels can make c small while item recall fails. No universal
+out-of-model calibration or overload-warning claim survives.
+
+For fixed $W^*$, independent noise covariance $\tau_i^2I_p$ and arbitrary
+deterministic weights a_i, the corrected risk (5.7) is
+$$
+\mathbb E\|\hat Mq-W^*q\|^2=
+\varepsilon^2\|W^*A^{-1}q\|^2+
+p q^\top A^{-1}\left[\sum_i a_i^2\tau_i^2k_ik_i^\top\right]A^{-1}q.
+$$
+The bracket equals S only for specific weight/noise matches. With discounted
+true precisions it is $\sum_i\gamma_i^2\beta_i k_ik_i^\top$, not S.
+c does not include fixed-W bias or mismatch. Lean checks the centered-noise
+decomposition; the covariance substitution is derived and Monte Carlo checked.
+
+Orthonormal full-capacity graph codes give exact zero-ridge chase (5.8).
+If true intermediate queries have one-step error at most e_1 and the
+approximate map has Lipschitz L, Lean proves
+$e_H\le e_1\sum_{j=0}^{H-1}L^j$. Many-to-one graph codes have norm
+$\sqrt{\max\operatorname{indegree}}$, so unit output vectors do not imply
+L<=1. H reads incur H sequential read costs.
+
+Protected/unregularized recall reaches d independent associations and the
+value-linear capacity converse (5.9). Prior, geometry, factor caches and
+addresses remain extra resources. Real dimensions do not establish Shannon
+bit efficiency, and positive ridge is not exact.
+
+## 6. Work, floor, gradients and numerical precision
+
+The matrix scan element is $(\lambda,\beta kk^\top,\beta vk^\top)$ (6.1).
+Prefix evidence plus factorization at chunk boundaries and compatible rank
+updates inside chunks costs (6.2)
+$$O\big(N(d^2+pd)+(N/c)d^3\big).$$
+For c>=d this is quadratic work per token, including boundary factors, for
+no discount or the cyclic-prior model. Depth includes chunk, scan and
+factor/solve depth; all-prefix factor storage is O(Nd squared) without
+recomputation. Arbitrary fixed isotropic-floor forgetting needs a separate
+algorithm before the same cheap bound can be claimed.
+
+No-discount rank-one Cholesky decode is quadratic (6.3). The repaired cyclic
+model uses two rank-one updates. In contrast, forgetting with a fixed
+isotropic floor has a full-rank injection; d standard rank-one injections
+cost cubic work. Omitting them is not an implementation of the same posterior.
+
+The replacement floor lemma (6.4) assumes constant lambda in (0,1]. Initialize
+$F_0=\varepsilon\operatorname{diag}(1,\lambda^{-1},\ldots,\lambda^{-(d-1)})$;
+after scaling, inject $a=\varepsilon(\lambda^{-(d-1)}-\lambda)$ into the
+rotating coordinate. Then every diagonal lies between epsilon and
+$\varepsilon\lambda^{-(d-1)}$ from initialization. Lean proves the floor,
+ceiling and cycle identities; factors match dense solves numerically. This is
+an anisotropic prior with explicit gate/width constraints. The original
+“few percent” phantom condition is false. Variable gates need a new schedule
+or a documented refactor fallback.
+
+The state adjoint is $g_t=\ell_t+\lambda_{t+1}g_{t+1}$ (6.5).
+For y=A inverse q and upstream g, read derivatives are
+$$
+\partial_C L=g y^\top,\quad
+\partial_S L=-\operatorname{sym}[(A^{-1}C^\top g)y^\top],\quad
+\partial_q L=A^{-1}C^\top g.
+$$
+All terminal-stream k/v/beta/lambda/q derivatives are finite-difference checked.
+Cyclic-floor parameter and discrete anchor-selection gradients are later work.
+
+Normalized keys, bounded beta, zero initialization and decay below one give
+$\|S_t\|_2\le\beta_{\max}/(1-\bar\lambda)$ and the associated fixed-ridge
+condition bound (6.6). Lean checks a scalar evidence invariant and the
+decay-product bound. Only the state Jacobian is nonexpansive; read/gate
+derivatives can grow as inverse epsilon. Float32 factor/read conformance and
+conditioning tests remain necessary.
+
+## 7. Resource and hardware claims
+
+GEMMs, rank updates and triangular solves have different hardware behavior
+(7.1). Arithmetic intensity does not establish an end-to-end compute-bound
+training kernel. TPU fusion, sharding, precision and roofline are later tests.
+
+Ideal packed evidence/factor state uses d(d+1)/2+pd words per head (7.2).
+Keeping both S and a factor, metadata and temporary buffers increases this.
+For d=p=64, 16 heads and 48 layers, 4,743,168 packed words occupy 18.10 MiB
+at float32 or 9.05 MiB at 16-bit precision. Word counts do not establish latency.
+
+| Operator | Decode work | State | Contract |
+|---|---|---|---|
+| Full-cache softmax | O(K(d+p)) | O(K(d+p)) | Sharp distinct-key lookup; larger cache at increasing K |
+| Hebbian/Mamba-3 primitive | O(dp), rank-dependent MIMO | O(dp) plus metadata | Encoded recurrence, not trained performance |
+| Gaussian ridge | O(d squared+pd) for compatible factor update | O(d squared+pd) | Conditional calibration; positive-ridge bias |
+| Protected cached QR | O(d squared+pd) per bank | O(d squared+pd) plus IDs | Exact retained independent anchors |
+| Repaired cascade | O(R(d squared+pd)) for R queried banks | O((d squared+pd) log m) plus IDs | Retained capacity with counted selection/routing |
+
+## 8. Protected redundant cascade
+
+Keep one or two banks at each occupied scale (8.1). On the third, merge the
+two oldest. Each bank has <=d independent protected anchors with cached QR
+and a separate additive background state. Reselect <=d anchors on merge;
+evicted items lose exact status while their background evidence remains.
+Background writes cannot contaminate exact anchor reads.
+
+There are fewer than m merges over m base blocks (8.2). Background addition
+is quadratic, but protected selection/refactor can cost O(d cubed+pd squared)
+per merge. Base span c0>=d keeps amortized maintenance within quadratic work
+per token, not the old O(d) claim.
+
+For counts b_l in {1,2} at L contiguous occupied scales, Lean checks (8.3)
+$$
+2^L-1\le m=\sum_l b_l2^l\le2(2^L-1),\qquad L\le\sum_l b_l\le2L.
+$$
+Full-rank eligible blocks supply d retained anchors per bank, giving
+Theta(d log m) retained exact items. The old one-bank binary counter has
+popcount(m) banks and only one at powers of two; child unions also overload d.
+The repair changes retention, storage and maintenance contracts explicitly.
+
+The universal age-only power-law theorem is withdrawn (8.4). Risk depends on
+rank, noise, drift, selection and query. Aligned undiscounted backgrounds add
+(8.5); protected selection is not generally associative. Dense message sizes,
+block boundaries and IDs count. Reading all banks has a logarithmic factor
+(8.6); constant expected routed cost requires a validated query/routing model.
+c alone cannot certify reliable routing under conflicts or overload.
+
+## 9. Statistical findings and limitations
+
+The [full report](analysis/results/REPORT.md) retains the frozen protocol,
+raw arrays, source hashes, every peer result, intervals and multiplicity
+accounting. Development and held-out seeds are separate. Whole trials and
+trajectories are sampling units.
+
+Within independent-key capacity, protected QR reaches numerical exactness.
+Signed-query ridge MSE is about 7.15e-15 for random keys and 4.31e-13 for
+clustered keys, versus softmax 6.29 and 6.65. Full-cache softmax retains distinct
+arbitrary values beyond d; fixed-state ridge incurs expected compression loss.
+Static in-model latent 95% coverage is 95.24%, versus 17.03% under prior
+mismatch and 0% for duplicate-conflict recall. The corrected weighted-risk
+identity agrees with Monte Carlo.
+
+After 256 eight-item blocks, the old binary cascade has one bank and all-item
+MSE about 0.972. The repair retains 72 exact anchors in nine banks at eight
+levels, with error around 1.43e-28; 1,976 items lose exact status. This is not
+all-history preservation or a learned-routing result.
+
+Mamba-3 primitives follow its [paper](https://arxiv.org/html/2603.15569v1) and
+[pinned step kernel](https://github.com/state-spaces/mamba/blob/e9594ce1c732d97440f0332fdc43170a2294dbfa/mamba_ssm/ops/triton/mamba3/mamba3_siso_step.py).
+Nonzero-phase, variable-gate, previous-input and rank>1 checks establish
+primitive conformance. The tied encoded-operator comparisons do not include
+full learned models and cannot rank language-model perplexity or TPU speed.
+
+## 10. Remaining dependencies
+
+Later phases implement full matched models and fused kernels on v4-32,
+the requested 60M/1B-token one-seed screen, then—after its measured win
+gate—a budgeted 125M selection and 3B-token three-seed comparison.
+Feature/gate learning, routing/selection, variable-floor gradients, numerical
+precision and actual hardware efficiency remain explicit requirements.
+
+Other conjugate families need their own likelihood, calibration, capacity and
+resource proofs. An affine auxiliary head can distinguish AB from BA when
+undiscounted token-local Gaussian evidence loses order, but this does not prove
+general fixed-state reasoning. Universal growing-cache dominance is disproved.
+
+The [complete claim ledger](docs/claim-ledger.md),
+[deep derivations](docs/mathematical-analysis.md),
+[Lean project](formal/Mamba4.lean), and [phases](phases/README.md) preserve the
+original scope and make every corrected contract and remaining gate reviewable.

@@ -1,0 +1,11 @@
+.lake/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+analysis/runs/
+*.olean
+*.ilean
+*.trace
+lake-manifest.json.tmp

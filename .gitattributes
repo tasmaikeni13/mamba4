@@ -1,0 +1,3 @@
+# Preserve the original manuscript and standard CSV CRLF bytes verbatim.
+docs/mamba4-original.md -text whitespace=cr-at-eol
+analysis/results/*.csv -text whitespace=cr-at-eol

@@ -1,0 +1,42 @@
+{
+  "authorized_scope": [
+    1,
+    2
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "status": "completed",
+      "meaning": "Mathematical/formal investigation",
+      "evidence": "analysis/results/formal-audit.json"
+    },
+    {
+      "id": 2,
+      "status": "completed",
+      "meaning": "Statistical/Monte Carlo investigation",
+      "evidence": "analysis/results/summary.json",
+      "universal_dominance": "falsified"
+    },
+    {
+      "id": 3,
+      "status": "planned"
+    },
+    {
+      "id": 4,
+      "status": "planned"
+    },
+    {
+      "id": 5,
+      "status": "planned"
+    },
+    {
+      "id": 6,
+      "status": "planned"
+    },
+    {
+      "id": 7,
+      "status": "planned"
+    }
+  ],
+  "promotion": "No trained performance or TPU speed claim. Review corrected methods before authorizing phase 03."
+}
