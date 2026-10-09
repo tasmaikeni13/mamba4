@@ -1,0 +1,216 @@
+{
+  "accounting": {
+    "final_step_targets": 51712,
+    "logged_steps": 7630,
+    "replayed_log_steps_after_resume": 0,
+    "unique_steps": 7630
+  },
+  "all_four_workers_completed": true,
+  "architecture": "mamba4",
+  "embedding_parameters": 25731584,
+  "final_checkpoint_sha256": "69ff12490fc57dc14c52334cd13438ca093e592c2f246fa3e48d9e815415bf72",
+  "fingerprint": "ca91d047a32b39ae22a0419a5edcbd554a33305085c0721abbffe0a206f95de7",
+  "heldout": {
+    "nll": 3.4726841002702713,
+    "perplexity": 32.22311655035877,
+    "targets": 2097152
+  },
+  "initial_nll": 10.928738713264465,
+  "non_embedding_parameters": 34161632,
+  "optimizer_steps": 7630,
+  "recall": {
+    "groups": {
+      "length-1024-far": {
+        "accuracy": 0.42857142857142855,
+        "accuracy_wilson_95": [
+          0.2446996892537596,
+          0.6345344563069328
+        ],
+        "gold_candidate_nll": 2.03330303078103,
+        "gold_candidate_nll_bootstrap_95": [
+          1.6710268152572687,
+          2.4111380581873707
+        ],
+        "gold_full_vocab_nll": 6.6021913800920755,
+        "gold_full_vocab_nll_bootstrap_95": [
+          6.202358705656869,
+          7.02501040753864
+        ],
+        "prompts": 21
+      },
+      "length-1024-near": {
+        "accuracy": 0.42857142857142855,
+        "accuracy_wilson_95": [
+          0.2446996892537596,
+          0.6345344563069328
+        ],
+        "gold_candidate_nll": 1.3823917200082734,
+        "gold_candidate_nll_bootstrap_95": [
+          1.1318632658438845,
+          1.6416066445168063
+        ],
+        "gold_full_vocab_nll": 4.263687735512143,
+        "gold_full_vocab_nll_bootstrap_95": [
+          3.943797239803133,
+          4.589265636886869
+        ],
+        "prompts": 21
+      },
+      "length-128-far": {
+        "accuracy": 0.2727272727272727,
+        "accuracy_wilson_95": [
+          0.13150760287989469,
+          0.4815173401240238
+        ],
+        "gold_candidate_nll": 1.8140247251232298,
+        "gold_candidate_nll_bootstrap_95": [
+          1.5184172105327995,
+          2.1318314307451214
+        ],
+        "gold_full_vocab_nll": 4.932869900356639,
+        "gold_full_vocab_nll_bootstrap_95": [
+          4.643146497553046,
+          5.241577166318893
+        ],
+        "prompts": 22
+      },
+      "length-128-near": {
+        "accuracy": 0.4090909090909091,
+        "accuracy_wilson_95": [
+          0.2325581619647187,
+          0.6126518152368488
+        ],
+        "gold_candidate_nll": 1.7156504696131165,
+        "gold_candidate_nll_bootstrap_95": [
+          1.4489900400492184,
+          1.9940386413459317
+        ],
+        "gold_full_vocab_nll": 4.367540294473821,
+        "gold_full_vocab_nll_bootstrap_95": [
+          4.060469241033901,
+          4.686848409338431
+        ],
+        "prompts": 22
+      },
+      "length-512-far": {
+        "accuracy": 0.14285714285714285,
+        "accuracy_wilson_95": [
+          0.04981012499725268,
+          0.34636060280620945
+        ],
+        "gold_candidate_nll": 2.0286974798096673,
+        "gold_candidate_nll_bootstrap_95": [
+          1.7574830842463076,
+          2.3141811598217834
+        ],
+        "gold_full_vocab_nll": 6.232421080271403,
+        "gold_full_vocab_nll_bootstrap_95": [
+          5.94863603682745,
+          6.537382857572465
+        ],
+        "prompts": 21
+      },
+      "length-512-near": {
+        "accuracy": 0.42857142857142855,
+        "accuracy_wilson_95": [
+          0.2446996892537596,
+          0.6345344563069328
+        ],
+        "gold_candidate_nll": 1.4105859283253441,
+        "gold_candidate_nll_bootstrap_95": [
+          1.1253308562254944,
+          1.700378734082652
+        ],
+        "gold_full_vocab_nll": 3.990654604775565,
+        "gold_full_vocab_nll_bootstrap_95": [
+          3.577729166689373,
+          4.3934615688664564
+        ],
+        "prompts": 21
+      }
+    },
+    "overall": {
+      "accuracy": 0.3515625,
+      "accuracy_wilson_95": [
+        0.2742728728140724,
+        0.43750216107962536
+      ],
+      "gold_candidate_nll": 1.7313077782938298,
+      "gold_candidate_nll_bootstrap_95": [
+        1.599161595447492,
+        1.8624421515472158
+      ],
+      "gold_full_vocab_nll": 5.058414649218321,
+      "gold_full_vocab_nll_bootstrap_95": [
+        4.833292911574245,
+        5.279695846932008
+      ],
+      "prompts": 128
+    },
+    "protocol": {
+      "array_sha256": "2293d01b59723109155c60e3f12ec463e5e67339b9013970af7bd5daefbd0117",
+      "candidate_count": 8,
+      "chance_accuracy": 0.125,
+      "effective_length_range": [
+        128,
+        1024
+      ],
+      "prompt_count": 128,
+      "protocol": "trained-textual-recall-v1",
+      "sampling_unit": "one independently generated key/value prompt",
+      "seed": 20261008,
+      "selection": "frozen diagnostic; no architecture or optimizer selection",
+      "sequence_length": 1024,
+      "tokenizer_sha256": "8414cab924d8b9b33013f0d221c5862f365ee9be39c5c2bfae8a5a9e970478a6",
+      "uncertainty": "prompt variability only; one training seed"
+    }
+  },
+  "seed": 42,
+  "sources": {
+    "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+    "lm/config.py": "fd0cf1ac1def243248feb0960aba38586e59a6ab29db71c20e81134774a0cffe",
+    "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+    "lm/configs/mamba4-60m-v2.json": "fe9607bf281329a012e9aa6fba7e716209b55b06759af16e9db6d48d1f4cdcd8",
+    "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+    "lm/configs/screen-protocol-v2.json": "9f0bb4fadf62e1bac30eca02b0bcb3c24c6999d2bc22ffcd7ba595535647362f",
+    "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+    "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+    "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+    "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+    "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+    "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+    "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+    "lm/kernels/mamba4.py": "57fc0ee3945065c211eec0d363787b5769529fa871a73a2368a0bd2f4463057d",
+    "lm/kernels/mamba4_reference.py": "40db3fab6bad82ea3e1e10e616c7526236a0bb4b0dd559b5bef0a56de27e64aa",
+    "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+    "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+    "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+    "lm/models/mamba4.py": "9e673a7136a6c0864dec55758af96a96f15af69ca48b3aadec84657de904854a",
+    "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+    "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+    "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+    "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+    "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+    "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+    "lm/tests/test_mamba4_selective.py": "6412f66a1bbc9ed44e91a1b84756fdcd6f946884e719f612e50e46708424afd5",
+    "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+    "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+    "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+    "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+    "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+    "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+    "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+    "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+    "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+    "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+    "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+    "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+    "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+    "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+    "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+    "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+  },
+  "steady_tokens_per_second": 93390.85140109557,
+  "total_parameters": 59893216,
+  "training_targets": 1000000000
+}

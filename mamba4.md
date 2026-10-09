@@ -1,6 +1,6 @@
 # Mamba 4: conjugate sequence memory with audited recall and uncertainty
 
-*Revised theoretical paper, 8 October 2026. Phases 01–02 investigation.*
+*Revised paper, 9 October 2026. Phases 01–04: theory, formal and statistical audit, and the 60M single-seed screen.*
 
 ## Abstract
 
@@ -13,15 +13,26 @@ exactly recovers associations and their signed linear combinations. Positive
 ridge introduces bias, and fixed state cannot retain unbounded arbitrary
 associations.
 
-We audit the original monograph, formalize 61 algebraic and finite-dimensional
-results across 15 Lean 4 modules, and run a reproducible NumPy/SciPy study
+We audit the original monograph, formalize 70 algebraic and finite-dimensional
+results across 16 Lean 4 modules, and run a reproducible NumPy/SciPy study
 against softmax, Mamba-3 recurrence primitives and additional memories. The
 study supports signed-query retrieval and in-model calibration, and exposes
 failures under overloaded or ill-conditioned keys, model mismatch and cascade
 merges. Protected QR anchors, redundant cascade banks and an initialized
 cyclic anisotropic prior provide explicit repairs with different resource
-and statistical contracts. No trained-model, universal peer-dominance or TPU
-speed claim is made.
+and statistical contracts.
+
+A 60M-parameter, 1B-token, single-seed language-model screen against a
+Transformer and official Mamba-3 is then reported in full (§12). The first
+realization, with constant cyclic gates, trailed both peers and was 33 times
+slower than Mamba-3; the interrupted run is retained. Restoring the original
+token-dependent gates with an undiscounted floor, exact lane-major solves and
+a composition with Mamba-3 layers gives the second realization. On the frozen
+held-out split it reaches NLL 3.4727, against 3.4758 for Mamba-3 and 3.5352
+for the Transformer, a narrow but paired-significant win over evaluation
+sequences that a fresh holdout confirms; it also answers markedly more
+synthetic recall prompts. No universal peer-dominance claim is made, and one
+training seed cannot establish robustness.
 
 ## 1. Hypothesis and existing work
 
@@ -31,11 +42,22 @@ statistics are a natural state. This is a modeling choice, not a unique
 universal solution. The regression-memory viewpoint has precedents in
 [test-time regression](https://arxiv.org/html/2501.12352v3), retention choices in
 [Miras](https://arxiv.org/html/2504.13173v1), and curvature-aware memories in
-[Preconditioned DeltaNet](https://arxiv.org/html/2604.21100v1).
+[Preconditioned DeltaNet](https://arxiv.org/html/2604.21100v1). The closest
+trained precedent is the [MesaNet](https://arxiv.org/abs/2506.05233) Mesa
+layer: gated evidence $H_t+\Lambda$ with a fixed regularizer and a per-token
+optimal ridge read, solved by up to 30 conjugate-gradient steps at key width
+128. At 145M parameters it was slightly behind a Transformer; at 400M–1B it
+matched or slightly beat one, and its hybrid with a recurrent layer was the
+strongest recurrent model reported there. [Mamba-3](https://arxiv.org/abs/2603.15569)
+is the selective state-space peer used here.
 
-The candidate contribution here is the audited combination of scan evidence,
-conditional uncertainty, protected exact anchors and a guaranteed cyclic floor.
-Practical value and publication novelty require later full-model evaluation.
+The candidate contribution is the audited combination of scan evidence,
+conditional uncertainty, protected exact anchors and explicit floors (the
+cyclic constant-gate prior and the undiscounted arbitrary-gate floor), and,
+for the trained screen, exact factorized reads with a Bayesian variance gate,
+composed with Mamba-3 layers. Publication novelty against MesaNet-style layers
+rests on those audited contracts and measured comparisons, not on the read
+itself.
 
 ## 2. Capacity and useful scan realizations
 
@@ -212,6 +234,19 @@ an anisotropic prior with explicit gate/width constraints. The original
 “few percent” phantom condition is false. Variable gates need a new schedule
 or a documented refactor fallback.
 
+The fallback keeps the prior undiscounted: $A_t=S_t+\operatorname{diag}(f)$ with
+$S_t=\lambda_tS_{t-1}+\beta_tk_tk_t^\top$. For **every** sequence of gates
+$\lambda_t\ge0$ and precisions $\beta_t\ge0$, $S_t$ is PSD, so
+$x^\top A_tx\ge\min_jf_j\,\|x\|^2$ and the latent variance obeys
+$0\le q^\top A_t^{-1}q\le\|q\|^2/\min_jf_j$. The exact solve minimizes the
+discounted weighted ridge objective with penalty $\sum_jf_jM_j^2$ per value
+coordinate. `Selective.lean` proves these statements and the equality of the
+chunked affine scan with the sequential recurrence. The price is an exact
+$O(d^3+pd)$ refactor per decoded token instead of two rank-one updates. The
+trained screen (§12) measures the realization that pays it; that realization
+also changes encoders, width and composition, so the screen does not isolate
+selectivity alone.
+
 The state adjoint is $g_t=\ell_t+\lambda_{t+1}g_{t+1}$ (6.5).
 For y=A inverse q and upstream g, read derivatives are
 $$
@@ -233,7 +268,8 @@ conditioning tests remain necessary.
 
 GEMMs, rank updates and triangular solves have different hardware behavior
 (7.1). Arithmetic intensity does not establish an end-to-end compute-bound
-training kernel. TPU fusion, sharding, precision and roofline are later tests.
+training kernel. Measured TPU costs of the trained realizations appear in §12
+and the implementation contract; no roofline bound is claimed.
 
 Ideal packed evidence/factor state uses d(d+1)/2+pd words per head (7.2).
 Keeping both S and a factor, metadata and temporary buffers increases this.
@@ -245,6 +281,7 @@ at float32 or 9.05 MiB at 16-bit precision. Word counts do not establish latency
 | Full-cache softmax | O(K(d+p)) | O(K(d+p)) | Sharp distinct-key lookup; larger cache at increasing K |
 | Hebbian/Mamba-3 primitive | O(dp), rank-dependent MIMO | O(dp) plus metadata | Encoded recurrence, not trained performance |
 | Gaussian ridge | O(d squared+pd) for compatible factor update | O(d squared+pd) | Conditional calibration; positive-ridge bias |
+| Gaussian ridge, any gates, fixed floor | O(d cubed+pd) exact refactor | O(d squared+pd) | Floor for every gate sequence; conditional calibration; positive-ridge bias |
 | Protected cached QR | O(d squared+pd) per bank | O(d squared+pd) plus IDs | Exact retained independent anchors |
 | Repaired cascade | O(R(d squared+pd)) for R queried banks | O((d squared+pd) log m) plus IDs | Retained capacity with counted selection/routing |
 
@@ -305,11 +342,12 @@ full learned models and cannot rank language-model perplexity or TPU speed.
 
 ## 10. Remaining dependencies
 
-Later phases implement full matched models and fused kernels on v4-32,
-the requested 60M/1B-token one-seed screen, then—after its measured win
-gate—a budgeted 125M selection and 3B-token three-seed comparison.
-Feature/gate learning, routing/selection, variable-floor gradients, numerical
-precision and actual hardware efficiency remain explicit requirements.
+Phases 03–04 implemented matched models and fused kernels on v4-32 and ran
+the requested 60M/1B-token one-seed screen (§11–§12). A budgeted 125M
+selection and 3B-token three-seed comparison remain plans; they need the
+user's authorization. Still open: protected banks and routing inside the
+selective composition, a profiled breakdown of hardware cost, and
+training-seed variability.
 
 Other conjugate families need their own likelihood, calibration, capacity and
 resource proofs. An affine auxiliary head can distinguish AB from BA when
@@ -321,24 +359,85 @@ The [complete claim ledger](docs/claim-ledger.md),
 [Lean project](formal/Mamba4.lean), and [phases](phases/README.md) preserve the
 original scope and make every corrected contract and remaining gate reviewable.
 
-## 11. Concrete language-model realization
+## 11. Concrete language-model realizations
 
-The phase-03 candidate now implements learned normalized Gaussian keys and
+**v1 (frozen, `memory_mixer="v1"`).** Learned normalized Gaussian keys and
 queries, token precision, differentiable per-head epsilon and constant cyclic
 gates, protected redundant QR banks with counted all-bank routing, an
-order-sensitive vector scan, learned output gates and feed-forward layers.
-Fixed isotropic-floor variable-gate mode is a distinct refactor fallback.
-Operator guarantees retain their existing hypotheses; learned representations
-and geometry routing do not acquire exact-recall or calibration guarantees.
+order-sensitive vector scan, learned output gates and feed-forward layers. Its
+prefill builds chunked affine evidence prefixes and factors every token's
+precision, O(N d cubed); cached cyclic decode uses two quadratic rank-one
+updates; protected decode pays all-bank reads and boundary reselection.
 
-The first fused prefill path uses chunked affine evidence prefixes followed
-by a batched Cholesky factorization at every token. Its factor work is
-O(N d cubed), so the compatible rank-update training bound in §6.2 is not
-claimed for this implementation. Cached cyclic Gaussian decode uses two
-quadratic rank-one updates; the full protected decode also pays all-bank
-reads and boundary reselection. The neural composition keeps a global
-discounted Gaussian background rather than optional additive backgrounds in
-each protected bank. The [implementation contract](docs/mamba4-implementation.md)
-records actual state, gradients, routing, parameter accounting and conformance
-scope. Full TPU performance and the requested trained screen require measured
-evidence and remain separate from these mathematical contracts.
+**v2 (selected, `memory_mixer="selective"`).** Definition 5.1 with token drift
+gates $\lambda_t=\exp(-e^{a}\,\mathrm{softplus}(\cdot))$, evidence precisions
+$\beta_t=\sigma(\cdot)$ and the undiscounted diagonal floor of §6, initialized
+to 1 with minimum 0.25. Values, keys and queries pass through a causal
+width-4 convolution; keys and queries are unit-normalized. Every token reads
+$C_ty_t$ and $q_t^\top y_t$ with $A_ty_t=q_t$ solved exactly: chunked evidence
+products, a Cholesky factor with the batch on the TPU lane axis, and a reverse
+pass $z=A^{-1}g$, $\partial q=z$, $\partial A=-\operatorname{sym}(zy^\top)$ that reuses
+the factor. The variance drives a learned confidence gate; a skip term and
+the order-sensitive scan are added before a gated output projection. The
+language model interleaves four such layers (key dimension 64, eight heads of
+width 128) with fifteen unmodified official Mamba-3 SISO layers. Protected
+banks are not part of v2; their operator contract is unchanged, and no
+trained protected-bank claim is made. The [implementation contract](docs/mamba4-implementation.md)
+records state, gradients, costs, parameters and conformance scope.
+
+Operator guarantees keep their hypotheses: learned encoders, forgetting and
+the neural output mixture do not inherit exact-recall or calibration
+guarantees, and the hybrid's measured advantage is a property of this
+composition, not of the conjugate layer alone.
+
+## 12. Trained 60M screen
+
+The authorized screen trains each model once (seed 42) on exactly 1B
+FineWeb-Edu targets with a pinned GPT2 tokenizer, batch 128 × 1,024,
+AdamW and a 7,630-step cosine schedule on all sixteen v4 chips. Total and
+non-embedding parameters match within 1%. The primary metric is held-out NLL
+on 2,097,152 targets from whole held-out documents.
+
+The Transformer (3.5352) and Mamba-3 (3.4758) runs completed. The v1 run
+trailed both at matched steps (4.6073 at step 1,000 against 4.3596 and
+4.2364), took 25.5 s per step and was stopped by Cloud TPU maintenance after
+1,026 steps. It was not resumed; its final loss is unknown. Development
+pilots of the first 1,000 steps compared candidate v2 compositions on unseen
+training batches only (iteration H). Replacing many Mamba-3 layers with
+narrow memory layers hurt; spending five Mamba-3 layers' budget on four wide
+memory layers helped.
+
+**Result.** The selected v2 model (fifteen Mamba-3 and four memory layers,
+59,893,216 parameters) completed exactly 1B targets on all sixteen chips
+without interruption:
+
+| Model | Held-out NLL | Fresh-holdout NLL | Recall (of 128) | Train tokens/s |
+|---|---:|---:|---:|---:|
+| Transformer | 3.5352 | 3.4869 | 18 | 1,379,725 |
+| Mamba-3 | 3.4758 | 3.4266 | 30 | 152,335 |
+| Mamba 4 v2 | 3.4727 | 3.4223 | 45 | 93,391 |
+
+The declared strict screen win holds. Paired per-sequence differences
+(Mamba 4 minus peer over 2,048 sequences of 1,024 targets; circular block
+bootstrap with blocks of eight sequences) are −0.0031 nats against Mamba-3
+(95% interval −0.0044 to −0.0017) and −0.0626 against the Transformer
+(−0.0645 to −0.0606) on the held-out split. On the fresh confirmatory
+holdout they are −0.0043 (−0.0056 to −0.0031) and −0.0646 (−0.0665 to
+−0.0627). These intervals describe evaluation-sample variation only. With one
+training seed they do not estimate seed variance, so the 125M three-seed
+study remains the test of robustness.
+
+The margin over Mamba-3 is small and narrowed during training: −0.050 at
+step 1,000, −0.012 at 3,000, −0.004 at 6,000 and −0.003 at the end; the
+paired training-loss gap shows the same shape. Whether it persists at scale
+is open. Recall is a fixed diagnostic, not a selection target. Mamba 4 v2
+answered 45 of 128 prompts (Wilson 95% interval 0.274–0.438), against 30
+(0.169–0.315) for Mamba-3 and 18 (0.091–0.211) for the Transformer; exact
+paired McNemar tests give p = 0.032 against Mamba-3 (29 versus 14
+discordant prompts) and p < 0.0001 against the Transformer (27 versus 0).
+The result belongs to the hybrid composition. Source-matched benchmarks put
+its training, prefill and cached-decode throughput at 0.62×, 0.27× and 0.60×
+Mamba-3's (92,624, 345,127 and 16,014 tokens/s on 16 chips), with a
+constant-size cache of 58 MiB per device. Every learned precision respected
+its floor at every scheduled diagnostic
+(`lm/results/screen-60m-v2/audit.json`, `REPORT.md`, `learning-curves.png`).

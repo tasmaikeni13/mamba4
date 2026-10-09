@@ -32,3 +32,16 @@ Current evidence: `lm/results/parameter-ledger.json`, all four
 tests, and versioned TPU kernel conformance/benchmark reports once executed.
 Current authorization covers phases 03–04 only; no 125M scaling follows
 automatically.
+
+Screen-60m-v2 adds the selective fixed-floor kernel
+(`selective_gaussian_memory`, `spd_solve` with loop/blocked/unrolled
+schedules, `order_memory_chunked`) and a hybrid composition that reuses the
+official Mamba-3 block and its pinned step recurrence. CPU conformance covers
+sequential dense references, all-input gradients, schedules, decode,
+continuation, rotary and wide-head variants. TPU evidence covers the dry run
+of every program and per-block timings
+(`lm/results/dry-run-v2/`, `lm/results/bench-blocks-dev/`), plus the full run
+itself. Two engineering failures are retained in the iteration log: compile
+time of a Python-unrolled factor, and launch-identity mismatches in isolated
+multi-host microbenchmarks.
+

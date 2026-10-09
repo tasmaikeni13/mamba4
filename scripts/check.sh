@@ -8,9 +8,10 @@ export JAX_PLATFORMS=cpu
 uv sync --frozen
 lake build
 uv run python scripts/audit_formal.py
-uv run ruff check analysis lm scripts
-uv run ruff format --check analysis lm scripts
+uv run ruff check analysis lm scripts validation
+uv run ruff format --check analysis lm scripts validation
 uv run pytest -q
+uv run pytest -q validation/tests
 if [[ "${1:-}" == "--full" ]]; then
     uv run python -m analysis.run
     uv run python scripts/report.py

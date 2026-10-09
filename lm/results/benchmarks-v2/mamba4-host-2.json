@@ -1,0 +1,3055 @@
+{
+  "architecture": "mamba4",
+  "cached_decode": {
+    "cache_bytes_per_device": 61091840,
+    "cache_capacity_tokens": 1033,
+    "compile_seconds": 57.44968703300037,
+    "compiler": {
+      "cost_analysis": {
+        "bytes accessed": 1460136960.0,
+        "bytes accessed0{}": 760945152.0,
+        "bytes accessed10{}": 360448.0,
+        "bytes accessed11{}": 348160.0,
+        "bytes accessed12{}": 288768.0,
+        "bytes accessed13{}": 212992.0,
+        "bytes accessed14{}": 350208.0,
+        "bytes accessed15{}": 188416.0,
+        "bytes accessed16{}": 65536.0,
+        "bytes accessed17{}": 49152.0,
+        "bytes accessed18{}": 32768.0,
+        "bytes accessed19{}": 32768.0,
+        "bytes accessed1{}": 74096128.0,
+        "bytes accessed20{}": 28672.0,
+        "bytes accessed21{}": 28672.0,
+        "bytes accessed22{}": 22528.0,
+        "bytes accessed23{}": 22528.0,
+        "bytes accessed24{}": 20480.0,
+        "bytes accessed25{}": 20480.0,
+        "bytes accessed26{}": 20480.0,
+        "bytes accessed27{}": 16384.0,
+        "bytes accessed28{}": 16384.0,
+        "bytes accessed29{}": 10240.0,
+        "bytes accessed2{}": 11073024.0,
+        "bytes accessed30{}": 10240.0,
+        "bytes accessed31{}": 10240.0,
+        "bytes accessed32{}": 10240.0,
+        "bytes accessed33{}": 10240.0,
+        "bytes accessed34{}": 10240.0,
+        "bytes accessed35{}": 6144.0,
+        "bytes accessed36{}": 6144.0,
+        "bytes accessed3{}": 11725824.0,
+        "bytes accessed4{}": 7860224.0,
+        "bytes accessed5{}": 2331136.0,
+        "bytes accessed6{}": 2603008.0,
+        "bytes accessed7{}": 2103296.0,
+        "bytes accessed8{}": 1767424.0,
+        "bytes accessed9{}": 243712.0,
+        "bytes accessedout{0}": 67873792.0,
+        "bytes accessedout{10}": 49152.0,
+        "bytes accessedout{11}": 49152.0,
+        "bytes accessedout{12}": 34816.0,
+        "bytes accessedout{13}": 34816.0,
+        "bytes accessedout{14}": 32768.0,
+        "bytes accessedout{15}": 16384.0,
+        "bytes accessedout{1}": 6448640.0,
+        "bytes accessedout{2}": 1720320.0,
+        "bytes accessedout{3}": 1263616.0,
+        "bytes accessedout{4}": 581632.0,
+        "bytes accessedout{5}": 387072.0,
+        "bytes accessedout{6}": 241664.0,
+        "bytes accessedout{7}": 96256.0,
+        "bytes accessedout{8}": 79872.0,
+        "bytes accessedout{9}": 63488.0,
+        "bytes accessedout{}": 598055424.0,
+        "flops": 1178111872.0,
+        "optimal_seconds": 0.0014861793024465442,
+        "transcendentals": 657872.0,
+        "utilization0{}": 8313.5205078125,
+        "utilization10{}": 229.0,
+        "utilization11{}": 213.0,
+        "utilization12{}": 177.0,
+        "utilization13{}": 173.0,
+        "utilization14{}": 157.0,
+        "utilization15{}": 149.0,
+        "utilization16{}": 101.0,
+        "utilization17{}": 97.0,
+        "utilization18{}": 65.0,
+        "utilization19{}": 65.0,
+        "utilization1{}": 2990.0,
+        "utilization20{}": 57.0,
+        "utilization21{}": 57.0,
+        "utilization22{}": 45.0,
+        "utilization23{}": 45.0,
+        "utilization24{}": 41.0,
+        "utilization25{}": 41.0,
+        "utilization26{}": 41.0,
+        "utilization27{}": 33.0,
+        "utilization28{}": 33.0,
+        "utilization29{}": 21.0,
+        "utilization2{}": 1743.0,
+        "utilization30{}": 21.0,
+        "utilization31{}": 21.0,
+        "utilization32{}": 21.0,
+        "utilization33{}": 21.0,
+        "utilization34{}": 21.0,
+        "utilization35{}": 13.0,
+        "utilization36{}": 13.0,
+        "utilization37{}": 1.0,
+        "utilization38{}": 1.0,
+        "utilization39{}": 1.0,
+        "utilization3{}": 1622.0,
+        "utilization40{}": 1.0,
+        "utilization41{}": 1.0,
+        "utilization42{}": 1.0,
+        "utilization43{}": 1.0,
+        "utilization44{}": 1.0,
+        "utilization45{}": 1.0,
+        "utilization46{}": 1.0,
+        "utilization47{}": 1.0,
+        "utilization48{}": 1.0,
+        "utilization49{}": 1.0,
+        "utilization4{}": 1480.0,
+        "utilization50{}": 1.0,
+        "utilization51{}": 1.0,
+        "utilization52{}": 1.0,
+        "utilization53{}": 1.0,
+        "utilization54{}": 1.0,
+        "utilization55{}": 1.0,
+        "utilization56{}": 1.0,
+        "utilization57{}": 1.0,
+        "utilization58{}": 1.0,
+        "utilization59{}": 1.0,
+        "utilization5{}": 805.0,
+        "utilization60{}": 1.0,
+        "utilization61{}": 1.0,
+        "utilization62{}": 1.0,
+        "utilization63{}": 1.0,
+        "utilization64{}": 1.0,
+        "utilization65{}": 1.0,
+        "utilization66{}": 1.0,
+        "utilization67{}": 1.0,
+        "utilization68{}": 1.0,
+        "utilization69{}": 1.0,
+        "utilization6{}": 700.0,
+        "utilization70{}": 1.0,
+        "utilization71{}": 1.0,
+        "utilization72{}": 1.0,
+        "utilization73{}": 1.0,
+        "utilization74{}": 1.0,
+        "utilization75{}": 1.0,
+        "utilization76{}": 1.0,
+        "utilization7{}": 636.0,
+        "utilization8{}": 336.0,
+        "utilization9{}": 261.0
+      },
+      "memory_analysis": {
+        "alias_size_in_bytes": 82182144,
+        "argument_size_in_bytes": 321854464,
+        "generated_code_size_in_bytes": 28718080,
+        "host_alias_size_in_bytes": 0,
+        "host_argument_size_in_bytes": 0,
+        "host_generated_code_size_in_bytes": 0,
+        "host_output_size_in_bytes": 0,
+        "host_temp_size_in_bytes": 0,
+        "output_size_in_bytes": 83792384,
+        "temp_size_in_bytes": 0
+      }
+    },
+    "context_warmup_compile_seconds": 61.42229522599882,
+    "context_warmup_seconds": 6.618814306999411,
+    "finite_logits": true,
+    "first_seconds": 2.4512476659983804,
+    "prefix_context_tokens": 1024,
+    "steady_seconds": [
+      0.009004210001876345,
+      0.007950439001433551,
+      0.007933379001769936,
+      0.007988819997990504,
+      0.007828139001503587,
+      0.008022378999157809,
+      0.007936448997497791,
+      0.007923938999738311
+    ],
+    "tokens_per_second": 16113.917339709342
+  },
+  "compile_seconds": {
+    "prefill_loss": 80.51037191900105,
+    "train": 234.53136408000137
+  },
+  "global_batch": 128,
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-2",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 71866,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 2,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "memory_diagnostic_execution": {
+    "compile_seconds": 76.59494759099834,
+    "compiler": {
+      "cost_analysis": {
+        "bytes accessed": 332996935680.0,
+        "bytes accessed0{}": 129041809408.0,
+        "bytes accessed10{}": 142607360.0,
+        "bytes accessed11{}": 39846912.0,
+        "bytes accessed12{}": 39846912.0,
+        "bytes accessed13{}": 39846912.0,
+        "bytes accessed14{}": 95421440.0,
+        "bytes accessed15{}": 28312576.0,
+        "bytes accessed16{}": 26215424.0,
+        "bytes accessed17{}": 26215424.0,
+        "bytes accessed18{}": 17826816.0,
+        "bytes accessed19{}": 17826816.0,
+        "bytes accessed1{}": 31383830528.0,
+        "bytes accessed20{}": 14680576.0,
+        "bytes accessed21{}": 14680576.0,
+        "bytes accessed22{}": 12583424.0,
+        "bytes accessed23{}": 12583424.0,
+        "bytes accessed24{}": 12583424.0,
+        "bytes accessed25{}": 12583424.0,
+        "bytes accessed26{}": 12583424.0,
+        "bytes accessed27{}": 9437696.0,
+        "bytes accessed28{}": 9437184.0,
+        "bytes accessed29{}": 7340032.0,
+        "bytes accessed2{}": 10242285568.0,
+        "bytes accessed30{}": 7340032.0,
+        "bytes accessed31{}": 7340032.0,
+        "bytes accessed32{}": 7340032.0,
+        "bytes accessed33{}": 7340032.0,
+        "bytes accessed34{}": 7340032.0,
+        "bytes accessed35{}": 4194304.0,
+        "bytes accessed36{}": 4194304.0,
+        "bytes accessed3{}": 4108011008.0,
+        "bytes accessed4{}": 2407629824.0,
+        "bytes accessed5{}": 1051239936.0,
+        "bytes accessed6{}": 1724909056.0,
+        "bytes accessed7{}": 1625830400.0,
+        "bytes accessed8{}": 278934528.0,
+        "bytes accessed9{}": 151532544.0,
+        "bytes accessedout{0}": 2047911424.0,
+        "bytes accessedout{10}": 32505856.0,
+        "bytes accessedout{11}": 16777216.0,
+        "bytes accessedout{12}": 16777216.0,
+        "bytes accessedout{13}": 16777216.0,
+        "bytes accessedout{14}": 16777216.0,
+        "bytes accessedout{15}": 8388608.0,
+        "bytes accessedout{1}": 2774081536.0,
+        "bytes accessedout{2}": 1291175936.0,
+        "bytes accessedout{3}": 763658240.0,
+        "bytes accessedout{4}": 289409024.0,
+        "bytes accessedout{5}": 198182912.0,
+        "bytes accessedout{6}": 124780544.0,
+        "bytes accessedout{7}": 116391936.0,
+        "bytes accessedout{8}": 33554432.0,
+        "bytes accessedout{9}": 32505856.0,
+        "bytes accessedout{}": 165128355840.0,
+        "flops": 759592910848.0,
+        "optimal_seconds": -255.66616821289062,
+        "transcendentals": 586911744.0,
+        "utilization0{}": 14877.6142578125,
+        "utilization10{}": 230.0,
+        "utilization11{}": 159.0,
+        "utilization12{}": 159.0,
+        "utilization13{}": 159.0,
+        "utilization14{}": 147.0,
+        "utilization15{}": 143.0,
+        "utilization16{}": 103.0,
+        "utilization17{}": 103.0,
+        "utilization18{}": 71.0,
+        "utilization19{}": 71.0,
+        "utilization1{}": 3939.0,
+        "utilization20{}": 58.0,
+        "utilization21{}": 58.0,
+        "utilization22{}": 50.0,
+        "utilization23{}": 50.0,
+        "utilization24{}": 50.0,
+        "utilization25{}": 50.0,
+        "utilization26{}": 50.0,
+        "utilization27{}": 38.0,
+        "utilization28{}": 37.0,
+        "utilization29{}": 29.0,
+        "utilization2{}": 2063.0,
+        "utilization30{}": 29.0,
+        "utilization31{}": 29.0,
+        "utilization32{}": 29.0,
+        "utilization33{}": 29.0,
+        "utilization34{}": 29.0,
+        "utilization35{}": 17.0,
+        "utilization36{}": 17.0,
+        "utilization37{}": 1.0,
+        "utilization38{}": 1.0,
+        "utilization39{}": 1.0,
+        "utilization3{}": 1914.0,
+        "utilization40{}": 1.0,
+        "utilization41{}": 1.0,
+        "utilization42{}": 1.0,
+        "utilization43{}": 1.0,
+        "utilization44{}": 1.0,
+        "utilization45{}": 1.0,
+        "utilization46{}": 1.0,
+        "utilization47{}": 1.0,
+        "utilization48{}": 1.0,
+        "utilization49{}": 1.0,
+        "utilization4{}": 1434.0,
+        "utilization50{}": 1.0,
+        "utilization51{}": 1.0,
+        "utilization5{}": 768.0,
+        "utilization6{}": 663.0,
+        "utilization7{}": 606.0,
+        "utilization8{}": 266.0,
+        "utilization9{}": 234.0
+      },
+      "memory_analysis": {
+        "alias_size_in_bytes": 0,
+        "argument_size_in_bytes": 239704064,
+        "generated_code_size_in_bytes": 289125888,
+        "host_alias_size_in_bytes": 0,
+        "host_argument_size_in_bytes": 0,
+        "host_generated_code_size_in_bytes": 0,
+        "host_output_size_in_bytes": 0,
+        "host_temp_size_in_bytes": 0,
+        "output_size_in_bytes": 27136,
+        "temp_size_in_bytes": 6454418944
+      }
+    },
+    "passed": true,
+    "seconds": 11.74187475600047
+  },
+  "memory_diagnostics": {
+    "layer_11/memory/beta_max": 0.8732175230979919,
+    "layer_11/memory/beta_min": 0.11279290914535522,
+    "layer_11/memory/decay_max": 0.9993113279342651,
+    "layer_11/memory/decay_min": 0.3487507402896881,
+    "layer_11/memory/floor_max": 1.000016212463379,
+    "layer_11/memory/floor_min": 0.999985933303833,
+    "layer_11/memory/gaussian_allfinite": 1.0,
+    "layer_11/memory/gaussian_cross_abs_max": 2.0484676361083984,
+    "layer_11/memory/precision_condition_max": 10.331709861755371,
+    "layer_11/memory/precision_eigenvalue_max": 12.089587211608887,
+    "layer_11/memory/precision_eigenvalue_min": 0.9999914169311523,
+    "layer_11/memory/variance_max": 0.9999966025352478,
+    "layer_11/memory/variance_min": 0.29830047488212585,
+    "layer_15/memory/beta_max": 0.8723507523536682,
+    "layer_15/memory/beta_min": 0.09400757402181625,
+    "layer_15/memory/decay_max": 0.9991888403892517,
+    "layer_15/memory/decay_min": 0.10647844523191452,
+    "layer_15/memory/floor_max": 1.0000160932540894,
+    "layer_15/memory/floor_min": 0.9999860525131226,
+    "layer_15/memory/gaussian_allfinite": 1.0,
+    "layer_15/memory/gaussian_cross_abs_max": 2.6411821842193604,
+    "layer_15/memory/precision_condition_max": 8.492791175842285,
+    "layer_15/memory/precision_eigenvalue_max": 9.857627868652344,
+    "layer_15/memory/precision_eigenvalue_min": 0.9999903440475464,
+    "layer_15/memory/variance_max": 1.0000022649765015,
+    "layer_15/memory/variance_min": 0.3329189121723175,
+    "layer_3/memory/beta_max": 0.8808003664016724,
+    "layer_3/memory/beta_min": 0.10818607360124588,
+    "layer_3/memory/decay_max": 0.9982143044471741,
+    "layer_3/memory/decay_min": 0.07934980094432831,
+    "layer_3/memory/floor_max": 1.000016689300537,
+    "layer_3/memory/floor_min": 0.9999854564666748,
+    "layer_3/memory/gaussian_allfinite": 1.0,
+    "layer_3/memory/gaussian_cross_abs_max": 1.0657236576080322,
+    "layer_3/memory/precision_condition_max": 4.278599739074707,
+    "layer_3/memory/precision_eigenvalue_max": 4.543996810913086,
+    "layer_3/memory/precision_eigenvalue_min": 0.9999869465827942,
+    "layer_3/memory/variance_max": 0.9999931454658508,
+    "layer_3/memory/variance_min": 0.5027261972427368,
+    "layer_7/memory/beta_max": 0.8947917222976685,
+    "layer_7/memory/beta_min": 0.12168847024440765,
+    "layer_7/memory/decay_max": 0.9983938336372375,
+    "layer_7/memory/decay_min": 0.07627904415130615,
+    "layer_7/memory/floor_max": 1.000016450881958,
+    "layer_7/memory/floor_min": 0.9999858736991882,
+    "layer_7/memory/gaussian_allfinite": 1.0,
+    "layer_7/memory/gaussian_cross_abs_max": 2.3708245754241943,
+    "layer_7/memory/precision_condition_max": 7.676122665405273,
+    "layer_7/memory/precision_eigenvalue_max": 8.150877952575684,
+    "layer_7/memory/precision_eigenvalue_min": 0.9999889135360718,
+    "layer_7/memory/variance_max": 0.9999968409538269,
+    "layer_7/memory/variance_min": 0.4290071725845337
+  },
+  "model_config": {
+    "architecture": "mamba4",
+    "chunk_size": 64,
+    "conv_kernel": 4,
+    "d_ff": 0,
+    "d_model": 512,
+    "d_state": 96,
+    "dropout_rate": 0.0,
+    "dtype": "bfloat16",
+    "expand": 2,
+    "floor_init": 1.0,
+    "floor_min": 0.25,
+    "head_dim": 64,
+    "key_dim": 64,
+    "layer_pattern": "SSSMSSSMSSSMSSSMSSS",
+    "mamba3_outproj_norm": false,
+    "max_seq_len": 1024,
+    "memory_decay": 0.99,
+    "memory_epsilon": 0.05,
+    "memory_floor": "fixed",
+    "memory_head_dim": 128,
+    "memory_hops": 1,
+    "memory_mixer": "selective",
+    "memory_rope_fraction": 0.0,
+    "memory_solver": "blocked",
+    "mimo_rank": 1,
+    "n_groups": 1,
+    "n_heads": 8,
+    "n_layers": 19,
+    "norm_eps": 1e-05,
+    "order_head": true,
+    "param_dtype": "float32",
+    "protected_anchor_budget": 0,
+    "protected_block_size": 64,
+    "protected_routing": "all",
+    "qk_activation": "silu",
+    "remat": true,
+    "rope_fraction": 0.5,
+    "vocab_size": 50257
+  },
+  "parameter_ledger": {
+    "embedding": 25731584,
+    "non_embedding": 34161632,
+    "parameters": [
+      {
+        "count": 512,
+        "name": "final_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_0/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_0/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_0/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_0/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_0/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_0/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_0/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_1/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_1/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_1/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_1/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_1/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_1/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_1/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_10/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_10/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_10/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_10/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_10/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_10/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_10/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_10/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_10/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/confidence_scale",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 2048,
+        "name": "layer_11/memory/conv_bias",
+        "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_11/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_11/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_11/memory/in_proj/kernel",
+        "shape": [
+          512,
+          3096
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_11/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_11/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_11/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_12/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_12/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_12/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_12/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_12/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_12/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_12/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_12/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_12/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_13/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_13/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_13/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_13/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_13/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_13/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_13/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_13/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_13/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_14/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_14/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_14/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_14/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_14/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_14/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_14/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_14/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_14/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/confidence_scale",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 2048,
+        "name": "layer_15/memory/conv_bias",
+        "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_15/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_15/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_15/memory/in_proj/kernel",
+        "shape": [
+          512,
+          3096
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_15/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_15/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_15/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_16/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_16/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_16/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_16/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_16/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_16/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_16/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_16/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_16/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_17/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_17/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_17/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_17/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_17/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_17/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_17/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_17/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_17/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_18/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_18/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_18/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_18/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_18/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_18/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_18/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_18/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_18/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_2/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_2/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_2/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_2/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_2/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_2/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_2/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/confidence_scale",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 2048,
+        "name": "layer_3/memory/conv_bias",
+        "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_3/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_3/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_3/memory/in_proj/kernel",
+        "shape": [
+          512,
+          3096
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_3/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_3/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_3/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_4/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_4/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_4/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_4/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_4/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_4/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_4/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_5/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_5/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_5/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_5/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_5/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_5/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_5/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_6/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_6/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_6/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_6/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_6/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_6/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_6/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/confidence_scale",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 2048,
+        "name": "layer_7/memory/conv_bias",
+        "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_7/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_7/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_7/memory/in_proj/kernel",
+        "shape": [
+          512,
+          3096
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_7/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_7/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_7/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_7/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_8/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_8/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_8/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_8/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_8/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_8/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_8/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_9/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_9/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_9/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_9/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_9/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_9/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_9/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_9/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_9/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 25731584,
+        "name": "token_embedding/embedding/embedding",
+        "shape": [
+          50257,
+          512
+        ]
+      }
+    ],
+    "total": 59893216
+  },
+  "prefill_loss": {
+    "compiler": {
+      "cost_analysis": {
+        "bytes accessed": 348784492544.0,
+        "bytes accessed0{}": 133351907328.0,
+        "bytes accessed10{}": 176160768.0,
+        "bytes accessed11{}": 39845888.0,
+        "bytes accessed12{}": 39845888.0,
+        "bytes accessed13{}": 39845888.0,
+        "bytes accessed14{}": 95420416.0,
+        "bytes accessed15{}": 28311552.0,
+        "bytes accessed16{}": 26214400.0,
+        "bytes accessed17{}": 26214400.0,
+        "bytes accessed18{}": 17825792.0,
+        "bytes accessed19{}": 17825792.0,
+        "bytes accessed1{}": 32695566336.0,
+        "bytes accessed20{}": 14680064.0,
+        "bytes accessed21{}": 14680064.0,
+        "bytes accessed22{}": 12582912.0,
+        "bytes accessed23{}": 12582912.0,
+        "bytes accessed24{}": 12582912.0,
+        "bytes accessed25{}": 12582912.0,
+        "bytes accessed26{}": 12582912.0,
+        "bytes accessed27{}": 9437184.0,
+        "bytes accessed28{}": 9437184.0,
+        "bytes accessed29{}": 7340032.0,
+        "bytes accessed2{}": 11126487040.0,
+        "bytes accessed30{}": 7340032.0,
+        "bytes accessed31{}": 7340032.0,
+        "bytes accessed32{}": 7340032.0,
+        "bytes accessed33{}": 7340032.0,
+        "bytes accessed34{}": 7340032.0,
+        "bytes accessed35{}": 4194304.0,
+        "bytes accessed36{}": 4194304.0,
+        "bytes accessed3{}": 4266649088.0,
+        "bytes accessed4{}": 2440298496.0,
+        "bytes accessed5{}": 1086365696.0,
+        "bytes accessed6{}": 1961885696.0,
+        "bytes accessed7{}": 1847607296.0,
+        "bytes accessed8{}": 278937600.0,
+        "bytes accessed9{}": 184565760.0,
+        "bytes accessedout{0}": 2186756096.0,
+        "bytes accessedout{10}": 32505856.0,
+        "bytes accessedout{11}": 16777216.0,
+        "bytes accessedout{12}": 16777216.0,
+        "bytes accessedout{13}": 16777216.0,
+        "bytes accessedout{14}": 16777216.0,
+        "bytes accessedout{15}": 8388608.0,
+        "bytes accessedout{1}": 5573378048.0,
+        "bytes accessedout{2}": 1435041792.0,
+        "bytes accessedout{3}": 697303040.0,
+        "bytes accessedout{4}": 289406976.0,
+        "bytes accessedout{5}": 198180864.0,
+        "bytes accessedout{6}": 123731968.0,
+        "bytes accessedout{7}": 116391936.0,
+        "bytes accessedout{8}": 33554432.0,
+        "bytes accessedout{9}": 32505856.0,
+        "bytes accessedout{}": 173577912320.0,
+        "flops": 1295876227072.0,
+        "optimal_seconds": -271.6498107910156,
+        "transcendentals": 1098196992.0,
+        "utilization0{}": 15350.8876953125,
+        "utilization10{}": 228.0,
+        "utilization11{}": 156.0,
+        "utilization12{}": 156.0,
+        "utilization13{}": 156.0,
+        "utilization14{}": 144.0,
+        "utilization15{}": 140.0,
+        "utilization16{}": 100.0,
+        "utilization17{}": 100.0,
+        "utilization18{}": 68.0,
+        "utilization19{}": 68.0,
+        "utilization1{}": 4037.0,
+        "utilization20{}": 56.0,
+        "utilization21{}": 56.0,
+        "utilization22{}": 48.0,
+        "utilization23{}": 48.0,
+        "utilization24{}": 48.0,
+        "utilization25{}": 48.0,
+        "utilization26{}": 48.0,
+        "utilization27{}": 36.0,
+        "utilization28{}": 36.0,
+        "utilization29{}": 28.0,
+        "utilization2{}": 2103.0,
+        "utilization30{}": 28.0,
+        "utilization31{}": 28.0,
+        "utilization32{}": 28.0,
+        "utilization33{}": 28.0,
+        "utilization34{}": 28.0,
+        "utilization35{}": 16.0,
+        "utilization36{}": 16.0,
+        "utilization3{}": 1953.0,
+        "utilization4{}": 1438.0,
+        "utilization5{}": 764.0,
+        "utilization6{}": 659.0,
+        "utilization7{}": 607.0,
+        "utilization8{}": 264.0,
+        "utilization9{}": 232.0
+      },
+      "memory_analysis": {
+        "alias_size_in_bytes": 0,
+        "argument_size_in_bytes": 239769600,
+        "generated_code_size_in_bytes": 309240832,
+        "host_alias_size_in_bytes": 0,
+        "host_argument_size_in_bytes": 0,
+        "host_generated_code_size_in_bytes": 0,
+        "host_output_size_in_bytes": 0,
+        "host_temp_size_in_bytes": 0,
+        "output_size_in_bytes": 1536,
+        "temp_size_in_bytes": 6272716800
+      }
+    },
+    "first_seconds": 9.281095770998945,
+    "nll_sum": 1394899.5,
+    "steady_seconds": [
+      0.3800711890035018,
+      0.37906663899775594,
+      0.37979998900118517
+    ],
+    "tokens_per_second": 345107.9615476002
+  },
+  "provenance": {
+    "git_commit": "",
+    "sha256": {
+      "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+      "lm/config.py": "fd0cf1ac1def243248feb0960aba38586e59a6ab29db71c20e81134774a0cffe",
+      "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+      "lm/configs/mamba4-60m-v2.json": "fe9607bf281329a012e9aa6fba7e716209b55b06759af16e9db6d48d1f4cdcd8",
+      "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+      "lm/configs/screen-protocol-v2.json": "9f0bb4fadf62e1bac30eca02b0bcb3c24c6999d2bc22ffcd7ba595535647362f",
+      "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+      "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+      "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+      "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+      "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+      "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+      "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+      "lm/kernels/mamba4.py": "57fc0ee3945065c211eec0d363787b5769529fa871a73a2368a0bd2f4463057d",
+      "lm/kernels/mamba4_reference.py": "40db3fab6bad82ea3e1e10e616c7526236a0bb4b0dd559b5bef0a56de27e64aa",
+      "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+      "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+      "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+      "lm/models/mamba4.py": "9e673a7136a6c0864dec55758af96a96f15af69ca48b3aadec84657de904854a",
+      "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+      "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+      "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+      "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+      "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+      "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+      "lm/tests/test_mamba4_selective.py": "6412f66a1bbc9ed44e91a1b84756fdcd6f946884e719f612e50e46708424afd5",
+      "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+      "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+      "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+      "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+      "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+      "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+      "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+      "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+      "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+      "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+      "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+      "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+      "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+      "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+      "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+      "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+    }
+  },
+  "runtime_memory": [
+    {
+      "bytes_in_use": 1902127104,
+      "bytes_limit": 33014407168,
+      "bytes_reservable_limit": 31548069888,
+      "bytes_reserved": 9162129408,
+      "largest_alloc_size": 309240832,
+      "largest_free_block_bytes": 21940748288,
+      "num_allocs": 1455,
+      "peak_bytes_in_use": 1902227456,
+      "peak_bytes_reserved": 9162129408
+    },
+    {
+      "bytes_in_use": 1164225536,
+      "bytes_limit": 33014407168,
+      "bytes_reservable_limit": 32295278592,
+      "bytes_reserved": 9162129408,
+      "largest_alloc_size": 309240832,
+      "largest_free_block_bytes": 22687952384,
+      "num_allocs": 579,
+      "peak_bytes_in_use": 1164325888,
+      "peak_bytes_reserved": 9162129408
+    },
+    {
+      "bytes_in_use": 1164225536,
+      "bytes_limit": 33014407168,
+      "bytes_reservable_limit": 32295278592,
+      "bytes_reserved": 9162129408,
+      "largest_alloc_size": 309240832,
+      "largest_free_block_bytes": 22687952384,
+      "num_allocs": 579,
+      "peak_bytes_in_use": 1164325888,
+      "peak_bytes_reserved": 9162129408
+    },
+    {
+      "bytes_in_use": 1164225536,
+      "bytes_limit": 33014407168,
+      "bytes_reservable_limit": 32295278592,
+      "bytes_reserved": 9162129408,
+      "largest_alloc_size": 309240832,
+      "largest_free_block_bytes": 22687952384,
+      "num_allocs": 579,
+      "peak_bytes_in_use": 1164325888,
+      "peak_bytes_reserved": 9162129408
+    }
+  ],
+  "sequence_length": 1024,
+  "train": {
+    "compiler": {
+      "cost_analysis": {
+        "bytes accessed": 1026773549056.0,
+        "bytes accessed0{}": 396593594368.0,
+        "bytes accessed100{}": 8192.0,
+        "bytes accessed101{}": 512.0,
+        "bytes accessed102{}": 8192.0,
+        "bytes accessed103{}": 512.0,
+        "bytes accessed104{}": 512.0,
+        "bytes accessed105{}": 512.0,
+        "bytes accessed106{}": 4734976.0,
+        "bytes accessed107{}": 2097152.0,
+        "bytes accessed108{}": 2048.0,
+        "bytes accessed109{}": 8192.0,
+        "bytes accessed10{}": 543164416.0,
+        "bytes accessed110{}": 512.0,
+        "bytes accessed111{}": 8192.0,
+        "bytes accessed112{}": 512.0,
+        "bytes accessed113{}": 512.0,
+        "bytes accessed114{}": 512.0,
+        "bytes accessed115{}": 4734976.0,
+        "bytes accessed116{}": 2097152.0,
+        "bytes accessed117{}": 2048.0,
+        "bytes accessed118{}": 512.0,
+        "bytes accessed119{}": 512.0,
+        "bytes accessed11{}": 83894272.0,
+        "bytes accessed120{}": 512.0,
+        "bytes accessed121{}": 512.0,
+        "bytes accessed122{}": 8192.0,
+        "bytes accessed123{}": 32768.0,
+        "bytes accessed124{}": 512.0,
+        "bytes accessed125{}": 4096.0,
+        "bytes accessed126{}": 6340608.0,
+        "bytes accessed127{}": 512.0,
+        "bytes accessed128{}": 2097152.0,
+        "bytes accessed129{}": 512.0,
+        "bytes accessed12{}": 79725056.0,
+        "bytes accessed130{}": 2048.0,
+        "bytes accessed131{}": 8192.0,
+        "bytes accessed132{}": 512.0,
+        "bytes accessed133{}": 8192.0,
+        "bytes accessed134{}": 512.0,
+        "bytes accessed135{}": 512.0,
+        "bytes accessed136{}": 512.0,
+        "bytes accessed137{}": 4734976.0,
+        "bytes accessed138{}": 2097152.0,
+        "bytes accessed139{}": 2048.0,
+        "bytes accessed13{}": 79699968.0,
+        "bytes accessed140{}": 8192.0,
+        "bytes accessed141{}": 512.0,
+        "bytes accessed142{}": 8192.0,
+        "bytes accessed143{}": 512.0,
+        "bytes accessed144{}": 512.0,
+        "bytes accessed145{}": 512.0,
+        "bytes accessed146{}": 4734976.0,
+        "bytes accessed147{}": 2097152.0,
+        "bytes accessed148{}": 2048.0,
+        "bytes accessed149{}": 8192.0,
+        "bytes accessed14{}": 190841344.0,
+        "bytes accessed150{}": 512.0,
+        "bytes accessed151{}": 8192.0,
+        "bytes accessed152{}": 512.0,
+        "bytes accessed153{}": 512.0,
+        "bytes accessed154{}": 512.0,
+        "bytes accessed155{}": 4734976.0,
+        "bytes accessed156{}": 2097152.0,
+        "bytes accessed157{}": 2048.0,
+        "bytes accessed158{}": 512.0,
+        "bytes accessed159{}": 512.0,
+        "bytes accessed15{}": 56623616.0,
+        "bytes accessed160{}": 512.0,
+        "bytes accessed161{}": 512.0,
+        "bytes accessed162{}": 8192.0,
+        "bytes accessed163{}": 32768.0,
+        "bytes accessed164{}": 512.0,
+        "bytes accessed165{}": 4096.0,
+        "bytes accessed166{}": 6340608.0,
+        "bytes accessed167{}": 512.0,
+        "bytes accessed168{}": 2097152.0,
+        "bytes accessed169{}": 512.0,
+        "bytes accessed16{}": 52429312.0,
+        "bytes accessed170{}": 2048.0,
+        "bytes accessed171{}": 8192.0,
+        "bytes accessed172{}": 512.0,
+        "bytes accessed173{}": 8192.0,
+        "bytes accessed174{}": 512.0,
+        "bytes accessed175{}": 512.0,
+        "bytes accessed176{}": 512.0,
+        "bytes accessed177{}": 2097152.0,
+        "bytes accessed178{}": 2048.0,
+        "bytes accessed179{}": 8192.0,
+        "bytes accessed17{}": 57163776.0,
+        "bytes accessed180{}": 512.0,
+        "bytes accessed181{}": 8192.0,
+        "bytes accessed182{}": 512.0,
+        "bytes accessed183{}": 512.0,
+        "bytes accessed184{}": 512.0,
+        "bytes accessed185{}": 2048.0,
+        "bytes accessed186{}": 512.0,
+        "bytes accessed18{}": 37748736.0,
+        "bytes accessed19{}": 35653632.0,
+        "bytes accessed1{}": 86704979968.0,
+        "bytes accessed20{}": 29368320.0,
+        "bytes accessed21{}": 29360640.0,
+        "bytes accessed22{}": 25174016.0,
+        "bytes accessed23{}": 25166336.0,
+        "bytes accessed24{}": 25166336.0,
+        "bytes accessed25{}": 25166336.0,
+        "bytes accessed26{}": 29900800.0,
+        "bytes accessed27{}": 20971520.0,
+        "bytes accessed28{}": 18876416.0,
+        "bytes accessed29{}": 14680576.0,
+        "bytes accessed2{}": 32448907264.0,
+        "bytes accessed30{}": 14680576.0,
+        "bytes accessed31{}": 14680576.0,
+        "bytes accessed32{}": 14680576.0,
+        "bytes accessed33{}": 14688256.0,
+        "bytes accessed34{}": 14712832.0,
+        "bytes accessed35{}": 8389120.0,
+        "bytes accessed36{}": 8392704.0,
+        "bytes accessed37{}": 6340608.0,
+        "bytes accessed38{}": 512.0,
+        "bytes accessed39{}": 2097152.0,
+        "bytes accessed3{}": 19835359232.0,
+        "bytes accessed40{}": 512.0,
+        "bytes accessed41{}": 2048.0,
+        "bytes accessed42{}": 8192.0,
+        "bytes accessed43{}": 512.0,
+        "bytes accessed44{}": 8192.0,
+        "bytes accessed45{}": 512.0,
+        "bytes accessed46{}": 512.0,
+        "bytes accessed47{}": 512.0,
+        "bytes accessed48{}": 4734976.0,
+        "bytes accessed49{}": 2097152.0,
+        "bytes accessed4{}": 12253753344.0,
+        "bytes accessed50{}": 2048.0,
+        "bytes accessed51{}": 8192.0,
+        "bytes accessed52{}": 512.0,
+        "bytes accessed53{}": 8192.0,
+        "bytes accessed54{}": 512.0,
+        "bytes accessed55{}": 512.0,
+        "bytes accessed56{}": 512.0,
+        "bytes accessed57{}": 4734976.0,
+        "bytes accessed58{}": 2097152.0,
+        "bytes accessed59{}": 2048.0,
+        "bytes accessed5{}": 5235738624.0,
+        "bytes accessed60{}": 8192.0,
+        "bytes accessed61{}": 512.0,
+        "bytes accessed62{}": 8192.0,
+        "bytes accessed63{}": 512.0,
+        "bytes accessed64{}": 512.0,
+        "bytes accessed65{}": 512.0,
+        "bytes accessed66{}": 4734976.0,
+        "bytes accessed67{}": 2097152.0,
+        "bytes accessed68{}": 2048.0,
+        "bytes accessed69{}": 512.0,
+        "bytes accessed6{}": 4601050624.0,
+        "bytes accessed70{}": 512.0,
+        "bytes accessed71{}": 512.0,
+        "bytes accessed72{}": 512.0,
+        "bytes accessed73{}": 8192.0,
+        "bytes accessed74{}": 32768.0,
+        "bytes accessed75{}": 512.0,
+        "bytes accessed76{}": 4096.0,
+        "bytes accessed77{}": 6340608.0,
+        "bytes accessed78{}": 512.0,
+        "bytes accessed79{}": 2097152.0,
+        "bytes accessed7{}": 3191921664.0,
+        "bytes accessed80{}": 512.0,
+        "bytes accessed81{}": 2048.0,
+        "bytes accessed82{}": 8192.0,
+        "bytes accessed83{}": 512.0,
+        "bytes accessed84{}": 8192.0,
+        "bytes accessed85{}": 512.0,
+        "bytes accessed86{}": 512.0,
+        "bytes accessed87{}": 512.0,
+        "bytes accessed88{}": 4734976.0,
+        "bytes accessed89{}": 2097152.0,
+        "bytes accessed8{}": 1756416512.0,
+        "bytes accessed90{}": 2048.0,
+        "bytes accessed91{}": 8192.0,
+        "bytes accessed92{}": 512.0,
+        "bytes accessed93{}": 8192.0,
+        "bytes accessed94{}": 512.0,
+        "bytes accessed95{}": 512.0,
+        "bytes accessed96{}": 512.0,
+        "bytes accessed97{}": 4734976.0,
+        "bytes accessed98{}": 2097152.0,
+        "bytes accessed99{}": 2048.0,
+        "bytes accessed9{}": 933771264.0,
+        "bytes accessedout{0}": 10728816640.0,
+        "bytes accessedout{10}": 65011712.0,
+        "bytes accessedout{11}": 33554432.0,
+        "bytes accessedout{12}": 33554432.0,
+        "bytes accessedout{13}": 33554432.0,
+        "bytes accessedout{14}": 33554432.0,
+        "bytes accessedout{15}": 16777216.0,
+        "bytes accessedout{1}": 16183848960.0,
+        "bytes accessedout{2}": 15185147904.0,
+        "bytes accessedout{3}": 2056006656.0,
+        "bytes accessedout{4}": 958955520.0,
+        "bytes accessedout{5}": 1044905984.0,
+        "bytes accessedout{6}": 247463936.0,
+        "bytes accessedout{7}": 232783872.0,
+        "bytes accessedout{8}": 67108864.0,
+        "bytes accessedout{9}": 65011712.0,
+        "bytes accessedout{}": 493672890368.0,
+        "flops": 4521630105600.0,
+        "optimal_seconds": -1080.9981689453125,
+        "transcendentals": 4385461760.0,
+        "utilization0{}": 44616.01171875,
+        "utilization100{}": 2.0,
+        "utilization101{}": 2.0,
+        "utilization102{}": 2.0,
+        "utilization103{}": 2.0,
+        "utilization104{}": 2.0,
+        "utilization105{}": 2.0,
+        "utilization106{}": 2.0,
+        "utilization107{}": 2.0,
+        "utilization108{}": 2.0,
+        "utilization109{}": 2.0,
+        "utilization10{}": 477.0,
+        "utilization110{}": 2.0,
+        "utilization111{}": 2.0,
+        "utilization112{}": 2.0,
+        "utilization113{}": 2.0,
+        "utilization114{}": 2.0,
+        "utilization115{}": 2.0,
+        "utilization116{}": 2.0,
+        "utilization117{}": 2.0,
+        "utilization118{}": 2.0,
+        "utilization119{}": 2.0,
+        "utilization11{}": 318.0,
+        "utilization120{}": 2.0,
+        "utilization121{}": 2.0,
+        "utilization122{}": 2.0,
+        "utilization123{}": 2.0,
+        "utilization124{}": 2.0,
+        "utilization125{}": 2.0,
+        "utilization126{}": 2.0,
+        "utilization127{}": 2.0,
+        "utilization128{}": 2.0,
+        "utilization129{}": 2.0,
+        "utilization12{}": 318.0,
+        "utilization130{}": 2.0,
+        "utilization131{}": 2.0,
+        "utilization132{}": 2.0,
+        "utilization133{}": 2.0,
+        "utilization134{}": 2.0,
+        "utilization135{}": 2.0,
+        "utilization136{}": 2.0,
+        "utilization137{}": 2.0,
+        "utilization138{}": 2.0,
+        "utilization139{}": 2.0,
+        "utilization13{}": 314.0,
+        "utilization140{}": 2.0,
+        "utilization141{}": 2.0,
+        "utilization142{}": 2.0,
+        "utilization143{}": 2.0,
+        "utilization144{}": 2.0,
+        "utilization145{}": 2.0,
+        "utilization146{}": 2.0,
+        "utilization147{}": 2.0,
+        "utilization148{}": 2.0,
+        "utilization149{}": 2.0,
+        "utilization14{}": 290.0,
+        "utilization150{}": 2.0,
+        "utilization151{}": 2.0,
+        "utilization152{}": 2.0,
+        "utilization153{}": 2.0,
+        "utilization154{}": 2.0,
+        "utilization155{}": 2.0,
+        "utilization156{}": 2.0,
+        "utilization157{}": 2.0,
+        "utilization158{}": 2.0,
+        "utilization159{}": 2.0,
+        "utilization15{}": 282.0,
+        "utilization160{}": 2.0,
+        "utilization161{}": 2.0,
+        "utilization162{}": 2.0,
+        "utilization163{}": 2.0,
+        "utilization164{}": 2.0,
+        "utilization165{}": 2.0,
+        "utilization166{}": 2.0,
+        "utilization167{}": 2.0,
+        "utilization168{}": 2.0,
+        "utilization169{}": 2.0,
+        "utilization16{}": 202.0,
+        "utilization170{}": 2.0,
+        "utilization171{}": 2.0,
+        "utilization172{}": 2.0,
+        "utilization173{}": 2.0,
+        "utilization174{}": 2.0,
+        "utilization175{}": 2.0,
+        "utilization176{}": 2.0,
+        "utilization177{}": 2.0,
+        "utilization178{}": 2.0,
+        "utilization179{}": 2.0,
+        "utilization17{}": 202.0,
+        "utilization180{}": 2.0,
+        "utilization181{}": 2.0,
+        "utilization182{}": 2.0,
+        "utilization183{}": 2.0,
+        "utilization184{}": 2.0,
+        "utilization185{}": 2.0,
+        "utilization186{}": 2.0,
+        "utilization187{}": 1.0,
+        "utilization188{}": 1.0,
+        "utilization189{}": 1.0,
+        "utilization18{}": 138.0,
+        "utilization190{}": 1.0,
+        "utilization191{}": 1.0,
+        "utilization192{}": 1.0,
+        "utilization193{}": 1.0,
+        "utilization194{}": 1.0,
+        "utilization195{}": 1.0,
+        "utilization196{}": 1.0,
+        "utilization197{}": 1.0,
+        "utilization198{}": 1.0,
+        "utilization199{}": 1.0,
+        "utilization19{}": 138.0,
+        "utilization1{}": 11350.0,
+        "utilization200{}": 1.0,
+        "utilization201{}": 1.0,
+        "utilization202{}": 1.0,
+        "utilization203{}": 1.0,
+        "utilization204{}": 1.0,
+        "utilization205{}": 1.0,
+        "utilization206{}": 1.0,
+        "utilization207{}": 1.0,
+        "utilization208{}": 1.0,
+        "utilization209{}": 1.0,
+        "utilization20{}": 114.0,
+        "utilization210{}": 1.0,
+        "utilization211{}": 1.0,
+        "utilization212{}": 1.0,
+        "utilization213{}": 1.0,
+        "utilization214{}": 1.0,
+        "utilization215{}": 1.0,
+        "utilization216{}": 1.0,
+        "utilization217{}": 1.0,
+        "utilization218{}": 1.0,
+        "utilization219{}": 1.0,
+        "utilization21{}": 114.0,
+        "utilization220{}": 1.0,
+        "utilization221{}": 1.0,
+        "utilization222{}": 1.0,
+        "utilization223{}": 1.0,
+        "utilization224{}": 1.0,
+        "utilization225{}": 1.0,
+        "utilization226{}": 1.0,
+        "utilization227{}": 1.0,
+        "utilization228{}": 1.0,
+        "utilization229{}": 1.0,
+        "utilization22{}": 98.0,
+        "utilization230{}": 1.0,
+        "utilization231{}": 1.0,
+        "utilization232{}": 1.0,
+        "utilization233{}": 1.0,
+        "utilization234{}": 1.0,
+        "utilization235{}": 1.0,
+        "utilization236{}": 1.0,
+        "utilization237{}": 1.0,
+        "utilization238{}": 1.0,
+        "utilization239{}": 1.0,
+        "utilization23{}": 98.0,
+        "utilization240{}": 1.0,
+        "utilization241{}": 1.0,
+        "utilization242{}": 1.0,
+        "utilization243{}": 1.0,
+        "utilization244{}": 1.0,
+        "utilization245{}": 1.0,
+        "utilization246{}": 1.0,
+        "utilization247{}": 1.0,
+        "utilization248{}": 1.0,
+        "utilization249{}": 1.0,
+        "utilization24{}": 98.0,
+        "utilization250{}": 1.0,
+        "utilization251{}": 1.0,
+        "utilization252{}": 1.0,
+        "utilization253{}": 1.0,
+        "utilization254{}": 1.0,
+        "utilization255{}": 1.0,
+        "utilization256{}": 1.0,
+        "utilization257{}": 1.0,
+        "utilization258{}": 1.0,
+        "utilization259{}": 1.0,
+        "utilization25{}": 98.0,
+        "utilization260{}": 1.0,
+        "utilization261{}": 1.0,
+        "utilization262{}": 1.0,
+        "utilization263{}": 1.0,
+        "utilization264{}": 1.0,
+        "utilization265{}": 1.0,
+        "utilization266{}": 1.0,
+        "utilization267{}": 1.0,
+        "utilization268{}": 1.0,
+        "utilization269{}": 1.0,
+        "utilization26{}": 98.0,
+        "utilization270{}": 1.0,
+        "utilization271{}": 1.0,
+        "utilization272{}": 1.0,
+        "utilization273{}": 1.0,
+        "utilization274{}": 1.0,
+        "utilization275{}": 1.0,
+        "utilization276{}": 1.0,
+        "utilization277{}": 1.0,
+        "utilization278{}": 1.0,
+        "utilization279{}": 1.0,
+        "utilization27{}": 74.0,
+        "utilization280{}": 1.0,
+        "utilization281{}": 1.0,
+        "utilization282{}": 1.0,
+        "utilization283{}": 1.0,
+        "utilization284{}": 1.0,
+        "utilization285{}": 1.0,
+        "utilization286{}": 1.0,
+        "utilization287{}": 1.0,
+        "utilization288{}": 1.0,
+        "utilization289{}": 1.0,
+        "utilization28{}": 74.0,
+        "utilization290{}": 1.0,
+        "utilization291{}": 1.0,
+        "utilization292{}": 1.0,
+        "utilization293{}": 1.0,
+        "utilization294{}": 1.0,
+        "utilization295{}": 1.0,
+        "utilization296{}": 1.0,
+        "utilization297{}": 1.0,
+        "utilization298{}": 1.0,
+        "utilization299{}": 1.0,
+        "utilization29{}": 58.0,
+        "utilization2{}": 5948.0,
+        "utilization300{}": 1.0,
+        "utilization301{}": 1.0,
+        "utilization302{}": 1.0,
+        "utilization303{}": 1.0,
+        "utilization304{}": 1.0,
+        "utilization305{}": 1.0,
+        "utilization306{}": 1.0,
+        "utilization307{}": 1.0,
+        "utilization308{}": 1.0,
+        "utilization309{}": 1.0,
+        "utilization30{}": 58.0,
+        "utilization310{}": 1.0,
+        "utilization311{}": 1.0,
+        "utilization312{}": 1.0,
+        "utilization313{}": 1.0,
+        "utilization314{}": 1.0,
+        "utilization315{}": 1.0,
+        "utilization316{}": 1.0,
+        "utilization317{}": 1.0,
+        "utilization318{}": 1.0,
+        "utilization319{}": 1.0,
+        "utilization31{}": 58.0,
+        "utilization320{}": 1.0,
+        "utilization321{}": 1.0,
+        "utilization322{}": 1.0,
+        "utilization323{}": 1.0,
+        "utilization324{}": 1.0,
+        "utilization325{}": 1.0,
+        "utilization326{}": 1.0,
+        "utilization327{}": 1.0,
+        "utilization328{}": 1.0,
+        "utilization329{}": 1.0,
+        "utilization32{}": 58.0,
+        "utilization330{}": 1.0,
+        "utilization331{}": 1.0,
+        "utilization332{}": 1.0,
+        "utilization333{}": 1.0,
+        "utilization334{}": 1.0,
+        "utilization335{}": 1.0,
+        "utilization336{}": 1.0,
+        "utilization337{}": 1.0,
+        "utilization338{}": 1.0,
+        "utilization339{}": 1.0,
+        "utilization33{}": 58.0,
+        "utilization340{}": 1.0,
+        "utilization341{}": 1.0,
+        "utilization342{}": 1.0,
+        "utilization343{}": 1.0,
+        "utilization344{}": 1.0,
+        "utilization345{}": 1.0,
+        "utilization346{}": 1.0,
+        "utilization347{}": 1.0,
+        "utilization348{}": 1.0,
+        "utilization349{}": 1.0,
+        "utilization34{}": 58.0,
+        "utilization350{}": 1.0,
+        "utilization351{}": 1.0,
+        "utilization352{}": 1.0,
+        "utilization353{}": 1.0,
+        "utilization354{}": 1.0,
+        "utilization355{}": 1.0,
+        "utilization356{}": 1.0,
+        "utilization357{}": 1.0,
+        "utilization358{}": 1.0,
+        "utilization359{}": 1.0,
+        "utilization35{}": 34.0,
+        "utilization360{}": 1.0,
+        "utilization361{}": 1.0,
+        "utilization362{}": 1.0,
+        "utilization363{}": 1.0,
+        "utilization364{}": 1.0,
+        "utilization365{}": 1.0,
+        "utilization366{}": 1.0,
+        "utilization367{}": 1.0,
+        "utilization368{}": 1.0,
+        "utilization369{}": 1.0,
+        "utilization36{}": 34.0,
+        "utilization370{}": 1.0,
+        "utilization371{}": 1.0,
+        "utilization372{}": 1.0,
+        "utilization373{}": 1.0,
+        "utilization374{}": 1.0,
+        "utilization375{}": 1.0,
+        "utilization376{}": 1.0,
+        "utilization377{}": 1.0,
+        "utilization378{}": 1.0,
+        "utilization379{}": 1.0,
+        "utilization37{}": 2.0,
+        "utilization380{}": 1.0,
+        "utilization381{}": 1.0,
+        "utilization382{}": 1.0,
+        "utilization383{}": 1.0,
+        "utilization384{}": 1.0,
+        "utilization385{}": 1.0,
+        "utilization386{}": 1.0,
+        "utilization387{}": 1.0,
+        "utilization388{}": 1.0,
+        "utilization389{}": 1.0,
+        "utilization38{}": 2.0,
+        "utilization390{}": 1.0,
+        "utilization391{}": 1.0,
+        "utilization392{}": 1.0,
+        "utilization393{}": 1.0,
+        "utilization394{}": 1.0,
+        "utilization395{}": 1.0,
+        "utilization396{}": 1.0,
+        "utilization397{}": 1.0,
+        "utilization398{}": 1.0,
+        "utilization399{}": 1.0,
+        "utilization39{}": 2.0,
+        "utilization3{}": 5482.0,
+        "utilization400{}": 1.0,
+        "utilization401{}": 1.0,
+        "utilization402{}": 1.0,
+        "utilization403{}": 1.0,
+        "utilization404{}": 1.0,
+        "utilization405{}": 1.0,
+        "utilization406{}": 1.0,
+        "utilization407{}": 1.0,
+        "utilization408{}": 1.0,
+        "utilization409{}": 1.0,
+        "utilization40{}": 2.0,
+        "utilization410{}": 1.0,
+        "utilization411{}": 1.0,
+        "utilization412{}": 1.0,
+        "utilization413{}": 1.0,
+        "utilization414{}": 1.0,
+        "utilization415{}": 1.0,
+        "utilization416{}": 1.0,
+        "utilization417{}": 1.0,
+        "utilization418{}": 1.0,
+        "utilization419{}": 1.0,
+        "utilization41{}": 2.0,
+        "utilization420{}": 1.0,
+        "utilization421{}": 1.0,
+        "utilization422{}": 1.0,
+        "utilization423{}": 1.0,
+        "utilization424{}": 1.0,
+        "utilization425{}": 1.0,
+        "utilization426{}": 1.0,
+        "utilization427{}": 1.0,
+        "utilization428{}": 1.0,
+        "utilization429{}": 1.0,
+        "utilization42{}": 2.0,
+        "utilization430{}": 1.0,
+        "utilization431{}": 1.0,
+        "utilization432{}": 1.0,
+        "utilization433{}": 1.0,
+        "utilization434{}": 1.0,
+        "utilization435{}": 1.0,
+        "utilization436{}": 1.0,
+        "utilization437{}": 1.0,
+        "utilization438{}": 1.0,
+        "utilization439{}": 1.0,
+        "utilization43{}": 2.0,
+        "utilization440{}": 1.0,
+        "utilization441{}": 1.0,
+        "utilization442{}": 1.0,
+        "utilization443{}": 1.0,
+        "utilization444{}": 1.0,
+        "utilization445{}": 1.0,
+        "utilization446{}": 1.0,
+        "utilization447{}": 1.0,
+        "utilization448{}": 1.0,
+        "utilization449{}": 1.0,
+        "utilization44{}": 2.0,
+        "utilization450{}": 1.0,
+        "utilization451{}": 1.0,
+        "utilization452{}": 1.0,
+        "utilization453{}": 1.0,
+        "utilization454{}": 1.0,
+        "utilization455{}": 1.0,
+        "utilization456{}": 1.0,
+        "utilization457{}": 1.0,
+        "utilization458{}": 1.0,
+        "utilization459{}": 1.0,
+        "utilization45{}": 2.0,
+        "utilization460{}": 1.0,
+        "utilization461{}": 1.0,
+        "utilization462{}": 1.0,
+        "utilization463{}": 1.0,
+        "utilization464{}": 1.0,
+        "utilization465{}": 1.0,
+        "utilization466{}": 1.0,
+        "utilization467{}": 1.0,
+        "utilization468{}": 1.0,
+        "utilization469{}": 1.0,
+        "utilization46{}": 2.0,
+        "utilization470{}": 1.0,
+        "utilization471{}": 1.0,
+        "utilization472{}": 1.0,
+        "utilization473{}": 1.0,
+        "utilization474{}": 1.0,
+        "utilization475{}": 1.0,
+        "utilization476{}": 1.0,
+        "utilization477{}": 1.0,
+        "utilization478{}": 1.0,
+        "utilization479{}": 1.0,
+        "utilization47{}": 2.0,
+        "utilization480{}": 1.0,
+        "utilization481{}": 1.0,
+        "utilization482{}": 1.0,
+        "utilization483{}": 1.0,
+        "utilization484{}": 1.0,
+        "utilization485{}": 1.0,
+        "utilization486{}": 1.0,
+        "utilization487{}": 1.0,
+        "utilization488{}": 1.0,
+        "utilization489{}": 1.0,
+        "utilization48{}": 2.0,
+        "utilization490{}": 1.0,
+        "utilization491{}": 1.0,
+        "utilization492{}": 1.0,
+        "utilization493{}": 1.0,
+        "utilization494{}": 1.0,
+        "utilization495{}": 1.0,
+        "utilization496{}": 1.0,
+        "utilization497{}": 1.0,
+        "utilization498{}": 1.0,
+        "utilization499{}": 1.0,
+        "utilization49{}": 2.0,
+        "utilization4{}": 3658.0,
+        "utilization500{}": 1.0,
+        "utilization501{}": 1.0,
+        "utilization502{}": 1.0,
+        "utilization503{}": 1.0,
+        "utilization504{}": 1.0,
+        "utilization505{}": 1.0,
+        "utilization506{}": 1.0,
+        "utilization507{}": 1.0,
+        "utilization508{}": 1.0,
+        "utilization509{}": 1.0,
+        "utilization50{}": 2.0,
+        "utilization510{}": 1.0,
+        "utilization511{}": 1.0,
+        "utilization512{}": 1.0,
+        "utilization513{}": 1.0,
+        "utilization514{}": 1.0,
+        "utilization515{}": 1.0,
+        "utilization516{}": 1.0,
+        "utilization517{}": 1.0,
+        "utilization518{}": 1.0,
+        "utilization519{}": 1.0,
+        "utilization51{}": 2.0,
+        "utilization520{}": 1.0,
+        "utilization521{}": 1.0,
+        "utilization522{}": 1.0,
+        "utilization523{}": 1.0,
+        "utilization524{}": 1.0,
+        "utilization525{}": 1.0,
+        "utilization526{}": 1.0,
+        "utilization527{}": 1.0,
+        "utilization528{}": 1.0,
+        "utilization529{}": 1.0,
+        "utilization52{}": 2.0,
+        "utilization530{}": 1.0,
+        "utilization531{}": 1.0,
+        "utilization532{}": 1.0,
+        "utilization533{}": 1.0,
+        "utilization534{}": 1.0,
+        "utilization535{}": 1.0,
+        "utilization536{}": 1.0,
+        "utilization537{}": 1.0,
+        "utilization538{}": 1.0,
+        "utilization539{}": 1.0,
+        "utilization53{}": 2.0,
+        "utilization540{}": 1.0,
+        "utilization541{}": 1.0,
+        "utilization542{}": 1.0,
+        "utilization543{}": 1.0,
+        "utilization544{}": 1.0,
+        "utilization545{}": 1.0,
+        "utilization546{}": 1.0,
+        "utilization547{}": 1.0,
+        "utilization548{}": 1.0,
+        "utilization549{}": 1.0,
+        "utilization54{}": 2.0,
+        "utilization550{}": 1.0,
+        "utilization551{}": 1.0,
+        "utilization552{}": 1.0,
+        "utilization553{}": 1.0,
+        "utilization554{}": 1.0,
+        "utilization555{}": 1.0,
+        "utilization556{}": 1.0,
+        "utilization557{}": 1.0,
+        "utilization558{}": 1.0,
+        "utilization559{}": 1.0,
+        "utilization55{}": 2.0,
+        "utilization560{}": 1.0,
+        "utilization561{}": 1.0,
+        "utilization562{}": 1.0,
+        "utilization563{}": 1.0,
+        "utilization564{}": 1.0,
+        "utilization565{}": 1.0,
+        "utilization566{}": 1.0,
+        "utilization567{}": 1.0,
+        "utilization568{}": 1.0,
+        "utilization569{}": 1.0,
+        "utilization56{}": 2.0,
+        "utilization570{}": 1.0,
+        "utilization571{}": 1.0,
+        "utilization572{}": 1.0,
+        "utilization57{}": 2.0,
+        "utilization58{}": 2.0,
+        "utilization59{}": 2.0,
+        "utilization5{}": 2041.0,
+        "utilization60{}": 2.0,
+        "utilization61{}": 2.0,
+        "utilization62{}": 2.0,
+        "utilization63{}": 2.0,
+        "utilization64{}": 2.0,
+        "utilization65{}": 2.0,
+        "utilization66{}": 2.0,
+        "utilization67{}": 2.0,
+        "utilization68{}": 2.0,
+        "utilization69{}": 2.0,
+        "utilization6{}": 1661.0,
+        "utilization70{}": 2.0,
+        "utilization71{}": 2.0,
+        "utilization72{}": 2.0,
+        "utilization73{}": 2.0,
+        "utilization74{}": 2.0,
+        "utilization75{}": 2.0,
+        "utilization76{}": 2.0,
+        "utilization77{}": 2.0,
+        "utilization78{}": 2.0,
+        "utilization79{}": 2.0,
+        "utilization7{}": 1385.0,
+        "utilization80{}": 2.0,
+        "utilization81{}": 2.0,
+        "utilization82{}": 2.0,
+        "utilization83{}": 2.0,
+        "utilization84{}": 2.0,
+        "utilization85{}": 2.0,
+        "utilization86{}": 2.0,
+        "utilization87{}": 2.0,
+        "utilization88{}": 2.0,
+        "utilization89{}": 2.0,
+        "utilization8{}": 691.0,
+        "utilization90{}": 2.0,
+        "utilization91{}": 2.0,
+        "utilization92{}": 2.0,
+        "utilization93{}": 2.0,
+        "utilization94{}": 2.0,
+        "utilization95{}": 2.0,
+        "utilization96{}": 2.0,
+        "utilization97{}": 2.0,
+        "utilization98{}": 2.0,
+        "utilization99{}": 2.0,
+        "utilization9{}": 586.0
+      },
+      "memory_analysis": {
+        "alias_size_in_bytes": 719015424,
+        "argument_size_in_bytes": 719113728,
+        "generated_code_size_in_bytes": 135951360,
+        "host_alias_size_in_bytes": 0,
+        "host_argument_size_in_bytes": 0,
+        "host_generated_code_size_in_bytes": 0,
+        "host_output_size_in_bytes": 0,
+        "host_temp_size_in_bytes": 0,
+        "output_size_in_bytes": 719019520,
+        "temp_size_in_bytes": 10005775872
+      }
+    },
+    "first_seconds": 6.60591378800018,
+    "grad_norm": 3.8839385509490967,
+    "loss": 10.7508544921875,
+    "steady_seconds": [
+      1.4136102570009825,
+      1.4140348479995737,
+      1.4196541070014064
+    ],
+    "tokens_per_second": 92693.61372912892
+  }
+}

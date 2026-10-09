@@ -11,7 +11,7 @@ uv run python scripts/report.py
 uv run python scripts/verify_results.py
 ```
 
-Run mode: **full**. CPU runtime: 77.7 seconds. Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3. The base commit is `52414d9e2d01453fb9c10f4719ae9379420efee9`; per-file SHA-256 hashes in `summary.json` identify the actual added source, including the dirty-tree research implementation. This is not a claim that the base commit already contains those sources.
+Run mode: **full**. CPU runtime: 77.4 seconds. Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3. The base commit is `a3d61e159e62a97a9690e4e08f06aea7acebea60`; per-file SHA-256 hashes in `summary.json` identify the actual added source, including the dirty-tree research implementation. This is not a claim that the base commit already contains those sources.
 
 Protocol SHA-256: `c718cdfe65f78f1c185ecbbddd192d33aeb990add6f22351cba3bfc2f31f716d`. Raw-array SHA-256: `fa344176097344fc0c31b25e9bac7d1f0bd1f0dcf8af30fe2e8a5433133906e9`. [Configuration](../configs/protocol.json), [machine summary](summary.json), [all model/scenario results](recall.csv), and [raw trial arrays](trials.npz) are retained.
 

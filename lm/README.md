@@ -12,6 +12,7 @@ There is no 125M run in the current scope.
 | Transformer, 11 layers |59,985,920|34,254,336|
 | Mamba-3 SISO, 20 layers, 96-dimensional state |59,968,896|34,237,312|
 | Mamba4, 9 layers, 16-dimensional keys |59,989,408|34,257,824|
+| Mamba 4 v2: 15 Mamba-3 + 4 selective memory layers, 64-dimensional keys |59,893,216|34,161,632|
 
 All use width 512, vocabulary 50,257, sequence length 1024, global batch 128,
 AdamW with 6e-4 peak learning rate, 200 warmup steps and cosine decay, no
@@ -32,8 +33,12 @@ backward. Mamba-3 uses a chunked SSD XLA program with complex phases,
 trapezoidal previous-input terms, learned B/C normalization and bias, skip
 and output gating. Mamba4 uses learned conjugate Gaussian evidence, cyclic
 prior, protected redundant QR banks, all-bank routing, confidence and an
-order-sensitive auxiliary scan. Its current prefill refactors prefix factors;
-the quadratic decode contract does not describe that prefill cost.
+order-sensitive auxiliary scan (the frozen v1 row, interrupted after 1,026
+steps). Mamba 4 v2 (`configs/mamba4-60m-v2.json`, protocol
+[screen-60m-v2](configs/screen-protocol-v2.json)) uses token-gated
+fixed-floor Gaussian memory with exact lane-major Cholesky solves, causal
+short convolutions and the chunked order scan, interleaved with unmodified
+official Mamba-3 blocks; see `docs/mamba4-implementation.md`.
 
 ```sh
 uv sync --frozen
@@ -50,7 +55,10 @@ uv run python -m scripts.pod run --tag train-transformer lm.train \
 ```
 
 Run the benchmark/training command sequentially for `mamba3` and `mamba4`
-with their checked-in configurations. The controller holds an exclusive pod
+with their checked-in configurations. The v2 Mamba 4 run, its audit and the
+per-sequence evaluations use `uv run python -m validation.run_screen_v2`
+followed by `uv run python -m validation.verify_screen_v2`; development pilots
+use `validation.pilot` and never open the held-out split. The controller holds an exclusive pod
 lock, deploys no new cloud resources, and copies every worker's result back.
 JAX process 0 can differ from physical host 0; the recorded topology is
 authoritative. No CPU reference path is used for TPU training.

@@ -102,3 +102,25 @@ claimed. Every peer and partial result is retained in
 `lm/results/screen-60m-v1/learning-curves.json` and
 `mamba4-interrupted.json`. The diagnosis and versioned replacement are
 recorded as iteration H in [the iteration log](iterations.md).
+
+## Screen-60m-v2 audit
+
+The user's instruction for this iteration: check whether the 60M runs
+completed, iterate Mamba 4 if it did not win, push, and stop before 125M.
+
+| Requirement | Evidence inspected | Result |
+|---|---|---|
+| Establish the actual state of the three 60M runs | Process tables, all four hosts' run directories, system journals, checkpoint hashes | Transformer and Mamba-3 complete and audited; Mamba 4 v1 interrupted at step 1,026 by Cloud TPU events; step-1,000 checkpoint identical on all hosts. |
+| Preserve every v1 result | `mamba4-interrupted.json`, `learning-curves.json`, commit `fc618d6` | v1 sources reconstructed byte-exactly (all 39 manifest hashes) and committed with the partial evidence. |
+| Diagnose before iterating | Matched-step peer comparison, v1 diagnostics, speed review, kernel timings | Constant cyclic gates, narrow keys, no short convolution and slow sequential/XLA factor paths; see iteration H. |
+| Changed method, versioned protocol, no holdout selection | `screen-protocol-v2.json`, `validation/pilots/SELECTION.md`, five pilots | Selection used only unseen training batches against the peers' logged losses; rule recorded before decisive pilots; all pilots retained. |
+| Theory and Lean for the changed contract | `formal/Mamba4/Selective.lean`, `analysis/results/formal-audit.json` | Nine theorems; 70 theorems across 16 modules with standard axioms only. |
+| Numerical conformance | `lm/tests/test_mamba4_selective.py` and the full CPU suite | Dense-reference forward, all-input gradients, schedules, decode, continuation, causality, finite repeated-token gradients. |
+| Fair matched peers | Parameter ledgers, peer-source identity check | Mamba 4 v2 59,893,216 total / 34,161,632 non-embedding; max/min ratios below 1.01 against both peers; identical tied embeddings; shared training/data/recall/runtime and peer sources byte-identical to the v1 manifests apart from Mamba 4 files and additive config fields. |
+| All sixteen chips, exact 1B targets, finite training | Merged training log, four hardware records, worker results | 7,630 optimizer steps, exactly 1,000,000,000 targets (final step 51,712), one attempt without interruption, all losses and gradient norms finite, 16 devices on four hosts, executed at commit `a3d61e1` (fingerprint `ca91d047…`). |
+| Durable, cross-host checkpoints | `mamba4-checkpoints.json` | Final state SHA256 `69ff12490fc5…` identical on all four hosts; parameter tree matches the ledger. |
+| Primary metric and declared win | `audit.json`, `REPORT.md` | Held-out NLL 3.4727 vs 3.4758 (Mamba-3) and 3.5352 (Transformer): declared strict win holds; paired 95% interval vs Mamba-3 −0.0044 to −0.0017. |
+| Confirmatory holdout and paired uncertainty | `sequence-nll.json`, fresh-holdout manifest | Fresh holdout 3.4223 vs 3.4266 and 3.4869; paired interval vs Mamba-3 −0.0056 to −0.0031; every audited held-out NLL reproduced per sequence. |
+| Trained recall diagnostic | `recall.json` for all three models | 45, 30 and 18 of 128 prompts correct (Mamba 4 v2, Mamba-3, Transformer); descriptive exact McNemar p = 0.032 against Mamba-3. |
+| Engineering evidence | Dry run, block timings, `benchmarks-v2` | Source-matched benchmarks of all three models on 16 chips (B128/T1024): training 92,624 / 150,568 / 1,335,387 tokens/s, prefill 345,127 / 1,277,411 / 5,720,960, cached decode after 1,024 tokens 16,014 / 26,535 / 24,686 (Mamba 4 v2 / Mamba-3 / Transformer); finite logits; v2 memory diagnostics passed. No per-component profile was taken. |
+| Stop before 125M | Phase status | No 125M configuration, data or run was created. |

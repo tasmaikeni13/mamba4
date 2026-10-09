@@ -43,3 +43,24 @@ across training seeds, and is not a gate for choosing hyperparameters. The
 single-seed 60M screen retains every architecture's outcome. Groups are
 descriptive; their unadjusted intervals do not support six separate confirmatory
 claims.
+
+## Results (frozen prompts, final checkpoints)
+
+All three runs scored the identical 128 prompts (per-prompt text hashes
+match). Accuracy is among eight candidates; NLL is the gold answer's
+negative log likelihood after conditioning on the eight candidates.
+
+| Model | Correct of 128 | Accuracy (Wilson 95%) | Candidate NLL |
+|---|---:|---:|---:|
+| Transformer (screen-60m-v1) | 18 | 0.141 (0.091–0.211) | 2.380 |
+| Mamba-3 (screen-60m-v1) | 30 | 0.234 (0.169–0.315) | 1.757 |
+| Mamba 4 v2 (screen-60m-v2) | 45 | 0.352 (0.274–0.438) | 1.731 |
+
+Exact paired McNemar tests on the same prompts: Mamba 4 v2 against Mamba-3,
+29 prompts correct only for Mamba 4 and 14 only for Mamba-3 (p = 0.032);
+against the Transformer, 27 and 0 (p < 0.0001). These were computed after
+training as descriptive diagnostics and were not pre-registered; with one
+training seed and six descriptive groups they support no general recall
+claim. Raw per-prompt scores are in each run's `recall.json`; per-prompt
+correctness for all three models, prompt hashes and the tests are committed in
+`lm/results/screen-60m-v2/recall-paired.json`.

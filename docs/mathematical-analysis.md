@@ -400,6 +400,19 @@ The bound on anisotropy grows when d(1-lambda) grows. To bound it by 1+delta,
 require \(-(d-1)\log\lambda\le\log(1+\delta)\). Use this as a
 head-width/gate constraint, not an assertion that every forget rate is safe.
 
+The explicit fallback needs no schedule. With the prior never discounted,
+\(A_t=S_t+\operatorname{diag}(f)\) and \(S_t\) is a nonnegative combination
+of outer products for **any** gates \(\lambda_t\ge0\) and precisions
+\(\beta_t\ge0\). Hence \(x^\top A_tx\ge\min_jf_j\|x\|^2\), and the latent
+variance satisfies \(0\le q^\top A_t^{-1}q\le\|q\|^2/\min_jf_j\): from
+\(A_ty=q\), \(q^\top y=y^\top A_ty\ge f_{\min}\|y\|^2\), and
+\(\|q-f_{\min}y\|^2\ge0\) gives \(f_{\min}q^\top y\le\|q\|^2\). The exact solve
+minimizes \(\sum_i a_{i,t}(m^\top k_i-v_i)^2+\sum_jf_jm_j^2\) for every value
+coordinate. `Selective.lean` proves these statements, the end-to-end solve
+optimality and the equality of the chunked affine scan with the sequential
+recurrence. The cost is an exact per-token refactor, \(O(d^3+pd)\) at decode;
+the screen-60m-v2 language model uses this floor.
+
 ## 11. Work, gradients and hardware
 
 At a chunk boundary, build its SPD matrix from a prefix evidence scan and

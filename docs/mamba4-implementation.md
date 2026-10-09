@@ -1,5 +1,9 @@
 # Mamba 4 language-model implementation
 
+The sections below the v2 heading describe the selected screen-60m-v2 model;
+the earlier sections describe the frozen v1 composition, retained for
+diagnosis and the interrupted v1 run.
+
 The language model in `lm/models/mamba4.py` composes a learned Gaussian head,
 protected redundant QR banks, and an order-sensitive vector head. These are
 separate states with separate guarantees. Their output mixture is learned;
@@ -142,3 +146,120 @@ caller can use global min/max reductions. Probes are skipped during parameter
 initialization and ordinary training; they add no work to the default path.
 Per-layer anchor bounds count retained anchors per sequence and head. Exact
 query routing and output quality still require separate evaluation.
+
+## screen-60m-v2: selective fixed-floor composition
+
+The v1 composition above is frozen and retained for diagnosis
+(`memory_mixer="v1"`). Its trained screen was interrupted and trailed both
+peers at matched steps (iteration H). The v2 composition
+(`memory_mixer="selective"`) restores Definition 5.1 of the original paper:
+token-dependent drift gates and evidence precisions with an undiscounted
+prior.
+
+**Operator.** Per memory head, with unit keys and queries,
+`S_t = lam_t S_(t-1) + beta_t k_t k_t^T`, `C_t = lam_t C_(t-1) + beta_t v_t k_t^T`
+and `A_t = S_t + diag(floor)`. Each token reads `C_t y_t` and the latent
+variance `q_t^T y_t`, where `A_t y_t = q_t` is solved exactly. Because the
+floor is never discounted, `A_t >= min(floor) I` for **every** gate sequence;
+`Selective.lean` proves this and the variance bound
+`0 <= q^T A^-1 q <= |q|^2 / min(floor)`. The read is the exact minimizer of the
+discounted weighted ridge objective with per-coordinate penalty `floor_j`
+(`selective_solve_minimizes`). The cyclic constant-gate floor is not used;
+its quadratic rank-one decode is replaced by an exact `O(d^3 + p d)` refactor,
+which the analysis already documented as the fixed-floor fallback cost.
+
+**Gates and encoders.** `lam_t = exp(-exp(a_h) softplus(w_dt x_t + b_h))`
+with Mamba-style initialization (`b_h` log-uniform timestep in
+[0.001, 0.1], `a_h` in [1, 16]); `beta_t = sigmoid(w_beta x_t + c_h)`; the
+floor is `floor_min + softplus(raw)`, per head and key coordinate
+(initialized to 1, minimum 0.25). Values, keys and queries pass through a
+causal depthwise convolution of width four and SiLU; keys and queries are
+then normalized to unit length. Optional data-dependent rotary phases
+(`memory_rope_fraction`) rotate keys and queries by the cumulative
+timestep-weighted angle, as Mamba-3 does for B/C; rotations preserve norms.
+
+**Read path.** The latent variance feeds the learned confidence gate
+`sigmoid(1 - s_h log1p(c))`. A skip `D_h v_t` and the order-sensitive gated
+vector scan are added, then a per-head RMS norm, SiLU output gate and output
+projection. Protected redundant QR banks are **not** part of the v2 language
+model (see "Protected banks" below).
+
+**Prefill algorithm.** Within a chunk of 64 tokens, evidence for every token
+is one masked decay-weighted matrix product over the chunk's key outer
+products; chunk boundaries use the associative affine scan, whose equality
+with the sequential recurrence is `selective_scan_equals_sequential`. The
+per-token precisions are factorized by an exact Cholesky with the batch on the
+TPU lane axis (loop or blocked schedule), followed by two triangular solves.
+The reverse pass reuses the factor: for upstream `g`, `z = A^-1 g`,
+`d q = z` and `d A = -sym(z y^T)`; no inverse is formed and no derivative is
+taken through the factorization steps. Work is `O(T (c d^2 + d^3 + c p + p d))`
+for chunk length `c`, key width `d` and value width `p`.
+All evidence, factors and solves use float32 HIGHEST precision.
+
+**Cached decode.** Evidence, cross statistics, the convolution history, the
+order state and (optionally) the rotary phase are carried. Each token pays an
+exact `O(d^3 + p d)` refactor and solve; hybrid Mamba-3 layers use the pinned
+official step recurrence with the official parameter tree.
+
+**Composition and parameter ledger.** The selected screen-60m-v2 model
+(`lm/configs/mamba4-60m-v2.json`) has 19 residual layers in the pattern
+`SSSMSSSMSSSMSSSMSSS`: fifteen unmodified official Mamba-3 SISO blocks
+(1,711,840 parameters each, `d_state=96`, sixteen 64-wide heads) and four
+selective memory blocks (2,120,880 each: eight heads of value width 128, key
+dimension 64, input projection 512×3,096, width-4 convolution over 2,048
+channels, output projection 1,024×512, per-head floor 8×64 and gate scalars).
+With the shared 25,731,584 tied embedding parameters the model has
+**59,893,216** parameters (34,161,632 non-embedding), within 1% of both peers.
+The v1-only fields `memory_decay`, `memory_epsilon`, `memory_hops` and
+`protected_*` are inert in this composition; the frozen file records
+`memory_floor="fixed"` to name the semantics.
+
+**Measured block costs.** Per-chip timings of one block on 8 × 1,024 tokens,
+run on all 16 v4 chips (`lm/results/bench-blocks-dev/`; median of three
+blocked executions after a synchronizing barrier, compile excluded):
+
+| Block | Forward | Forward + backward |
+|---|---:|---:|
+| Official Mamba-3 | 5.5 ms | 39.0 ms |
+| Memory, d=16, sixteen heads, loop factor | 40.8 ms | 73.8 ms |
+| same without the order head | 20.1 ms | 32.0 ms |
+| same with block rematerialization | 40.9 ms | 113.6 ms |
+| Memory, d=32, loop / blocked factor | 91.9 / 61.9 ms | 137.4 / 107.3 ms |
+| Memory, d=64, eight 128-wide heads, blocked | 77.9 ms | 106.9 ms |
+
+These timings used the associative order scan; the frozen run uses the
+chunked order scan (`order_memory_chunked`), which computes the same
+recurrence (test: values within 1e-5, gradients within 1e-4). The full
+model's measured step time is recorded by the screen run itself.
+
+**Protected banks.** The v1 language model's protected redundant QR cascade
+selected the first independent keys of every 64-token block and processed all
+1,024 positions sequentially in every layer. The v1 speed review listed it,
+its broadcast all-bank reads and the per-token XLA factors as the visible
+bottlenecks of the 25.5-second step; v1 was never profiled, so no exact share
+is claimed. Its learned output mix started at sigmoid(-3). The v2 language
+model omits the branch: no protected anchors, routing or bank state are
+trained or claimed for the v2 screen. The operator
+(`protected_cascade_memory`, `protected_route_by_id`), its exact
+retained-anchor contract and its CPU/TPU conformance tests remain in the
+library. A parallel completed-block variant (score-ordered selection,
+cascade schedule fixed by the block count, reads of completed banks only) is
+the specified replacement for a later screen, not part of these results.
+
+**Full-model benchmarks.** `lm/results/benchmarks-v2/` holds source-matched
+measurements of all three screen models on all 16 chips at batch 128 ×
+1,024 (blocked medians after compilation; decode after a 1,024-token
+context):
+
+| Model | Train tokens/s | Prefill tokens/s | Cached decode tokens/s | Cache per device |
+|---|---:|---:|---:|---:|
+| Transformer | 1,335,387 | 5,720,960 | 24,686 | 177.5 MiB (KV, 1,033 tokens) |
+| Mamba-3 | 150,568 | 1,277,411 | 26,535 | 61.0 MiB |
+| Mamba 4 v2 | 92,624 | 345,127 | 16,014 | 58.3 MiB |
+
+The v1 benchmark of the frozen composition measured 5,131 training, 15,670
+prefill and 6,792 decode tokens/s. v2 trains 18× and prefills 22× faster, but
+it remains slower than Mamba-3: 0.62× training, 0.27× prefill and 0.60×
+decode throughput, with 9.3 GiB of compiler temporary memory against 2.9 GiB.
+Its cache is constant-size like Mamba-3's.
+

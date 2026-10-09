@@ -62,3 +62,16 @@ also live in `Mamba4`, except scan names in `Mamba4.AffineSummary`.
 These implementation entries do not certify trained-model quality, device speed
 or a completed phase-03/04 gate. Measured hardware and training evidence must
 be recorded separately.
+
+## Screen-60m-v2 contracts
+
+| Claim | Scope and cost | Evidence |
+|---|---|---|
+| Arbitrary-gate fixed floor | For any nonnegative gates and precisions, `A_t = S_t + diag(floor)` satisfies `x^T A_t x >= min(floor) |x|^2`; latent variance lies in `[0, |q|^2/min(floor)]`. Constant gates are not required. | `selective_evidence_psd`, `diagonal_floor_bound`, `selective_precision_posDef`, `selective_floor_arbitrary_gates`, `selective_variance_bound`. |
+| Exact selective read | An exact solve of the discounted design system minimizes the weighted ridge loss with per-coordinate penalty `floor_j`; it is a posterior mean only under the static model (no discount). | `diag_ridge_minimizes`, `selective_solve_minimizes`; dense-reference forward and all-input gradient tests. |
+| Chunked computation | The chunk-boundary affine scan equals the sequential recurrence; chunk sizes 1–16 (with padding) agree with sequential dense solves within float32 tolerance. | `selective_step_is_affine`, `selective_scan_equals_sequential`; `lm/tests/test_mamba4_selective.py`. |
+| Lane-major factor and reverse pass | Same SPD system for loop, blocked and unrolled schedules; reverse pass `dq = A^-1 g`, `dA = -sym(A^-1 g y^T)` reuses the factor; no explicit inverse. `O(d^3)` per token-head. | Backend parity, custom-derivative and blocked-gradient tests; TPU block timings. |
+| Cached decode | Exact `O(d^3 + p d)` refactor per token; hybrid Mamba-3 layers use the pinned step recurrence and official parameter tree. | Decode-versus-prefill tests for pure, hybrid, rotary and wide-head models. |
+| Hybrid composition | Four selective memory layers with fifteen unmodified official Mamba-3 layers, parameter-matched within 1%. The measured result belongs to this composition; it does not isolate the conjugate layer from the hybrid effect. | Parameter ledger, pilot table (iteration H), peer-source identity check. |
+| Protected banks in v2 | Not used by the v2 language model; no trained protected-bank claim. Operator contracts above are unchanged. | `docs/mamba4-implementation.md`, v1 conformance evidence. |
+| Screen outcome | Strict win established for this single seed: held-out NLL 3.4727 vs 3.4758 (Mamba-3) and 3.5352 (Transformer); paired interval vs Mamba-3 -0.0044 to -0.0017. | `lm/results/screen-60m-v2/audit.json`, `REPORT.md`. |

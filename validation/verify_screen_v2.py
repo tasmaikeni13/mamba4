@@ -68,6 +68,45 @@ def paired_statistics(sequence_nll, audits):
     return summary
 
 
+def matched_curves(runs):
+    """Scheduled held-out NLL by step for every completed run."""
+    table = {}
+    for name, directory in runs.items():
+        log = directory / "metrics.jsonl"
+        for line in log.read_text().splitlines():
+            row = json.loads(line)
+            if row.get("event") == "eval":
+                table.setdefault(row["step"], {})[name] = row["nll"]
+    return {step: table[step] for step in sorted(table)}
+
+
+def memory_trajectory(directory):
+    """Extremes of the learned memory diagnostics at every scheduled probe."""
+    rows = []
+    for line in (directory / "metrics.jsonl").read_text().splitlines():
+        row = json.loads(line)
+        if row.get("event") != "diagnostics":
+            continue
+        metrics = row["metrics"]
+
+        def extreme(suffix, reduce):
+            values = [v for k, v in metrics.items() if k.endswith(suffix)]
+            return reduce(values) if values else None
+
+        rows.append(
+            {
+                "step": row["step"],
+                "floor_min": extreme("floor_min", min),
+                "precision_eigenvalue_min": extreme("precision_eigenvalue_min", min),
+                "precision_condition_max": extreme("precision_condition_max", max),
+                "variance_max": extreme("variance_max", max),
+                "decay_max": extreme("decay_max", max),
+                "allfinite": extreme("allfinite", min),
+            }
+        )
+    return rows
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="lm/results/screen-60m-v2")
@@ -133,8 +172,20 @@ def main():
         for peer in ("transformer", "mamba3")
     )
     statistics = paired_statistics(read_json(output / "sequence-nll.json"), audits)
+    curves = matched_curves(runs)
+    trajectory = memory_trajectory(runs["mamba4"])
+    require(
+        all(row["allfinite"] == 1 for row in trajectory)
+        and all(
+            row["precision_eigenvalue_min"] >= row["floor_min"] - 1e-3
+            for row in trajectory
+        ),
+        "A learned precision violated its floor or became nonfinite",
+    )
     value = {
         "protocol": protocol,
+        "matched_step_heldout_nll": curves,
+        "mamba4_memory_trajectory": trajectory,
         "verified_utc": datetime.now(timezone.utc).isoformat(),
         "all_requested_runs_completed": True,
         "screen_win": win,
@@ -170,7 +221,19 @@ def main():
                 f"(95% block bootstrap {low:+.5f} to {high:+.5f}; "
                 f"{row['sequences_mamba4_lower']}/{row['sequences']} sequences lower)"
             )
+    lines += ["", "Scheduled held-out NLL at matched optimizer steps:", ""]
+    lines += ["| Step | Transformer | Mamba-3 | Mamba 4 v2 |", "|---:|---:|---:|---:|"]
+    for step, row in curves.items():
+        cells = [f"{row[n]:.4f}" if n in row else "—" for n in runs]
+        lines.append(f"| {step:,} | " + " | ".join(cells) + " |")
     lines += [
+        "",
+        "Learned memory at every probe: minimum precision eigenvalue "
+        f"{min(r['precision_eigenvalue_min'] for r in trajectory):.4f} against "
+        f"floor minimum {min(r['floor_min'] for r in trajectory):.4f}; maximum "
+        f"condition {max(r['precision_condition_max'] for r in trajectory):.1f}.",
+        "",
+        "![Learning curves](learning-curves.png)",
         "",
         "Peers are the audited screen-60m-v1 runs; their execution sources are",
         "byte-identical to v2 apart from Mamba 4 files and additive config fields.",

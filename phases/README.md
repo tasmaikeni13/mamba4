@@ -53,8 +53,8 @@ stronger feasible method. This is part of solving the mathematical problem.
 |---|---|---|
 | [01](01-mathematical-formal.md) | Deep mathematical audit, corrected theory, multi-file Lean proofs | Completed investigation |
 | [02](02-statistical-monte-carlo.md) | Reproducible statistical/Monte Carlo comparisons and repair evaluation | Completed investigation; universal superiority falsified |
-| [03](03-models-and-kernels.md) | Full JAX models, fused kernels and v4-32 conformance | In progress |
-| [04](04-60m-screen.md) | 60M, 1B FineWeb-Edu tokens, one seed, all target TPU chips | In progress; training win required before scaling |
+| [03](03-models-and-kernels.md) | Full JAX models, fused kernels and v4-32 conformance | v1 and v2 implementations conformance-tested; engineering benchmarks partial |
+| [04](04-60m-screen.md) | 60M, 1B FineWeb-Edu tokens, one seed, all target TPU chips | Screen-60m-v2 completed and audited; single-seed screen win established; 125M not authorized |
 | [05](05-125m-sweep.md) | Budget-limited 125M hyperparameter selection | Planned |
 | [06](06-125m-main.md) | 125M, 3B tokens, three seeds, Mamba 4 vs Transformer | Planned; losses are publishable outcomes |
 | [07](07-publication.md) | Clean, document, humanize and prepare the paper/repository | Planned |

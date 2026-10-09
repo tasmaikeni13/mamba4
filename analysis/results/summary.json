@@ -4174,7 +4174,7 @@
       "gradient_at_epsilon_1e_8": 100000000.0
     }
   },
-  "elapsed_seconds": 77.67974753607996,
-  "git_base_commit": "52414d9e2d01453fb9c10f4719ae9379420efee9",
+  "elapsed_seconds": 77.41212977500254,
+  "git_base_commit": "a3d61e159e62a97a9690e4e08f06aea7acebea60",
   "trials_sha256": "fa344176097344fc0c31b25e9bac7d1f0bd1f0dcf8af30fe2e8a5433133906e9"
 }

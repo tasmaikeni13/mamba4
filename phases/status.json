@@ -21,14 +21,19 @@
     },
     {
       "id": 3,
-      "status": "in_progress",
+      "status": "completed_with_open_engineering_items",
       "evidence": "lm/results/kernel-conformance/host-*.json",
       "mamba4_production_cpu_preflight": "lm/results/cpu-preflight/mamba4-production.json",
-      "remaining": "Source-matched full-size train, prefill, cached-decode and memory benchmarks for all three models"
+      "remaining": "Profiled per-component attribution; protected banks absent from the v2 language model",
+      "evidence_v2": [
+        "lm/results/dry-run-v2/",
+        "lm/results/bench-blocks-dev/",
+        "lm/results/benchmarks-v2/"
+      ]
     },
     {
       "id": 4,
-      "status": "in_progress",
+      "status": "completed",
       "runs": [
         {
           "architecture": "transformer",
@@ -62,9 +67,44 @@
           "learning_curves": "lm/results/screen-60m-v1/learning-curves.json",
           "checkpoint_500_audit": "lm/results/screen-60m-v1/mamba4-checkpoint-00000500-audit.json",
           "benchmark_evidence": "lm/results/benchmarks-frozen-v1/mamba4-host-*.json"
+        },
+        {
+          "architecture": "mamba4",
+          "protocol": "screen-60m-v2",
+          "status": "completed_and_audited",
+          "composition": "15 official Mamba-3 SISO + 4 selective fixed-floor memory layers (key dim 64)",
+          "training_targets": 1000000000,
+          "parameters": 59893216,
+          "heldout_nll": 3.4726841002702713,
+          "fresh_holdout_nll": 3.4222662007668987,
+          "paired_vs_mamba3": {
+            "block_bootstrap_95": [
+              -0.0044229101244127374,
+              -0.0017088041873648764
+            ],
+            "mean": -0.0030709089478477836,
+            "sequences": 2048,
+            "sequences_mamba4_lower": 1090
+          },
+          "paired_vs_transformer": {
+            "block_bootstrap_95": [
+              -0.06448269195097964,
+              -0.06055889932904392
+            ],
+            "mean": -0.06255168083589524,
+            "sequences": 2048,
+            "sequences_mamba4_lower": 1944
+          },
+          "evidence": "lm/results/screen-60m-v2/audit.json"
         }
       ],
-      "screen_win": "not_established"
+      "screen_win": true,
+      "protocols": [
+        "screen-60m-v1",
+        "screen-60m-v2"
+      ],
+      "screen_win_scope": "single training seed; held-out NLL strictly lower than both peers",
+      "development_pilots": "lm/results/pilots-v2/ (rule: validation/pilots/SELECTION.md)"
     },
     {
       "id": 5,
@@ -79,5 +119,5 @@
       "status": "planned"
     }
   ],
-  "promotion": "Phases 03-04 authorized. Transformer and Mamba-3 completed and were independently audited at exactly 1B targets. The frozen Mamba-4 v1 run was interrupted by external TPU maintenance after 1,026 steps, trailed both peers at matched steps, and was not resumed. The diagnosed replacement is a versioned screen-60m-v2 method; no 125M scaling is authorized."
+  "promotion": "Phases 03-04 authorized and executed through the 60M screen. Transformer and Mamba-3 (screen-60m-v1) and Mamba 4 v2 (screen-60m-v2) completed exactly 1B targets on all 16 chips and were audited. The declared single-seed screen win is established. No 125M scaling is authorized or performed; one seed cannot establish robustness."
 }

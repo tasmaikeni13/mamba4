@@ -1,0 +1,28 @@
+{
+  "all_actual_payloads_equal": true,
+  "architecture": "mamba4",
+  "fingerprint": "ca91d047a32b39ae22a0419a5edcbd554a33305085c0721abbffe0a206f95de7",
+  "method": "Independent SHA256 of actual final state.msgpack on each worker",
+  "optimizer_steps": 7630,
+  "protocol": "screen-60m-v2",
+  "training_targets": 1000000000,
+  "verified_utc": "2026-10-09T11:40:38.486576+00:00",
+  "workers": [
+    {
+      "checkpoint_sha256": "69ff12490fc57dc14c52334cd13438ca093e592c2f246fa3e48d9e815415bf72",
+      "host": "10.130.0.15"
+    },
+    {
+      "checkpoint_sha256": "69ff12490fc57dc14c52334cd13438ca093e592c2f246fa3e48d9e815415bf72",
+      "host": "10.130.0.14"
+    },
+    {
+      "checkpoint_sha256": "69ff12490fc57dc14c52334cd13438ca093e592c2f246fa3e48d9e815415bf72",
+      "host": "10.130.0.16"
+    },
+    {
+      "checkpoint_sha256": "69ff12490fc57dc14c52334cd13438ca093e592c2f246fa3e48d9e815415bf72",
+      "host": "10.130.0.17"
+    }
+  ]
+}
