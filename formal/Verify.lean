@@ -47,6 +47,10 @@ import Mamba4
 #print axioms Mamba4.design_precision_posDef
 #print axioms Mamba4.solve_implies_normal
 #print axioms Mamba4.weighted_ridge_read_minimizes
+#print axioms Mamba4.outer_mulVec
+#print axioms Mamba4.single_write_solve
+#print axioms Mamba4.single_write_read
+#print axioms Mamba4.single_write_half
 #print axioms Mamba4.ridge_loss_difference
 #print axioms Mamba4.ridge_minimizes
 #print axioms Mamba4.squared_error_decomposition

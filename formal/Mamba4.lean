@@ -14,3 +14,4 @@ import Mamba4.Conjugacy
 import Mamba4.Embedding
 import Mamba4.Regression
 import Mamba4.Selective
+import Mamba4.Retention
