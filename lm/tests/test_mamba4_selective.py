@@ -177,18 +177,27 @@ def model_config(pattern, **overrides):
 
 
 @pytest.mark.parametrize(
-    "pattern, rope, width",
+    "pattern, rope, width, shift",
     [
-        ("MM", 0.0, 0),
-        ("SM", 0.0, 0),
-        ("MS", 0.0, 0),
-        ("MM", 1.0, 0),
-        ("SM", 0.5, 0),
-        ("SM", 0.5, 16),
+        ("MM", 0.0, 0, False),
+        ("SM", 0.0, 0, False),
+        ("MS", 0.0, 0, False),
+        ("MM", 1.0, 0, False),
+        ("SM", 0.5, 0, False),
+        ("SM", 0.5, 16, False),
+        ("MM", 0.0, 0, True),
+        ("SM", 0.0, 16, True),
     ],
 )
-def test_selective_lm_causality_gradients_and_cached_decode(pattern, rope, width):
-    config = model_config(pattern, memory_rope_fraction=rope, memory_head_dim=width)
+def test_selective_lm_causality_gradients_and_cached_decode(
+    pattern, rope, width, shift
+):
+    config = model_config(
+        pattern,
+        memory_rope_fraction=rope,
+        memory_head_dim=width,
+        memory_key_shift=shift,
+    )
     model = Mamba4LM(config)
     tokens = (jnp.arange(11)[None] * 7) % config.vocab_size
     params = model.init(jax.random.key(0), tokens)["params"]
@@ -313,3 +322,58 @@ def test_chunked_order_scan_matches_sequential_scan():
     ]
     for x, y in zip(*gradients):
         np.testing.assert_allclose(x, y, rtol=1e-4, atol=1e-5)
+
+
+def test_default_evidence_range_keeps_the_trained_parameterization():
+    tokens = jnp.zeros((1, 8), jnp.int32)
+    params = Mamba4LM(model_config("M")).init(jax.random.key(0), tokens)["params"]
+    np.testing.assert_array_equal(params["layer_0"]["memory"]["beta_bias"], 0.0)
+    wide = Mamba4LM(model_config("M", memory_beta_max=16.0))
+    bias = wide.init(jax.random.key(0), tokens)["params"]["layer_0"]["memory"]
+    np.testing.assert_allclose(16 * jax.nn.sigmoid(bias["beta_bias"]), 0.5, rtol=1e-6)
+
+
+def test_wide_evidence_range_keeps_floor_decode_and_gradients():
+    config = model_config("SM", memory_beta_max=8.0)
+    model = Mamba4LM(config)
+    tokens = (jnp.arange(11)[None] * 7) % config.vocab_size
+    params = model.init(jax.random.key(0), tokens)["params"]
+    memory = params["layer_1"]["memory"]
+    memory["beta_bias"] = jnp.full_like(memory["beta_bias"], 6.0)
+    logits, collections = model.apply(
+        {"params": params}, tokens, mutable=["diagnostics"]
+    )
+    metrics = collections["diagnostics"]["layer_1"]["memory"]
+    assert float(metrics["beta_max"][0]) > 7.5
+    assert float(metrics["precision_eigenvalue_min"][0]) >= 0.25 - 1e-5
+    grads = jax.grad(lambda p: jnp.mean(model.apply({"params": p}, tokens) ** 2))(
+        params
+    )
+    assert all(np.isfinite(g).all() for g in jax.tree.leaves(grads))
+    cache = initialize_cache(config, 1)
+    step = jax.jit(lambda token, cache: decode_step(config, params, token, cache))
+    outputs = []
+    for position in range(tokens.shape[1]):
+        output, cache = step(tokens[:, position], cache)
+        outputs.append(output)
+    np.testing.assert_allclose(jnp.stack(outputs, 1), logits, rtol=2e-5, atol=2e-6)
+    with pytest.raises(ValueError, match="memory_beta_max"):
+        Mamba4LM(model_config("M", memory_beta_max=0.0)).init(jax.random.key(0), tokens)
+
+
+def test_key_shift_writes_each_value_under_the_previous_context():
+    """With the shift, the first token writes nothing and later writes move."""
+    config = model_config("M", memory_key_shift=True, max_seq_len=8)
+    model = Mamba4LM(config)
+    tokens = jnp.array([[3, 5, 7, 11, 13, 17, 19, 23]])
+    params = model.init(jax.random.key(2), tokens)["params"]
+    _, state = model.apply({"params": params}, tokens[:, :1], mutable=["diagnostics"])
+    memory = state["diagnostics"]["layer_0"]["memory"]
+    # A single shifted token has a zero key: its evidence is exactly the floor.
+    assert float(memory["precision_eigenvalue_max"][0]) == pytest.approx(
+        float(memory["floor_max"][0]), rel=1e-6
+    )
+    with pytest.raises(ValueError, match="memory_key_shift"):
+        Mamba4LM(
+            model_config("M", memory_key_shift=True, memory_rope_fraction=1.0)
+        ).init(jax.random.key(0), tokens)

@@ -79,14 +79,14 @@ def bucket_for(length):
     raise ValueError(f"Sequence of {length} tokens exceeds every bucket")
 
 
-def word_pools(tokenizer):
+def word_pools(tokenizer, seed=SEED):
     """Single-token lowercase words: all (copy), keys and values (disjoint)."""
     ids = sorted(
         index
         for _, index in tokenizer.get_vocab().items()
         if WORD.match(tokenizer.decode([index]))
     )
-    ids = np.asarray(ids, np.int32)[np.random.default_rng(SEED).permutation(len(ids))]
+    ids = np.asarray(ids, np.int32)[np.random.default_rng(seed).permutation(len(ids))]
     half = len(ids) // 2
     return ids, ids[:half], ids[half:]
 
@@ -266,24 +266,35 @@ def pack(rows):
     return arrays, metadata
 
 
-def long_documents(tokenizer, screen_data, fresh_data):
-    """Unused long FineWeb-Edu documents from the pinned fresh shard.
+def long_documents(
+    tokenizer,
+    screen_data,
+    fresh_data,
+    shard=SHARD,
+    expected=None,
+    seed=SEED,
+    exclude=(),
+):
+    """Unused long FineWeb-Edu documents from a pinned official shard.
 
-    Excludes every screen-corpus document hash (training and held-out) and
-    every document of the fresh confirmatory holdout. Each kept document
-    supplies [EOS] + its first 16,384 tokens.
+    Excludes every screen-corpus document hash (training and held-out), every
+    document of the fresh confirmatory holdout and any listed earlier claims
+    documents. Each kept document supplies [EOS] + its first 16,384 tokens.
+    The shard must match ``expected`` (or the fresh-holdout manifest).
     """
     import pyarrow.parquet as pq
 
     manifest = json.loads((fresh_data / "manifest.json").read_text())
-    if sha256_file(SHARD) != manifest["source"]["lfs_sha256"]:
-        raise ValueError("Fresh shard hash differs from its manifest")
+    expected = expected or manifest["source"]["lfs_sha256"]
+    if sha256_file(shard) != expected:
+        raise ValueError("Long-document shard hash differs from its pin")
     ledger = np.load(screen_data / "documents.npy", mmap_mode="r")
     excluded = set(np.asarray(ledger["sha256"]).view("S32").reshape(-1).tolist())
     used = json.loads((fresh_data / "documents.json").read_text())["rows"]
     excluded |= {bytes.fromhex(row[4]) for row in used}
+    excluded |= {bytes.fromhex(digest) for digest in exclude}
     documents, seen = [], set()
-    for batch in pq.ParquetFile(SHARD).iter_batches(batch_size=4096, columns=["text"]):
+    for batch in pq.ParquetFile(shard).iter_batches(batch_size=4096, columns=["text"]):
         for text in batch.column(0).to_pylist():
             if len(text) < 40_000:
                 continue
@@ -294,7 +305,7 @@ def long_documents(tokenizer, screen_data, fresh_data):
             ids = tokenizer.encode(text, add_special_tokens=False).ids
             if len(ids) >= LONG_CONTEXT:
                 documents.append((digest.hex(), [EOS] + ids[:LONG_CONTEXT]))
-    order = np.random.default_rng(SEED).permutation(len(documents))
+    order = np.random.default_rng(seed).permutation(len(documents))
     keep = min(LONG_DOCUMENTS, len(documents) // 16 * 16)
     chosen = [documents[index] for index in order[:keep]]
     tokens = np.asarray([ids for _, ids in chosen], np.uint16)
@@ -312,7 +323,7 @@ def array_digest(arrays):
     return digest.hexdigest()
 
 
-def build_tasks(tokenizer_path):
+def build_tasks(tokenizer_path, seed=SEED):
     from tokenizers import Tokenizer
 
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
@@ -321,8 +332,8 @@ def build_tasks(tokenizer_path):
         or tokenizer.token_to_id("<|endoftext|>") != EOS
     ):
         raise ValueError("The claims tasks require the pinned GPT2 tokenizer")
-    words, keys, values = word_pools(tokenizer)
-    rng = np.random.default_rng(SEED)
+    words, keys, values = word_pools(tokenizer, seed)
+    rng = np.random.default_rng(seed)
     rows = copy_rows(words, rng) + mqar_rows(keys, values, rng)
     rows += passkey_rows(tokenizer, rng)
     arrays, metadata = pack(rows)
@@ -331,9 +342,28 @@ def build_tasks(tokenizer_path):
 
 def build(options):
     tokenizer_path = Path(options.screen_data) / "tokenizer.json"
-    tokenizer, arrays, metadata, words = build_tasks(tokenizer_path)
+    tokenizer, arrays, metadata, words = build_tasks(tokenizer_path, options.seed)
+    shard = Path(options.shard)
+    expected = (
+        json.loads(Path(options.shard_source).read_text())["lfs_sha256"]
+        if options.shard_source
+        else None
+    )
+    exclude = [
+        digest
+        for path in options.exclude
+        for digest in json.loads(Path(path).read_text())["long_documents"][
+            "document_sha256"
+        ]
+    ]
     tokens, hashes, available = long_documents(
-        tokenizer, Path(options.screen_data), Path(options.fresh_data)
+        tokenizer,
+        Path(options.screen_data),
+        Path(options.fresh_data),
+        shard,
+        expected,
+        options.seed,
+        exclude,
     )
     arrays["long_tokens"] = tokens
     output = Path(options.output)
@@ -342,7 +372,7 @@ def build(options):
     manifest = {
         "format": FORMAT,
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "seed": SEED,
+        "seed": options.seed,
         "tokenizer_sha256": sha256_file(tokenizer_path),
         "array_sha256": array_digest(arrays),
         "file_sha256": sha256_file(output / "tasks.npz"),
@@ -362,8 +392,9 @@ def build(options):
             },
         },
         "long_documents": {
-            "source": str(SHARD.relative_to(ROOT)),
-            "source_sha256": sha256_file(SHARD),
+            "source": str(shard.resolve().relative_to(ROOT)),
+            "source_sha256": sha256_file(shard),
+            "excluded_earlier_documents": len(exclude),
             "available": available,
             "kept": len(hashes),
             "context": LONG_CONTEXT,
@@ -1373,6 +1404,10 @@ def main():
     make.add_argument("--screen-data", default="data/fineweb-edu-1b")
     make.add_argument("--fresh-data", default="data/fresh-holdout-v2")
     make.add_argument("--output", default=str(TASKS.relative_to(ROOT)))
+    make.add_argument("--seed", type=int, default=SEED)
+    make.add_argument("--shard", default=str(SHARD.relative_to(ROOT)))
+    make.add_argument("--shard-source", help="JSON holding the shard's lfs_sha256")
+    make.add_argument("--exclude", nargs="*", default=[], help="earlier manifests")
     for action in ("evaluate", "decode"):
         run = sub.add_parser(action)
         run.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))

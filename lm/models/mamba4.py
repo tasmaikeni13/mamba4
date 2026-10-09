@@ -482,11 +482,35 @@ class SelectiveMemoryMixer(nn.Module):
             query = sections[3].astype(jnp.float32).reshape(query.shape)
         elif config.qk_activation != "silu":
             raise ValueError("qk_activation must be 'silu' or 'none'")
+        shifted = None
+        if config.memory_key_shift:
+            # Write each value under the key of the context before it, while
+            # queries see the current context: a read then returns what
+            # followed the current context last time (an induction lookup).
+            if angles_count:
+                raise ValueError("memory_key_shift does not support memory rotary")
+            if cache is None:
+                previous = jnp.zeros_like(key[:, :1])
+            else:
+                previous = cache["shifted"][:, None]
+            shifted = key[:, -1]
+            key = jnp.concatenate((previous, key[:, :-1]), axis=1)
         key, query = _unit(key), _unit(query)
+        if config.memory_beta_max <= 0:
+            raise ValueError("memory_beta_max must be positive")
+        # Evidence precision lies in (0, beta_max). Every head starts at
+        # beta = 1/2 whatever the range, so a wider range adds the ability to
+        # write one token far above the floor without changing initialization.
+        start = 0.5 / max(config.memory_beta_max, 1.0)
         beta_bias = self.param(
-            "beta_bias", nn.initializers.zeros, (heads,), jnp.float32
+            "beta_bias",
+            _constant(math.log(start / (1 - start))),
+            (heads,),
+            jnp.float32,
         )
-        beta = jax.nn.sigmoid(beta_raw.astype(jnp.float32) + beta_bias)
+        beta = config.memory_beta_max * jax.nn.sigmoid(
+            beta_raw.astype(jnp.float32) + beta_bias
+        )
         dt_bias = self.param("dt_bias", timestep_bias_init, (heads,), jnp.float32)
         dt = jax.nn.softplus(dt_raw.astype(jnp.float32) + dt_bias)
         a_log = self.param(
@@ -612,6 +636,7 @@ class SelectiveMemoryMixer(nn.Module):
             conv=history,
             order=order_cache,
             phase=None if phase is None else phase[:, -1],
+            shifted=shifted,
         )
 
 
@@ -874,6 +899,11 @@ def _selective_cache(config, batch_size):
                         jnp.float32,
                     )
                     if (rope := config.memory_rope_fraction)
+                    else None,
+                    shifted=jnp.zeros(
+                        (batch_size, memory_heads, config.key_dim), jnp.float32
+                    )
+                    if config.memory_key_shift
                     else None,
                 )
             )

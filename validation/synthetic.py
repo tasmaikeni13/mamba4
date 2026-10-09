@@ -130,6 +130,8 @@ class Spec:
     floor_init: float = 1.0
     conv_kernel: int = 4
     order_head: bool = True
+    beta_max: float = 1.0
+    dtype: str = "float32"
 
     def model_config(self):
         from lm.config import ModelConfig
@@ -150,7 +152,7 @@ class Spec:
             expand=2,
             head_dim=self.head_dim,
             chunk_size=64,
-            dtype="float32",
+            dtype=self.dtype,
             remat=False,
             max_seq_len=max(NOISY_LENGTHS),
             key_dim=self.key_dim,
@@ -164,6 +166,7 @@ class Spec:
             order_head=self.order_head,
             memory_head_dim=self.memory_head_dim,
             memory_solver="blocked",
+            memory_beta_max=self.beta_max,
         )
 
     def state_floats(self, length):
@@ -255,6 +258,21 @@ def _local(data, global_batch):
     }
 
 
+def compiled(mapped, label, *arguments):
+    """Compile ahead of time, then wait for every host before launching.
+
+    The TPU backend can emit slightly different bundles on different hosts for
+    the same HLO; launching in lockstep avoids launch-identity mismatches.
+    """
+    import jax
+    from jax.experimental import multihost_utils
+
+    executable = mapped.lower(*arguments).compile()
+    if jax.process_count() > 1:
+        multihost_utils.sync_global_devices(label)
+    return executable
+
+
 def train_one(spec, task, learning_rate, steps, global_batch, log_every=100):
     import jax
     import optax
@@ -269,18 +287,31 @@ def train_one(spec, task, learning_rate, steps, global_batch, log_every=100):
     )
     tx = optax.chain(
         optax.clip_by_global_norm(1.0),
-        optax.adamw(schedule, b1=0.9, b2=0.98, weight_decay=0.1),
+        # As in lm.train: decay matrices only, never gates, floors or norms.
+        optax.adamw(
+            schedule,
+            b1=0.9,
+            b2=0.98,
+            weight_decay=0.1,
+            mask=jax.tree_util.tree_map(lambda p: p.ndim >= 2, params),
+        ),
     )
     train_step, score_step = make_steps(model, tx)
     devices = jax.local_devices()
     params = jax.device_put_replicated(params, devices)
-    opt_state = jax.pmap(tx.init)(params)
+    label = f"{spec.name}-{task}-{learning_rate}"
+    initialize = compiled(jax.pmap(tx.init), f"init-{label}", params)
+    opt_state = initialize(params)
     rng = np.random.default_rng([SEEDS["train"], TASK_CODES[task]])
-    curve, started = [], time.perf_counter()
+    curve, started, executable = [], time.perf_counter(), None
     for step in range(steps):
         data = batch(task, rng, global_batch)
         local = _local({k: v for k, v in data.items() if k != "kind"}, global_batch)
-        params, opt_state, loss = train_step(params, opt_state, local)
+        if executable is None:
+            executable = compiled(
+                train_step, f"train-{label}", params, opt_state, local
+            )
+        params, opt_state, loss = executable(params, opt_state, local)
         if step % log_every == 0 or step == steps - 1:
             value = float(np.asarray(loss)[0])
             curve.append([step, value])
@@ -313,12 +344,17 @@ def score(score_step, params, task, seed, rows, global_batch):
         per -= per % jax.device_count()
         per = max(per, jax.device_count())
         collected = {"hit": [], "mask": [], "kind": [], "none_logp": [], "conf": []}
+        executable = None
         for _ in range(-(-rows // per)):
             data = batch(task, rng, per, length=length, load=group)
             local = _local(
                 {k: v for k, v in data.items() if k in ("inputs", "targets")}, per
             )
-            out = jax.device_get(score_step(params, local))
+            if executable is None:
+                executable = compiled(
+                    score_step, f"score-{task}-{seed}-{group}", params, local
+                )
+            out = jax.device_get(executable(params, local))
             for key, name in (
                 ("hit", "hit"),
                 ("none_logp", "none_logp"),
@@ -358,6 +394,11 @@ SPECS = {
     "mamba3": Spec("mamba3", "SS"),
     "mamba4": Spec("mamba4", "MM"),
     "mamba4-hybrid": Spec("mamba4-hybrid", "SM"),
+    "mamba4-strong": Spec("mamba4-strong", "MM", beta_max=16.0),
+    "mamba4-lowfloor": Spec("mamba4-lowfloor", "MM", floor_min=0.02, floor_init=0.1),
+    "mamba4-strong-lowfloor": Spec(
+        "mamba4-strong-lowfloor", "MM", beta_max=16.0, floor_min=0.02, floor_init=0.1
+    ),
 }
 
 
@@ -367,6 +408,9 @@ def run(options):
     from lm.runtime import initialize
 
     hardware = initialize(not options.local)
+    # Only process 0 writes the persistent cache, and XLA reuses its kernel
+    # choices across these many small programs; hosts must compile alike.
+    jax.config.update("jax_enable_compilation_cache", False)
     output = Path(options.output)
     results = {
         "created_utc": datetime.now(timezone.utc).isoformat(),

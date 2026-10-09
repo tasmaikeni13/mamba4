@@ -44,6 +44,8 @@ class ModelConfig:
     memory_rope_fraction: float = 0.0
     memory_head_dim: int = 0
     memory_solver: str = "loop"
+    memory_beta_max: float = 1.0
+    memory_key_shift: bool = False
 
     @property
     def num_heads(self) -> int:
