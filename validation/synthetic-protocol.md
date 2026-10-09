@@ -1,6 +1,6 @@
 # Synthetic study B and in-context regression: design
 
-Recorded 2026-10-09 22:45 UTC, before either study runs.
+Recorded 2026-10-09 22:31 UTC, before either study runs.
 
 ## Study B (token tasks)
 
