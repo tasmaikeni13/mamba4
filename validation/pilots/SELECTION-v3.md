@@ -1,6 +1,6 @@
 # Claims repair: development selection rule
 
-Recorded 2026-10-09 18:55 UTC, before any pilot of this rule ran.
+Recorded 2026-10-09 18:41 UTC (commit bc3ad3b), before the pilot launched at 18:41:46.
 
 The claims suite (`lm/results/claims-60m/`) found that the screen-60m-v2
 language model rarely copies and never retrieves a passkey. The synthetic

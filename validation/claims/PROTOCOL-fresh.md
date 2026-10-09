@@ -1,6 +1,6 @@
 # Claims-60m, fresh evaluation of the key-shift model
 
-Recorded 2026-10-09 21:05 UTC, while the screen-60m-v3 model was still
+Recorded 2026-10-09 21:03 UTC (commit db79c18), while the screen-60m-v3 model was still
 training and before any model was scored on these arrays.
 
 The rules, metrics, statistics and verdicts of `PROTOCOL.md` apply unchanged.
