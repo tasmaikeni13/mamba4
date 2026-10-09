@@ -58,6 +58,7 @@ def test_hops_answers_follow_the_stored_permutation():
     inputs, targets, mask, kind = synthetic.hops_sequence(rng, 16, 256)
     successor = dict(zip(inputs[0:32:2].tolist(), inputs[1:32:2].tolist()))
     assert sorted(successor) == sorted(successor.values())
+    assert all(successor[n] != n and successor[successor[n]] != n for n in successor)
     slots = np.flatnonzero(mask)
     assert len(slots) == 16 and set(kind[slots].tolist()) <= {0, 1}
     for slot in slots:

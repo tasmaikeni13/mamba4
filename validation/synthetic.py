@@ -105,13 +105,15 @@ def noisy_sequence(rng, length, pairs=NOISY_PAIRS):
 
 
 def hops_sequence(rng, count, length):
-    """Store node -> successor for a random permutation, then hop queries.
+    """Store node -> successor along a random cycle, then hop queries.
 
     Each query is [HOP1 or HOP2, node, answer]; the mask marks the node slot,
     whose target is the successor or the successor's successor.
     """
     nodes = rng.choice(np.arange(*KEYS), size=count, replace=False)
-    successor = dict(zip(nodes.tolist(), nodes[rng.permutation(count)].tolist()))
+    # One random cycle: neither answer can equal the queried node, so copying
+    # the current token never scores.
+    successor = dict(zip(nodes.tolist(), np.roll(nodes, -1).tolist()))
     store = np.stack([nodes, [successor[n] for n in nodes.tolist()]], axis=1)
     asked = rng.choice(nodes, size=count, replace=False)
     hops = rng.integers(1, 3, size=count)
