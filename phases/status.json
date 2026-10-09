@@ -33,7 +33,7 @@
     },
     {
       "id": 4,
-      "status": "completed",
+      "status": "nll_screen_won_claims_iteration_in_progress",
       "runs": [
         {
           "architecture": "transformer",
@@ -104,7 +104,25 @@
         "screen-60m-v2"
       ],
       "screen_win_scope": "single training seed; held-out NLL strictly lower than both peers",
-      "development_pilots": "lm/results/pilots-v2/ (rule: validation/pilots/SELECTION.md)"
+      "development_pilots": "lm/results/pilots-v2/ (rule: validation/pilots/SELECTION.md)",
+      "claims": {
+        "protocol": "validation/claims/PROTOCOL.md",
+        "first_evaluation": "lm/results/claims-60m (screen-60m-v2 model)",
+        "verdicts_vs_transformer": {
+          "exact_retrieval": "refuted",
+          "long_context": "refuted",
+          "calibrated_confidence": "refuted"
+        },
+        "verdicts_vs_mamba3": {
+          "exact_retrieval": "supported",
+          "long_context": "refuted",
+          "calibrated_confidence": "refuted"
+        },
+        "context_independent_decode": "supported",
+        "synthetic_development": "lm/results/synthetic-a: the unchanged memory layer reached 98% recall at K=8-16 and 100% retention to 8,192 tokens (trained at 512)",
+        "repair": "screen-60m-v3: memory_key_shift (induction-aligned keys); pilot passed validation/pilots/SELECTION-v3.md; full run in progress",
+        "fresh_evaluation": "data/claims-v2 (seed 20261011, shard 012) and data/fresh-holdout-v3"
+      }
     },
     {
       "id": 5,
@@ -119,5 +137,5 @@
       "status": "planned"
     }
   ],
-  "promotion": "Phases 03-04 authorized and executed through the 60M screen. Transformer and Mamba-3 (screen-60m-v1) and Mamba 4 v2 (screen-60m-v2) completed exactly 1B targets on all 16 chips and were audited. The declared single-seed screen win is established. No 125M scaling is authorized or performed; one seed cannot establish robustness."
+  "promotion": "Phases 03-04 authorized. The screen-60m-v2 NLL win is established, but the pre-registered claims suite did not demonstrate exact retrieval against the Transformer, long context, or calibrated confidence. A versioned repair (screen-60m-v3) is training; no 125M scaling is authorized or performed."
 }
