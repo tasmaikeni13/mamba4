@@ -21,7 +21,7 @@ STYLE = {
     "mamba4": ("Mamba 4", "#2a78d6", "-"),
     "mamba3": ("Mamba-3", "#eb6834", "-"),
     "transformer": ("Transformer", "#1baf7a", "-"),
-    "mamba4_v2": ("Mamba 4 without key shift", "#eda100", "-"),
+    "mamba4_no_shift": ("Mamba 4 without key shift", "#eda100", "-"),
     "mamba4_no_read": ("Mamba 4, read zeroed", "#2a78d6", ":"),
 }
 TEXT, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"

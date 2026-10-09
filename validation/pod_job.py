@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 from scripts.pod import HOSTS, ROOT, SSH
-from validation.run_screen_v2 import pod, wait_for_hosts
+from validation.run_screen import pod, wait_for_hosts
 
 
 def main():

@@ -1,6 +1,8 @@
-"""Audit actual checkpoints, exact budgets, all hosts, and frozen screen evidence."""
+"""Audit helpers: actual checkpoints, exact budgets, all hosts, recall evidence.
 
-import argparse
+`validation.verify_screen` uses these to re-audit every screen run.
+"""
+
 import hashlib
 import json
 import math
@@ -9,12 +11,9 @@ from pathlib import Path
 from flax import serialization
 import numpy as np
 
-from lm.data import TokenCorpus, sha256_file
-from lm.recall import build_recall_dataset, summarize_recall
-from lm.runtime import atomic_json, source_provenance
-
-
-ARCHITECTURES = ("transformer", "mamba3", "mamba4")
+from lm.data import sha256_file
+from lm.recall import summarize_recall
+from lm.runtime import source_provenance
 
 
 def require(condition, message):
@@ -453,177 +452,3 @@ def audit_run(
         "all_four_workers_completed": True,
         "sources": manifest["sources"],
     }
-
-
-def validate_engineering(benchmarks, conformance, sources):
-    evidence = {"benchmarks": {}, "kernel_conformance": {}}
-    for architecture in ARCHITECTURES:
-        rows = [
-            read_json(Path(benchmarks) / f"{architecture}-host-{index}.json")
-            for index in range(4)
-        ]
-        validate_hardware([row["hardware"] for row in rows])
-        frozen_model = read_json(f"lm/configs/{architecture}-60m.json")["model"]
-        for row in rows:
-            validate_sources(row["provenance"]["sha256"], sources)
-            require(
-                row["architecture"] == architecture
-                and row["model_config"] == frozen_model,
-                "Benchmark architecture configuration changed",
-            )
-            require(
-                row["global_batch"] == 128 and row["sequence_length"] == 1024,
-                "Benchmark does not measure production batch/length",
-            )
-            for phase in ("train", "prefill_loss", "cached_decode"):
-                measured = row[phase]
-                require(
-                    len(measured["steady_seconds"]) > 0
-                    and all(
-                        np.isfinite(value) and value > 0
-                        for value in measured["steady_seconds"]
-                    ),
-                    f"Missing finite steady {phase} timing",
-                )
-                require(
-                    np.isfinite(measured["tokens_per_second"])
-                    and measured["tokens_per_second"] > 0,
-                    f"Missing {phase} throughput",
-                )
-                compiler = measured["compiler"]
-                require(
-                    "memory_analysis" in compiler and "cost_analysis" in compiler,
-                    f"Missing {phase} compiler cost/memory analysis",
-                )
-                require(
-                    "unavailable" not in compiler["memory_analysis"]
-                    and "unavailable" not in compiler["cost_analysis"],
-                    f"Unavailable {phase} compiler evidence",
-                )
-            require(
-                row["cached_decode"]["finite_logits"], "Nonfinite cached decode logits"
-            )
-            require(
-                len(row["runtime_memory"]) == 4
-                and all(
-                    item and item.get("peak_bytes_in_use", 0) > 0
-                    for item in row["runtime_memory"]
-                ),
-                "Missing observed device peak memory",
-            )
-        evidence["benchmarks"][architecture] = [
-            sha256_file(Path(benchmarks) / f"{architecture}-host-{index}.json")
-            for index in range(4)
-        ]
-    rows = [read_json(Path(conformance) / f"host-{index}.json") for index in range(4)]
-    validate_hardware([row["hardware"] for row in rows])
-    for row in rows:
-        validate_sources(row["provenance"]["sha256"], sources)
-        require(
-            row["passed"] and row["pallas_tpu_verified"],
-            "Fused TPU kernel conformance did not pass",
-        )
-        require(len(row["cases"]) >= 7, "Missing declared kernel conformance cases")
-        for case in row["cases"]:
-            require(
-                case["passed"] and case["local_chips_checked"] == 4,
-                "Kernel case did not cover every local chip",
-            )
-            require(
-                case["forward"]["passed"]
-                and case["gradients"]
-                and all(gradient["passed"] for gradient in case["gradients"]),
-                "Kernel forward/backward conformance failed",
-            )
-    evidence["kernel_conformance"] = [
-        sha256_file(Path(conformance) / f"host-{index}.json") for index in range(4)
-    ]
-    return evidence
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runs", default="lm/runs/screen-60m-v1")
-    parser.add_argument("--data", default="data/fineweb-edu-1b")
-    parser.add_argument("--output", default="lm/results/screen-60m-v1")
-    parser.add_argument("--benchmarks", default="lm/results/benchmarks")
-    parser.add_argument("--conformance", default="lm/results/kernel-conformance")
-    options = parser.parse_args()
-    protocol = read_json("lm/configs/screen-protocol.json")
-    require(
-        protocol["training_targets_per_architecture"] == 1_000_000_000
-        and protocol["seed"] == 42,
-        "The requested 1B-token seed42 scope changed",
-    )
-    corpus = TokenCorpus(options.data, verify_hashes=True)
-    validate_data(corpus, protocol)
-    sources = source_provenance()["sha256"]
-    expected_recall = build_recall_dataset(corpus.path / "tokenizer.json")
-    engineering = validate_engineering(options.benchmarks, options.conformance, sources)
-    rows = [
-        audit_run(
-            Path(options.runs) / name,
-            name,
-            protocol,
-            corpus,
-            expected_sources=sources,
-            expected_recall=expected_recall,
-        )
-        for name in ARCHITECTURES
-    ]
-    for field in ("total_parameters", "non_embedding_parameters"):
-        counts = [row[field] for row in rows]
-        require(max(counts) / min(counts) < 1.01, f"Parameter matching failed: {field}")
-    require(
-        len({row["embedding_parameters"] for row in rows}) == 1,
-        "Embedding parameter counts differ",
-    )
-    training_protocols = [
-        read_json(Path(options.runs) / name / "manifest.json")["protocol"]["training"]
-        for name in ARCHITECTURES
-    ]
-    require(
-        all(value == training_protocols[0] for value in training_protocols),
-        "Training protocols differ between architectures",
-    )
-    win = all(rows[2]["heldout"]["nll"] < row["heldout"]["nll"] for row in rows[:2])
-    value = {
-        "protocol": protocol,
-        "all_requested_runs_completed": True,
-        "screen_win": win,
-        "runs": rows,
-        "engineering": engineering,
-        "data_manifest_sha256": sha256_file(corpus.path / "manifest.json"),
-        "limitation": "One seed per model; no between-seed uncertainty estimate",
-    }
-    output = Path(options.output)
-    atomic_json(output / "audit.json", value)
-    lines = [
-        "# 60M, 1B-token, single-seed screen",
-        "",
-        "All three actual final checkpoint states, exact target budgets, frozen recall results, and four-worker TPU results were audited.",
-        "",
-        "| Model | Parameters | Held-out NLL | Perplexity | Train tokens/s | Recall accuracy |",
-        "|---|---:|---:|---:|---:|---:|",
-    ]
-    for row in rows:
-        lines.append(
-            f"| {row['architecture']} | {row['total_parameters']:,} | {row['heldout']['nll']:.6f} | {row['heldout']['perplexity']:.4f} | {row['steady_tokens_per_second']:,.0f} | {row['recall']['overall']['accuracy']:.3f} |"
-        )
-    lines += [
-        "",
-        f"Declared Mamba4 screen win: **{win}**.",
-        "",
-        "The same dataset, tokenizer, batch, optimizer, source hashes and training seed were used.",
-        "The final 0.11316% of training targets reuse training documents; held-out",
-        "documents remain excluded. One seed cannot establish robustness.",
-        "",
-        "See audit.json for final checkpoint hashes, exact target counts, per-model",
-        "fingerprints, raw-evidence references and every outcome. Scaling beyond 60M was not performed.",
-    ]
-    (output / "REPORT.md").write_text("\n".join(lines) + "\n")
-    print(json.dumps(value, indent=2))
-
-
-if __name__ == "__main__":
-    main()

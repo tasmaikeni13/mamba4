@@ -25,16 +25,9 @@ class ModelConfig:
     max_seq_len: int = 1024
     remat: bool = True
     mamba3_outproj_norm: bool = False
+    # Mamba 4 memory layers (lm/models/mamba4.py).
     key_dim: int = 16
-    memory_floor: str = "cyclic"
-    memory_decay: float = 0.99
-    memory_epsilon: float = 0.05
-    memory_hops: int = 1
-    protected_anchor_budget: int = 4
-    protected_block_size: int = 64
-    protected_routing: str = "all"
-    # screen-60m-v2 fields; defaults reproduce the frozen v1 composition.
-    memory_mixer: str = "v1"
+    memory_mixer: str = "selective"
     layer_pattern: str = ""
     conv_kernel: int = 0
     floor_min: float = 0.25
@@ -46,6 +39,14 @@ class ModelConfig:
     memory_solver: str = "loop"
     memory_beta_max: float = 1.0
     memory_key_shift: bool = False
+    # Accepted so the frozen peer configurations load; no model reads them.
+    memory_floor: str = "cyclic"
+    memory_decay: float = 0.99
+    memory_epsilon: float = 0.05
+    memory_hops: int = 1
+    protected_anchor_budget: int = 0
+    protected_block_size: int = 64
+    protected_routing: str = "all"
 
     @property
     def num_heads(self) -> int:
@@ -57,7 +58,7 @@ class ModelConfig:
 
     @property
     def memory_value_dim(self) -> int:
-        """Selective memory heads may be wider than the hybrid Mamba-3 heads."""
+        """Memory heads may be wider than the Mamba-3 heads."""
         return self.memory_head_dim or self.head_dim
 
     @property

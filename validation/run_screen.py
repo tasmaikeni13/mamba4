@@ -1,13 +1,14 @@
-"""Guarded screen-60m-v3 Mamba 4 run: train, resume after preemption, audit.
+"""Guarded 60M Mamba 4 screen run: train, resume after preemption, audit.
 
-The same controller as screen-60m-v2 with the v3 configuration (induction-
-aligned memory keys), run directory, evidence directory and fresh holdout
-(data/fresh-holdout-v3). Only this controller launches the full v3 run,
-always through scripts.pod. Before each attempt every host's persistent
-compilation cache is cleared. After an external interruption the next attempt
-resumes from the latest durable checkpoint (lm.train verifies the
-fingerprint). Two consecutive failures without checkpoint progress stop the
-chain for inspection. Every attempt, failure and audit is recorded in
+Only this controller launches the full Mamba 4 run, always through
+scripts.pod. Before each attempt every host's persistent compilation cache is
+cleared, so no host executes a cached program while the others compile a
+fresh one. After an external interruption the next attempt resumes from the
+latest durable checkpoint (lm.train verifies the fingerprint). Two
+consecutive failures without checkpoint progress stop the chain for
+inspection. The completed run is audited, its final checkpoint is hashed on
+every host, and every model is evaluated per sequence on the held-out split
+and the fresh confirmatory holdout. Every stage is recorded in
 ``status.json``.
 """
 
@@ -28,10 +29,10 @@ from scripts.pod import HOSTS, ROOT, SSH
 from scripts.verify_lm_runs import audit_run, read_json, require, validate_data
 
 
-RUNS = ROOT / "lm/runs/screen-60m-v3"
-EVIDENCE = ROOT / "lm/results/screen-60m-v3"
-CONFIG = ROOT / "lm/configs/mamba4-60m-v3.json"
-PROTOCOL = ROOT / "lm/configs/screen-protocol-v3.json"
+RUNS = ROOT / "lm/runs/screen-60m"
+EVIDENCE = ROOT / "lm/results/screen-60m"
+CONFIG = ROOT / "lm/configs/mamba4-60m.json"
+PROTOCOL = ROOT / "lm/configs/screen-protocol.json"
 STATUS = RUNS / "status.json"
 LOG = RUNS / "mamba4/metrics.jsonl"
 MERGED = RUNS / "mamba4/metrics.merged.jsonl"
@@ -131,7 +132,7 @@ def train(max_attempts):
         wait_for_hosts()
         clear_caches()
         before = checkpoint_step()
-        tag = f"train-mamba4-60m-v3-a{attempt}"
+        tag = f"train-mamba4-60m-a{attempt}"
         command = [
             sys.executable,
             "-u",
@@ -185,7 +186,7 @@ def checkpoint_sidecar(audited):
         EVIDENCE / "mamba4-checkpoints.json",
         {
             "architecture": "mamba4",
-            "protocol": "screen-60m-v3",
+            "protocol": "screen-60m",
             "verified_utc": datetime.now(timezone.utc).isoformat(),
             "method": "Independent SHA256 of actual final state.msgpack on each worker",
             "optimizer_steps": audited["optimizer_steps"],
@@ -216,9 +217,7 @@ def peer_source_identity(sources):
     """Every peer/shared execution file must equal its completed-run hash."""
     report = {}
     for architecture in ("transformer", "mamba3"):
-        recorded = read_json(
-            ROOT / f"lm/runs/screen-60m-v1/{architecture}/manifest.json"
-        )
+        recorded = read_json(ROOT / f"lm/runs/screen-60m/{architecture}/manifest.json")
         differing = sorted(
             name
             for name, digest in recorded["sources"].items()
@@ -270,20 +269,20 @@ def main():
         atomic_json(EVIDENCE / "mamba4-audit.json", audited)
         checkpoint_sidecar(audited)
         record("audited", heldout=audited["heldout"])
-        v1 = "lm/runs/screen-60m-v1"
+        peers = "lm/runs/screen-60m"
         pod(
             "validation.fresh_holdout",
             [
                 "evaluate",
                 "--fresh-data",
-                "data/fresh-holdout-v3",
+                "data/fresh-holdout",
                 "--output",
                 str(EVIDENCE),
-                f"transformer=lm/configs/transformer-60m.json,{v1}/transformer",
-                f"mamba3=lm/configs/mamba3-60m.json,{v1}/mamba3",
-                f"mamba4=lm/configs/mamba4-60m-v3.json,{RUNS}/mamba4",
+                f"transformer=lm/configs/transformer-60m.json,{peers}/transformer",
+                f"mamba3=lm/configs/mamba3-60m.json,{peers}/mamba3",
+                f"mamba4=lm/configs/mamba4-60m.json,{RUNS}/mamba4",
             ],
-            "eval-sequence-nll-v3",
+            "eval-sequence-nll",
         )
         record("evaluated", evidence=str(EVIDENCE / "sequence-nll.json"))
     except BaseException as error:

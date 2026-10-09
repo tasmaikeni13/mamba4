@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from validation import run_screen_v2
-from validation.verify_screen_v2 import block_bootstrap, paired_statistics
+from validation import run_screen
+from validation.verify_screen import block_bootstrap, paired_statistics
 
 
 def entry(values):
@@ -54,15 +54,15 @@ def test_block_bootstrap_interval_covers_zero_for_pure_noise():
 
 
 def test_log_absorption_handles_local_and_moved_process_zero(tmp_path, monkeypatch):
-    monkeypatch.setattr(run_screen_v2, "LOG", tmp_path / "metrics.jsonl")
-    monkeypatch.setattr(run_screen_v2, "MERGED", tmp_path / "metrics.merged.jsonl")
-    monkeypatch.setattr(run_screen_v2, "HOSTS", ["local"])
-    run_screen_v2._write_log(['{"step": 1}', '{"step": 2}'])
+    monkeypatch.setattr(run_screen, "LOG", tmp_path / "metrics.jsonl")
+    monkeypatch.setattr(run_screen, "MERGED", tmp_path / "metrics.merged.jsonl")
+    monkeypatch.setattr(run_screen, "HOSTS", ["local"])
+    run_screen._write_log(['{"step": 1}', '{"step": 2}'])
     (tmp_path / "metrics.jsonl").write_text('{"step": 1}\n{"step": 2}\n{"step": 3}\n')
-    assert run_screen_v2.absorb_logs() == 1
+    assert run_screen.absorb_logs() == 1
     # A process 0 on another host starts a fresh file after a reboot.
     (tmp_path / "metrics.jsonl").write_text('{"step": 3}\n{"step": 4}\n')
-    assert run_screen_v2.absorb_logs() == 2
+    assert run_screen.absorb_logs() == 2
     lines = (tmp_path / "metrics.merged.jsonl").read_text().split("\n")
     assert [line for line in lines if line] == [
         '{"step": 1}',

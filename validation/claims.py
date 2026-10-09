@@ -8,7 +8,7 @@ answer positions (calibrated retrieval) and per-token decode cost versus
 context length. The protocol is fixed in ``validation/claims/PROTOCOL.md``
 before any model is scored; every task array is deterministic and hashed.
 
-``build``    (CPU) writes task arrays to data/claims-v1 and their manifest.
+``build``    (CPU) writes task arrays to data/claims and their manifest.
 ``evaluate`` (pod) scores every model on identical arrays.
 ``decode``   (pod) times one-token decode and counts cache bytes per context.
 ``report``   (CPU) computes the pre-registered statistics and verdicts.
@@ -33,7 +33,8 @@ from lm.runtime import atomic_json
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SEED = 20261010
+SEED = 20261011  # task construction (fresh evaluation arrays)
+BOOTSTRAP_SEED = 20261010  # resampling in every report
 EOS, COLON, NEWLINE = 50256, 25, 198
 WORD = re.compile(r"^ [a-z]{3,10}$")
 BUCKETS = (1024, 2048, 4096, 8192, 16384)
@@ -53,10 +54,10 @@ DECODE_STEPS = 32
 TRAINING_CONTEXT = 1024
 RESAMPLES = 10_000
 FORMAT = "mamba4.claims-tasks.v1"
-TASKS = ROOT / "data/claims-v1"
+TASKS = ROOT / "data/claims"
 RESULTS = ROOT / "lm/results/claims-60m"
 RAW = ROOT / "lm/runs/claims-60m"
-SHARD = ROOT / "data/fresh-holdout-v2/source/013_00000.parquet"
+SHARD = ROOT / "data/claims-source/012_00000.parquet"
 
 # Mohtashami & Jaggi (2023), arXiv:2305.16300, passkey retrieval template,
 # repeated at sentence granularity so no filler word is cut.
@@ -891,7 +892,7 @@ def compare_families(models, rng):
                     )
             table[group] = entry
         comparisons = {}
-        for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_v2"):
+        for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_no_shift"):
             if peer not in models:
                 continue
             tests = {}
@@ -1027,7 +1028,7 @@ def long_context(long_outputs, rng):
         for name in names
     }
     comparisons = {}
-    for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_v2"):
+    for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_no_shift"):
         if peer not in per_document:
             continue
         tests = {
@@ -1135,12 +1136,22 @@ def verdicts(families, context, calibration_report, decoding):
     return result
 
 
+LABELS = {
+    "mamba4_v2": "mamba4_no_shift",
+    "mamba4_v2_no_read": "mamba4_no_shift_no_read",
+}
+
+
 def report(options):
     arrays, manifest = load_tasks(options.tasks)
     raw = Path(options.raw)
     evaluation = json.loads((raw / "evaluation.json").read_text())
     if evaluation["task_array_sha256"] != manifest["array_sha256"]:
         raise ValueError("Evaluation used different task arrays")
+    # The ablation was scored under an earlier label; its records stay intact.
+    evaluation["models"] = {
+        LABELS.get(name, name): entry for name, entry in evaluation["models"].items()
+    }
     outputs, long_outputs = {}, {}
     for name, entry in evaluation["models"].items():
         if sha256_file(Path(entry["raw"])) != entry["raw_sha256"]:
@@ -1149,7 +1160,7 @@ def report(options):
             data = {key: stored[key] for key in stored.files}
         outputs[name] = row_metrics(arrays, data)
         long_outputs[name] = {k: v for k, v in data.items() if k.startswith("long_")}
-    rng = np.random.default_rng(SEED)
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
     families = compare_families(outputs, rng)
     context, curves = long_context(long_outputs, rng)
     calibration_report = calibration(outputs, long_outputs, rng)
@@ -1212,8 +1223,8 @@ NAMES = {
     "mamba3": "Mamba-3",
     "mamba4": "Mamba 4",
     "mamba4_no_read": "Mamba 4, read zeroed",
-    "mamba4_v2": "Mamba 4 without key shift",
-    "mamba4_v2_no_read": "Mamba 4 without key shift, read zeroed",
+    "mamba4_no_shift": "Mamba 4 without key shift (ablation)",
+    "mamba4_no_shift_no_read": "Mamba 4 without key shift, read zeroed",
 }
 
 
@@ -1367,13 +1378,15 @@ def launch(options):
     import subprocess
 
     from scripts.pod import HOSTS, SSH
-    from validation.run_screen_v2 import pod, wait_for_hosts
+    from validation.run_screen import pod, wait_for_hosts
 
-    v1, v2 = "lm/runs/screen-60m-v1", "lm/runs/screen-60m-v2"
+    runs = "lm/runs/screen-60m"
     models = options.models or [
-        f"transformer=lm/configs/transformer-60m.json,{v1}/transformer",
-        f"mamba3=lm/configs/mamba3-60m.json,{v1}/mamba3",
-        f"mamba4=lm/configs/mamba4-60m-v2.json,{v2}/mamba4",
+        f"transformer=lm/configs/transformer-60m.json,{runs}/transformer",
+        f"mamba3=lm/configs/mamba3-60m.json,{runs}/mamba3",
+        f"mamba4=lm/configs/mamba4-60m.json,{runs}/mamba4",
+        "mamba4_no_shift=lm/configs/ablations/mamba4-60m-no-key-shift.json,"
+        f"{runs}/mamba4-no-key-shift",
     ]
     raw = Path(options.raw)
     wait_for_hosts()
@@ -1396,12 +1409,21 @@ def main():
     sub = parser.add_subparsers(dest="action", required=True)
     make = sub.add_parser("build")
     make.add_argument("--screen-data", default="data/fineweb-edu-1b")
-    make.add_argument("--fresh-data", default="data/fresh-holdout-v2")
+    make.add_argument("--fresh-data", default="data/fresh-holdout-earlier")
     make.add_argument("--output", default=str(TASKS.relative_to(ROOT)))
     make.add_argument("--seed", type=int, default=SEED)
     make.add_argument("--shard", default=str(SHARD.relative_to(ROOT)))
-    make.add_argument("--shard-source", help="JSON holding the shard's lfs_sha256")
-    make.add_argument("--exclude", nargs="*", default=[], help="earlier manifests")
+    make.add_argument(
+        "--shard-source",
+        default="data/claims-source/source.json",
+        help="JSON holding the shard's lfs_sha256",
+    )
+    make.add_argument(
+        "--exclude",
+        nargs="*",
+        default=["data/claims-development/manifest.json"],
+        help="manifests whose long documents must not be reused",
+    )
     for action in ("evaluate", "decode"):
         run = sub.add_parser(action)
         run.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))

@@ -1,5 +1,5 @@
 {
-  "protocol_id": "screen-60m-v2",
+  "protocol_id": "screen-60m-ablation",
   "model": {
     "architecture": "mamba4",
     "vocab_size": 50257,
@@ -37,7 +37,8 @@
     "qk_activation": "silu",
     "memory_head_dim": 128,
     "memory_solver": "blocked",
-    "layer_pattern": "SSSMSSSMSSSMSSSMSSS"
+    "layer_pattern": "SSSMSSSMSSSMSSSMSSS",
+    "memory_key_shift": false
   },
   "training": {
     "seed": 42,
