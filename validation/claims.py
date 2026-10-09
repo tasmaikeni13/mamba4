@@ -891,7 +891,7 @@ def compare_families(models, rng):
                     )
             table[group] = entry
         comparisons = {}
-        for peer in ("transformer", "mamba3", "mamba4_no_read"):
+        for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_v2"):
             if peer not in models:
                 continue
             tests = {}
@@ -1027,7 +1027,7 @@ def long_context(long_outputs, rng):
         for name in names
     }
     comparisons = {}
-    for peer in ("transformer", "mamba3", "mamba4_no_read"):
+    for peer in ("transformer", "mamba3", "mamba4_no_read", "mamba4_v2"):
         if peer not in per_document:
             continue
         tests = {
@@ -1212,6 +1212,8 @@ NAMES = {
     "mamba3": "Mamba-3",
     "mamba4": "Mamba 4",
     "mamba4_no_read": "Mamba 4, read zeroed",
+    "mamba4_v2": "Mamba 4 without key shift",
+    "mamba4_v2_no_read": "Mamba 4 without key shift, read zeroed",
 }
 
 
@@ -1368,32 +1370,24 @@ def launch(options):
     from validation.run_screen_v2 import pod, wait_for_hosts
 
     v1, v2 = "lm/runs/screen-60m-v1", "lm/runs/screen-60m-v2"
-    models = [
+    models = options.models or [
         f"transformer=lm/configs/transformer-60m.json,{v1}/transformer",
         f"mamba3=lm/configs/mamba3-60m.json,{v1}/mamba3",
         f"mamba4=lm/configs/mamba4-60m-v2.json,{v2}/mamba4",
     ]
+    raw = Path(options.raw)
     wait_for_hosts()
     subprocess.run(
         [sys.executable, "-m", "scripts.pod", "sync", "--data"], cwd=ROOT, check=True
     )
     # scripts.pod collects --output from every worker; create it everywhere.
     for host in HOSTS[1:]:
-        subprocess.run(
-            SSH + [f"tasma@{host}", f"mkdir -p {ROOT / RAW.relative_to(ROOT)}"],
-            check=True,
-        )
-    if "evaluate" in options.stages:
+        subprocess.run(SSH + [f"tasma@{host}", f"mkdir -p {ROOT / raw}"], check=True)
+    for stage in options.stages:
         pod(
             "validation.claims",
-            ["evaluate", "--output", str(RAW.relative_to(ROOT)), *models],
-            "claims-60m-evaluate",
-        )
-    if "decode" in options.stages:
-        pod(
-            "validation.claims",
-            ["decode", "--output", str(RAW.relative_to(ROOT)), *models],
-            "claims-60m-decode",
+            [stage, "--tasks", options.tasks, "--output", str(raw), *models],
+            f"{raw.name}-{stage}",
         )
 
 
@@ -1419,6 +1413,9 @@ def main():
     summarize.add_argument("--output", default=str(RESULTS.relative_to(ROOT)))
     start = sub.add_parser("launch")
     start.add_argument("--stages", nargs="+", default=["evaluate", "decode"])
+    start.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))
+    start.add_argument("--raw", default=str(RAW.relative_to(ROOT)))
+    start.add_argument("--models", nargs="*", help="name=config.json,run_directory")
     options = parser.parse_args()
     {
         "build": build,
