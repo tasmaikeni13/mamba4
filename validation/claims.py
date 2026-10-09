@@ -1172,13 +1172,168 @@ def report(options):
         for name, models in outputs.items()
     }
     atomic_json(output / "per-row.json", per_row)
+    (output / "REPORT.md").write_text(markdown(summary))
     print(json.dumps(summary["verdicts"], indent=2))
+
+
+NAMES = {
+    "transformer": "Transformer",
+    "mamba3": "Mamba-3",
+    "mamba4": "Mamba 4",
+    "mamba4_no_read": "Mamba 4, read zeroed",
+}
+
+
+def _percent(value):
+    return f"{100 * value:.1f}%"
+
+
+def markdown(summary):
+    """Human-readable results; verdict rules are those of PROTOCOL.md."""
+    families, context = summary["families"], summary["long_context"]
+    models = [name for name in NAMES if name in summary["evaluation"]]
+    header = "| " + " | ".join(NAMES[m] for m in models) + " |"
+    lines = [
+        "# Claims-60m results",
+        "",
+        "Pre-registered tests (`validation/claims/PROTOCOL.md`) of the paper's",
+        "retrieval, long-context, calibration and decode claims on the trained",
+        "60M checkpoints. One training seed; prompts or documents are the",
+        "sampling units. Verdicts compare Mamba 4 with each peer under the frozen",
+        'rules; "read zeroed" is an evaluation-time ablation, not a model.',
+        "",
+        "## Verdicts",
+        "",
+        "| Claim | vs Transformer | vs Mamba-3 |",
+        "|---|---|---|",
+    ]
+    verdict = summary["verdicts"]
+    for key, label in (
+        ("exact_retrieval_within_training_context", "Exact retrieval (within 1,024)"),
+        ("long_context", "Long context"),
+        ("calibrated_confidence", "Calibrated confidence"),
+    ):
+        lines.append(
+            f"| {label} | {verdict['transformer'][key]} | {verdict['mamba3'][key]} |"
+        )
+    if "context_independent_decode" in verdict:
+        lines.append(
+            "| Context-independent decode | "
+            f"{verdict['context_independent_decode']} | — |"
+        )
+    for family, title, unit in (
+        ("copy", "Exact copy: top-1 accuracy on the second copy", "L"),
+        ("mqar", "Associative recall: top-1 accuracy at 16 queries", "K"),
+    ):
+        lines += ["", f"## {title}", "", f"| {unit} |" + header[1:] + " vs T | vs M3 |"]
+        lines.append("|---:" * (len(models) + 1) + "|---|---|")
+        for group, entry in sorted(
+            families[family]["groups"].items(), key=lambda x: int(x[0])
+        ):
+            cells = " | ".join(_percent(entry[m]["mean"]) for m in models)
+            tests = families[family]["mamba4_vs"]
+            lines.append(
+                f"| {group} | {cells} | {tests['transformer'][group]['verdict']}"
+                f" | {tests['mamba3'][group]['verdict']} |"
+            )
+    lines += [
+        "",
+        "## Passkey retrieval: exact match, pooled over five depths",
+        "",
+        "| Length |" + header[1:],
+        "|---:" * (len(models) + 1) + "|",
+    ]
+    pooled = {}
+    for group, entry in families["passkey"]["groups"].items():
+        for m in models:
+            pooled.setdefault(int(group) // 10, {}).setdefault(m, []).append(
+                entry[m]["mean"]
+            )
+    for length in sorted(pooled):
+        cells = " | ".join(_percent(float(np.mean(pooled[length][m]))) for m in models)
+        lines.append(f"| {length:,} | {cells} |")
+    order = [f"{POSITION_EDGES[i]}-{POSITION_EDGES[i + 1]}" for i in range(7)]
+    lines += [
+        "",
+        f"## Long-document NLL by position ({context['documents']} documents)",
+        "",
+        "| Positions |" + header[1:],
+        "|---" + "|---:" * len(models) + "|",
+    ]
+    for bucket in order:
+        cells = " | ".join(f"{context['nll_by_bucket'][m][bucket]:.3f}" for m in models)
+        lines.append(f"| {bucket} | {cells} |")
+    late = context["late_minus_early"]
+    lines += [
+        "",
+        "NLL at 8,192–16,384 minus NLL at 512–1,024 (paired over documents): "
+        + "; ".join(
+            f"{NAMES[m]} {late[m]['mean']:+.3f} "
+            f"[{late[m]['bootstrap_95'][0]:+.3f}, {late[m]['bootstrap_95'][1]:+.3f}]"
+            for m in models
+        )
+        + ".",
+        "",
+        "## Calibration at answer slots",
+        "",
+        "| Family | " + " | ".join(f"{NAMES[m]} ECE / AUROC" for m in models) + " |",
+        "|---" + "|---:" * len(models) + "|",
+    ]
+    for family in FAMILIES:
+        cells = " | ".join(
+            f"{summary['calibration'][m][family]['ece']:.4f} / "
+            f"{summary['calibration'][m][family]['auroc']:.3f}"
+            for m in models
+        )
+        lines.append(f"| {family} | {cells} |")
+    variance = summary["calibration"]["mamba4"]
+    lines += [
+        "",
+        "Mamba 4 memory-variance AUROC (lower variance predicting a correct",
+        "answer), memory layers in order: "
+        + "; ".join(
+            f"{family} "
+            + ", ".join(f"{v:.2f}" for v in variance[family]["variance_auroc_by_layer"])
+            for family in FAMILIES
+        )
+        + ".",
+    ]
+    if summary["decode"]:
+        timed = [m for m in models if m in summary["decode"]]
+        lines += [
+            "",
+            "## One-token decode (median, one sequence per chip)",
+            "",
+            "| Context | "
+            + " | ".join(f"{NAMES[m]} ms (cache MiB)" for m in timed)
+            + " |",
+            "|---:" + "|---:" * len(timed) + "|",
+        ]
+        for c in DECODE_CONTEXTS:
+            cells = []
+            for m in timed:
+                entry = summary["decode"][m]["contexts"][str(c)]
+                cells.append(
+                    f"{1000 * entry['median_step_seconds']:.2f} "
+                    f"({entry['cache_bytes_per_sequence'] / 2**20:.1f})"
+                )
+            lines.append(f"| {c:,} | " + " | ".join(cells) + " |")
+    prefill = summary["prefill_seconds_per_16k_document"]
+    lines += [
+        "",
+        "Full-sequence forward time per 16,384-token document (one per chip): "
+        + "; ".join(f"{NAMES[m]} {prefill[m]:.3f} s" for m in models)
+        + ".",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def launch(options):
     """Sync once, then evaluate and time decode through the pod controller."""
     import subprocess
 
+    from scripts.pod import HOSTS, SSH
     from validation.run_screen_v2 import pod, wait_for_hosts
 
     v1, v2 = "lm/runs/screen-60m-v1", "lm/runs/screen-60m-v2"
@@ -1191,6 +1346,12 @@ def launch(options):
     subprocess.run(
         [sys.executable, "-m", "scripts.pod", "sync", "--data"], cwd=ROOT, check=True
     )
+    # scripts.pod collects --output from every worker; create it everywhere.
+    for host in HOSTS[1:]:
+        subprocess.run(
+            SSH + [f"tasma@{host}", f"mkdir -p {ROOT / RAW.relative_to(ROOT)}"],
+            check=True,
+        )
     if "evaluate" in options.stages:
         pod(
             "validation.claims",
