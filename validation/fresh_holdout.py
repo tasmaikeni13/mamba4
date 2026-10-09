@@ -67,6 +67,14 @@ def download(directory):
     }
 
 
+def earlier_documents(path):
+    """Document hashes recorded by a claims manifest or a holdout ledger."""
+    record = json.loads(Path(path).read_text())
+    if "long_documents" in record:
+        return {bytes.fromhex(h) for h in record["long_documents"]["document_sha256"]}
+    return {bytes.fromhex(row[4]) for row in record["rows"]}
+
+
 def prepare(options):
     import pyarrow.parquet as pq
     from tokenizers import Tokenizer
@@ -74,9 +82,19 @@ def prepare(options):
     output = Path(options.output)
     (output / "source").mkdir(parents=True, exist_ok=True)
     screen = Path(options.screen_data)
-    shard, source = download(output / "source")
+    if options.shard:
+        shard = Path(options.shard)
+        source = json.loads(Path(options.shard_source).read_text())
+        if sha256_file(shard) != source["lfs_sha256"]:
+            raise ValueError("Local shard differs from its pinned hash")
+    else:
+        shard, source = download(output / "source")
     ledger = np.load(screen / "documents.npy", mmap_mode="r")
     excluded = set(np.asarray(ledger["sha256"]).view("S32").reshape(-1).tolist())
+    earlier = set()
+    for path in options.exclude:
+        earlier |= earlier_documents(path)
+    excluded |= earlier
     tokenizer_file = screen / "tokenizer.json"
     tokenizer = Tokenizer.from_file(str(tokenizer_file))
     parquet = pq.ParquetFile(shard)
@@ -93,7 +111,7 @@ def prepare(options):
                 seen.add(digest)
                 texts.append(text)
                 hashes.append(digest)
-    order = np.random.default_rng(SEED).permutation(len(texts))
+    order = np.random.default_rng(options.seed).permutation(len(texts))
     stream, rows, written = [], [], 0
     for index in order:
         ids = tokenizer.encode(texts[index], add_special_tokens=False).ids + [EOS]
@@ -119,13 +137,14 @@ def prepare(options):
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "source": source,
         "source_rows": parquet.metadata.num_rows,
-        "excluded_screen_hashes": len(excluded),
+        "excluded_screen_hashes": len(excluded) - len(earlier),
+        "excluded_earlier_evaluation_documents": len(earlier),
         "screen_overlap_rows_removed": overlap,
         "within_shard_duplicates_removed": duplicates,
         "candidate_documents": len(texts),
         "selected_documents": len(rows),
         "permutation": "numpy PCG64",
-        "seed": SEED,
+        "seed": options.seed,
         "tokenizer_sha256": sha256_file(tokenizer_file),
         "tokenization": "GPT2, no implicit special tokens, one EOS per document",
         "token_count": TARGETS + 1,
@@ -250,6 +269,10 @@ def main():
     build = sub.add_parser("prepare")
     build.add_argument("--screen-data", default="data/fineweb-edu-1b")
     build.add_argument("--output", default="data/fresh-holdout-v2")
+    build.add_argument("--seed", type=int, default=SEED)
+    build.add_argument("--shard", help="local pinned shard instead of a download")
+    build.add_argument("--shard-source", help="JSON with the shard's lfs_sha256")
+    build.add_argument("--exclude", nargs="*", default=[], help="earlier ledgers")
     run = sub.add_parser("evaluate")
     run.add_argument("--screen-data", default="data/fineweb-edu-1b")
     run.add_argument("--fresh-data", default="data/fresh-holdout-v2")

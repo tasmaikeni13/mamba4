@@ -8,6 +8,8 @@ steps and batch, then scored on held-out evaluation seeds:
              target is a NONE token (knowing what is absent).
 ``noisy``    eight pairs scattered in random distractors; trained at 512
              tokens, scored up to 8,192 (selective retention over long range).
+``hops``     a stored permutation of K nodes, then queries that ask for the
+             successor (one hop) or the successor's successor (two hops).
 
 Every model is a stack of pre-norm residual blocks between a tied embedding
 and head: Transformer blocks (attention + SwiGLU MLP), official Mamba-3 SISO
@@ -26,7 +28,7 @@ import numpy as np
 from lm.runtime import atomic_json
 
 
-PAD, NONE = 0, 1
+PAD, NONE, HOP1, HOP2 = 0, 1, 2, 3
 KEYS = (16, 4096)
 VALUES = (4096, 8192)
 NOISE = (8192, 12288)
@@ -34,9 +36,10 @@ VOCAB = 12288
 TRAIN_LENGTH = 512
 MQAR_LOADS = (8, 16, 32, 64, 128)
 NOISY_PAIRS = 8
+HOP_LOADS = (8, 16, 32, 64)
 NOISY_LENGTHS = (512, 1024, 2048, 4096, 8192)
 SEEDS = {"train": 1, "development": 2, "evaluation": 3}
-TASK_CODES = {"mqar": 0, "unknown": 1, "noisy": 2}
+TASK_CODES = {"mqar": 0, "unknown": 1, "noisy": 2, "hops": 3}
 
 
 def _pairs(rng, count):
@@ -101,11 +104,43 @@ def noisy_sequence(rng, length, pairs=NOISY_PAIRS):
     return inputs, targets, mask, kind
 
 
+def hops_sequence(rng, count, length):
+    """Store node -> successor for a random permutation, then hop queries.
+
+    Each query is [HOP1 or HOP2, node, answer]; the mask marks the node slot,
+    whose target is the successor or the successor's successor.
+    """
+    nodes = rng.choice(np.arange(*KEYS), size=count, replace=False)
+    successor = dict(zip(nodes.tolist(), nodes[rng.permutation(count)].tolist()))
+    store = np.stack([nodes, [successor[n] for n in nodes.tolist()]], axis=1)
+    asked = rng.choice(nodes, size=count, replace=False)
+    hops = rng.integers(1, 3, size=count)
+    answers = [
+        successor[n] if h == 1 else successor[successor[n]]
+        for n, h in zip(asked.tolist(), hops.tolist())
+    ]
+    query = np.stack([np.where(hops == 1, HOP1, HOP2), asked, answers], axis=1)
+    tokens = np.concatenate([store.reshape(-1), query.reshape(-1)])
+    inputs = np.full(length, PAD, np.int32)
+    targets = np.full(length, PAD, np.int32)
+    mask = np.zeros(length, np.float32)
+    inputs[: len(tokens) - 1] = tokens[:-1]
+    targets[: len(tokens) - 1] = tokens[1:]
+    slots = 2 * count + 3 * np.arange(count) + 1
+    mask[slots] = 1
+    kind = np.full(length, -1, np.int8)
+    kind[slots] = hops - 1
+    return inputs, targets, mask, kind
+
+
 def batch(task, rng, size, length=TRAIN_LENGTH, load=None):
     rows = []
     for _ in range(size):
         if task == "noisy":
             rows.append(noisy_sequence(rng, length))
+        elif task == "hops":
+            count = load or int(rng.choice(HOP_LOADS))
+            rows.append(hops_sequence(rng, count, length))
         else:
             count = load or int(rng.choice(MQAR_LOADS))
             rows.append(mqar_sequence(rng, count, length, unknown=task == "unknown"))
@@ -131,6 +166,7 @@ class Spec:
     conv_kernel: int = 4
     order_head: bool = True
     beta_max: float = 1.0
+    key_shift: bool = False
     dtype: str = "float32"
 
     def model_config(self):
@@ -167,6 +203,7 @@ class Spec:
             memory_head_dim=self.memory_head_dim,
             memory_solver="blocked",
             memory_beta_max=self.beta_max,
+            memory_key_shift=self.key_shift,
         )
 
     def state_floats(self, length):
@@ -336,7 +373,7 @@ def score(score_step, params, task, seed, rows, global_batch):
     from jax.experimental import multihost_utils
 
     results = {}
-    groups = NOISY_LENGTHS if task == "noisy" else MQAR_LOADS
+    groups = {"noisy": NOISY_LENGTHS, "hops": HOP_LOADS}.get(task, MQAR_LOADS)
     for group in groups:
         rng = np.random.default_rng([seed, group, TASK_CODES[task]])
         length = group if task == "noisy" else TRAIN_LENGTH
@@ -375,6 +412,10 @@ def score(score_step, params, task, seed, rows, global_batch):
             "per_row_accuracy": per_row.round(5).tolist(),
             "exact_rate": float(np.mean(hits.sum(axis=1) == mask.sum(axis=1))),
         }
+        if task == "hops":
+            for hop in (1, 2):
+                chosen = mask & (arrays["kind"] == hop - 1)
+                entry[f"hop{hop}_accuracy"] = float(hits[chosen].mean())
         if task == "unknown":
             known = mask & (arrays["kind"] == 0)
             absent = mask & (arrays["kind"] == 1)
@@ -394,6 +435,7 @@ SPECS = {
     "mamba3": Spec("mamba3", "SS"),
     "mamba4": Spec("mamba4", "MM"),
     "mamba4-hybrid": Spec("mamba4-hybrid", "SM"),
+    "mamba4-shift": Spec("mamba4-shift", "MM", key_shift=True),
     "mamba4-strong": Spec("mamba4-strong", "MM", beta_max=16.0),
     "mamba4-lowfloor": Spec("mamba4-lowfloor", "MM", floor_min=0.02, floor_init=0.1),
     "mamba4-strong-lowfloor": Spec(
@@ -492,7 +534,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True)
     parser.add_argument("--models", nargs="+", default=list(SPECS))
-    parser.add_argument("--tasks", nargs="+", default=["mqar", "unknown", "noisy"])
+    parser.add_argument(
+        "--tasks", nargs="+", default=["mqar", "unknown", "noisy", "hops"]
+    )
     parser.add_argument(
         "--learning-rates", nargs="+", type=float, default=[5e-4, 1.5e-3, 5e-3]
     )

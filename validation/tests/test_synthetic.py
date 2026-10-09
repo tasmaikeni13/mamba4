@@ -51,3 +51,20 @@ def test_state_accounting():
     assert mamba3.state_floats(512) == 2 * 4 * 48 * 64
     mamba4 = synthetic.SPECS["mamba4"]
     assert mamba4.state_floats(512) == 2 * 4 * (32 * 33 // 2 + 32 * 64)
+
+
+def test_hops_answers_follow_the_stored_permutation():
+    rng = np.random.default_rng(2)
+    inputs, targets, mask, kind = synthetic.hops_sequence(rng, 16, 256)
+    successor = dict(zip(inputs[0:32:2].tolist(), inputs[1:32:2].tolist()))
+    assert sorted(successor) == sorted(successor.values())
+    slots = np.flatnonzero(mask)
+    assert len(slots) == 16 and set(kind[slots].tolist()) <= {0, 1}
+    for slot in slots:
+        node, hop = int(inputs[slot]), int(inputs[slot - 1])
+        expected = (
+            successor[node] if hop == synthetic.HOP1 else successor[successor[node]]
+        )
+        assert hop in (synthetic.HOP1, synthetic.HOP2)
+        assert targets[slot] == expected
+        assert kind[slot] == (0 if hop == synthetic.HOP1 else 1)
