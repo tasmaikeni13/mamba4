@@ -157,7 +157,17 @@ def main():
         ],
         "promotion": "No trained performance or TPU speed claim. Review corrected methods before authorizing phase 03.",
     }
-    Path("phases/status.json").write_text(json.dumps(status, indent=2) + "\n")
+    # This verifier owns phase01–02 evidence, not subsequent authorization
+    # or execution state. Preserve later phases when this audit is rerun.
+    status_path = Path("phases/status.json")
+    if status_path.exists():
+        existing = json.loads(status_path.read_text())
+        by_id = {item["id"]: item for item in existing.get("phases", [])}
+        for item in status["phases"][:2]:
+            by_id[item["id"]] = item
+        existing["phases"] = [by_id.get(item["id"], item) for item in status["phases"]]
+        status = existing
+    status_path.write_text(json.dumps(status, indent=2) + "\n")
     print(
         f"Verified {len(rows)} model/scenario rows, {len(raw.files)} raw arrays, {formal['theorem_count']} Lean theorems and all {len(numbered)} named original claims. Dominance gate remains false."
     )

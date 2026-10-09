@@ -1,0 +1,1189 @@
+{
+  "cases": [
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.009154558181762695,
+        "max_error_over_reference_max": 0.0032549540201822916,
+        "passed": true,
+        "relative_l2_error": 0.002273989382210225,
+        "tolerance": 0.035
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0087890625,
+          "max_error_over_reference_max": 0.005090497737556561,
+          "passed": true,
+          "relative_l2_error": 0.0034928291388555883,
+          "tolerance": 0.075
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.004098360655737705,
+          "passed": true,
+          "relative_l2_error": 0.0034116972016564437,
+          "tolerance": 0.075
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.03125,
+          "max_error_over_reference_max": 0.007042253521126761,
+          "passed": true,
+          "relative_l2_error": 0.0033267580812776252,
+          "tolerance": 0.075
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16"
+      ],
+      "input_shapes": [
+        [
+          1,
+          128,
+          2,
+          64
+        ],
+        [
+          1,
+          128,
+          2,
+          64
+        ],
+        [
+          1,
+          128,
+          2,
+          64
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "attention_bf16_T128_H2",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.006945133209228516,
+        "max_error_over_reference_max": 0.0025993481016995616,
+        "passed": true,
+        "relative_l2_error": 0.001932767836943155,
+        "tolerance": 0.035
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.0037593984962406013,
+          "passed": true,
+          "relative_l2_error": 0.0033885394260473674,
+          "tolerance": 0.075
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.01171875,
+          "max_error_over_reference_max": 0.004934210526315789,
+          "passed": true,
+          "relative_l2_error": 0.0033353896171921496,
+          "tolerance": 0.075
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.015625,
+          "max_error_over_reference_max": 0.003246753246753247,
+          "passed": true,
+          "relative_l2_error": 0.003071144091022811,
+          "tolerance": 0.075
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16"
+      ],
+      "input_shapes": [
+        [
+          1,
+          256,
+          4,
+          64
+        ],
+        [
+          1,
+          256,
+          4,
+          64
+        ],
+        [
+          1,
+          256,
+          4,
+          64
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "attention_bf16_T256_H4",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.040187835693359375,
+        "max_error_over_reference_max": 0.003505236893791156,
+        "passed": true,
+        "relative_l2_error": 0.002360622319905924,
+        "tolerance": 0.04
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.006535947712418301,
+          "passed": true,
+          "relative_l2_error": 0.0038574590942038385,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.0045871559633027525,
+          "passed": true,
+          "relative_l2_error": 0.0042033655687081575,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.5,
+          "max_error_over_reference_max": 0.00510204081632653,
+          "passed": true,
+          "relative_l2_error": 0.003170087805002878,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.30975818634033203,
+          "max_error_over_reference_max": 0.002084742823717066,
+          "passed": true,
+          "relative_l2_error": 0.0020018803294951175,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 2.6422119140625,
+          "max_error_over_reference_max": 0.002620186292884896,
+          "passed": true,
+          "relative_l2_error": 0.0024368377672292036,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.06465142965316772,
+          "max_error_over_reference_max": 0.0017034608767504515,
+          "passed": true,
+          "relative_l2_error": 0.0021190897471156625,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.002846434712409973,
+          "max_error_over_reference_max": 0.012618711015524791,
+          "passed": true,
+          "relative_l2_error": 0.014251790489462662,
+          "tolerance": 0.08
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          128,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          128,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          128,
+          4,
+          1,
+          64
+        ],
+        [
+          1,
+          128,
+          4
+        ],
+        [
+          1,
+          128,
+          4
+        ],
+        [
+          1,
+          128,
+          4
+        ],
+        [
+          1,
+          128,
+          4,
+          24
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba3_bf16_T128_R1",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.04021930694580078,
+        "max_error_over_reference_max": 0.003548974808868019,
+        "passed": true,
+        "relative_l2_error": 0.0023598668007744432,
+        "tolerance": 0.04
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.00390625,
+          "max_error_over_reference_max": 0.003355704697986577,
+          "passed": true,
+          "relative_l2_error": 0.004022189350198503,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.015625,
+          "max_error_over_reference_max": 0.011049723756906077,
+          "passed": true,
+          "relative_l2_error": 0.0043077262101322575,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.5,
+          "max_error_over_reference_max": 0.005555555555555556,
+          "passed": true,
+          "relative_l2_error": 0.0033149546166356073,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.2716102600097656,
+          "max_error_over_reference_max": 0.0017562059302097513,
+          "passed": true,
+          "relative_l2_error": 0.0019093392531582354,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 2.7109756469726562,
+          "max_error_over_reference_max": 0.0024769271924367344,
+          "passed": true,
+          "relative_l2_error": 0.0023477950760103384,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.057564735412597656,
+          "max_error_over_reference_max": 0.0020703346471074276,
+          "passed": true,
+          "relative_l2_error": 0.002337376530154362,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.003816109150648117,
+          "max_error_over_reference_max": 0.024203779968858613,
+          "passed": true,
+          "relative_l2_error": 0.019781487535623508,
+          "tolerance": 0.08
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          139,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          139,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          139,
+          4,
+          1,
+          64
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4,
+          24
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba3_bf16_T139_R1",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.0005254745483398438,
+        "max_error_over_reference_max": 0.004398071628178863,
+        "passed": true,
+        "relative_l2_error": 0.0020891395989881966,
+        "tolerance": 0.04
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.001953125,
+          "max_error_over_reference_max": 0.005714285714285714,
+          "passed": true,
+          "relative_l2_error": 0.003419386511518644,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.004310344827586207,
+          "passed": true,
+          "relative_l2_error": 0.0030266913900638204,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.008466482162475586,
+          "max_error_over_reference_max": 0.002984720109050583,
+          "passed": true,
+          "relative_l2_error": 0.0021458715605179486,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.06360101699829102,
+          "max_error_over_reference_max": 0.0047870118696762476,
+          "passed": true,
+          "relative_l2_error": 0.00286709468788857,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0017733946442604065,
+          "max_error_over_reference_max": 0.003993407767465927,
+          "passed": true,
+          "relative_l2_error": 0.0029809471058870685,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0002351999282836914,
+          "max_error_over_reference_max": 0.0037709893280333064,
+          "passed": true,
+          "relative_l2_error": 0.0030784351221974445,
+          "tolerance": 0.08
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          139,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          139,
+          4,
+          1,
+          96
+        ],
+        [
+          1,
+          139,
+          4,
+          1,
+          64
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4
+        ],
+        [
+          1,
+          139,
+          4,
+          24
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba3_bf16_T139_finalstate",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 0.052288055419921875,
+        "max_error_over_reference_max": 0.003592851805478804,
+        "passed": true,
+        "relative_l2_error": 0.0023397495143551075,
+        "tolerance": 0.04
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0078125,
+          "max_error_over_reference_max": 0.0058823529411764705,
+          "passed": true,
+          "relative_l2_error": 0.004393059683071786,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.015625,
+          "max_error_over_reference_max": 0.008097165991902834,
+          "passed": true,
+          "relative_l2_error": 0.004409843231579343,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.5,
+          "max_error_over_reference_max": 0.0053475935828877,
+          "passed": true,
+          "relative_l2_error": 0.0032522087909324328,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.5082588195800781,
+          "max_error_over_reference_max": 0.0017969723005399453,
+          "passed": true,
+          "relative_l2_error": 0.0022852178359242265,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 5.96563720703125,
+          "max_error_over_reference_max": 0.0030531077251206595,
+          "passed": true,
+          "relative_l2_error": 0.002230394285255105,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.10297584533691406,
+          "max_error_over_reference_max": 0.0024453404870190282,
+          "passed": true,
+          "relative_l2_error": 0.00235108026724915,
+          "tolerance": 0.08
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.005590371787548065,
+          "max_error_over_reference_max": 0.016942981861116535,
+          "passed": true,
+          "relative_l2_error": 0.01894389722852923,
+          "tolerance": 0.08
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          65,
+          4,
+          2,
+          96
+        ],
+        [
+          1,
+          65,
+          4,
+          2,
+          96
+        ],
+        [
+          1,
+          65,
+          4,
+          2,
+          64
+        ],
+        [
+          1,
+          65,
+          4
+        ],
+        [
+          1,
+          65,
+          4
+        ],
+        [
+          1,
+          65,
+          4
+        ],
+        [
+          1,
+          65,
+          4,
+          24
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba3_bf16_T65_R2",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 1.9073486328125e-06,
+        "max_error_over_reference_max": 7.38072744449693e-07,
+        "passed": true,
+        "relative_l2_error": 7.443544306816223e-07,
+        "tolerance": 0.002
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 2.47955322265625e-05,
+          "max_error_over_reference_max": 1.1703508711911832e-05,
+          "passed": true,
+          "relative_l2_error": 7.622395985237859e-06,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 6.4373016357421875e-06,
+          "max_error_over_reference_max": 8.250220005866824e-06,
+          "passed": true,
+          "relative_l2_error": 8.91977674550861e-06,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 5.53131103515625e-05,
+          "max_error_over_reference_max": 3.211084397595584e-06,
+          "passed": true,
+          "relative_l2_error": 2.9819937885021774e-06,
+          "tolerance": 0.025
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          5,
+          2,
+          4
+        ],
+        [
+          1,
+          5,
+          2,
+          3
+        ],
+        [
+          1,
+          5,
+          2,
+          4
+        ],
+        [
+          1,
+          5,
+          2
+        ],
+        [
+          2
+        ],
+        [
+          2
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba4_bf16_cyclic",
+      "passed": true
+    },
+    {
+      "forward": {
+        "finite": true,
+        "max_absolute_error": 1.3113021850585938e-06,
+        "max_error_over_reference_max": 5.318549184879152e-07,
+        "passed": true,
+        "relative_l2_error": 4.569335448212164e-07,
+        "tolerance": 0.002
+      },
+      "gradients": [
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 0.0,
+          "max_error_over_reference_max": 0.0,
+          "passed": true,
+          "relative_l2_error": 0.0,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 3.5762786865234375e-06,
+          "max_error_over_reference_max": 1.691792988149667e-06,
+          "passed": true,
+          "relative_l2_error": 1.2251497368576466e-06,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 7.003545761108398e-07,
+          "max_error_over_reference_max": 3.5403838173786265e-07,
+          "passed": true,
+          "relative_l2_error": 4.295224822670141e-07,
+          "tolerance": 0.025
+        },
+        {
+          "finite": true,
+          "max_absolute_error": 3.814697265625e-06,
+          "max_error_over_reference_max": 4.3651338426425996e-07,
+          "passed": true,
+          "relative_l2_error": 5.239273974734644e-07,
+          "tolerance": 0.025
+        }
+      ],
+      "input_dtypes": [
+        "bfloat16",
+        "bfloat16",
+        "bfloat16",
+        "float32",
+        "float32",
+        "float32"
+      ],
+      "input_shapes": [
+        [
+          1,
+          5,
+          2,
+          4
+        ],
+        [
+          1,
+          5,
+          2,
+          3
+        ],
+        [
+          1,
+          5,
+          2,
+          4
+        ],
+        [
+          1,
+          5,
+          2
+        ],
+        [
+          1,
+          5,
+          2
+        ],
+        [
+          2
+        ]
+      ],
+      "local_chips_checked": 4,
+      "name": "mamba4_bf16_fixed",
+      "passed": true
+    },
+    {
+      "diagnostics": {
+        "protected_active_banks": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "protected_all_finite": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "protected_merges": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "protected_min_qr_diagonal": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "protected_retained_anchors": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "protected_retained_anchors_max": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "protected_retained_anchors_min": [
+          3,
+          3,
+          3,
+          3
+        ]
+      },
+      "finite_loss_and_all_key_value_query_gradients": true,
+      "local_chips_checked": 4,
+      "name": "mamba4_protected_repeated_rankcut_0.0",
+      "passed": true,
+      "positive_retained_qr_diagonals": true
+    },
+    {
+      "diagnostics": {
+        "protected_active_banks": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "protected_all_finite": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "protected_merges": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "protected_min_qr_diagonal": [
+          0.0020000003278255463,
+          0.0020000003278255463,
+          0.0020000003278255463,
+          0.0020000003278255463
+        ],
+        "protected_retained_anchors": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "protected_retained_anchors_max": [
+          9,
+          9,
+          9,
+          9
+        ],
+        "protected_retained_anchors_min": [
+          9,
+          9,
+          9,
+          9
+        ]
+      },
+      "finite_loss_and_all_key_value_query_gradients": true,
+      "local_chips_checked": 4,
+      "name": "mamba4_protected_repeated_rankcut_0.002",
+      "passed": true,
+      "positive_retained_qr_diagonals": true
+    },
+    {
+      "cached_decode": {
+        "finite": true,
+        "max_absolute_error": 0.0014228224754333496,
+        "max_error_over_reference_max": 0.003523180582966763,
+        "passed": true,
+        "relative_l2_error": 0.003084671019405381,
+        "tolerance": 0.035
+      },
+      "context_tokens": 65,
+      "finite_repeated_eos_loss_and_all_parameter_gradients": true,
+      "local_chips_checked": 4,
+      "name": "mamba4_bf16_protected_cached_vs_prefill_T65_and_eos_full_gradients",
+      "passed": true,
+      "protected_block_size": 64
+    }
+  ],
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-3",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 3286291,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 3,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "pallas_tpu_verified": true,
+  "passed": true,
+  "precision": "bf16 production operands, fp32 accumulators; highest-precision independent reference",
+  "provenance": {
+    "git_commit": "",
+    "sha256": {
+      "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+      "lm/config.py": "60f412db2c070102edb06d6357036f3a5e8974efb9de55705a0e15e39615934c",
+      "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+      "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+      "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+      "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+      "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+      "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+      "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+      "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+      "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+      "lm/kernels/mamba4.py": "55bc2833540e0236586f0a4275043fc4dcd18c65ed86732a66ddc75e609ac852",
+      "lm/kernels/mamba4_reference.py": "2bbf3021b9215ffec4eb1874e3be680427fe0cde77d67815bd849dd021d37ddd",
+      "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+      "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+      "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+      "lm/models/mamba4.py": "66287689ba569d5f9962d55440714f10ed46ab509d964f4b69f993c3ce108b5c",
+      "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+      "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+      "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+      "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+      "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+      "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+      "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+      "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+      "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+      "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+      "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+      "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+      "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+      "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+      "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+      "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+      "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+      "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+      "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+      "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+      "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+      "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+    }
+  }
+}

@@ -1,7 +1,8 @@
 # Mamba 4 research
 
-The current task covers phases 01–02. Later TPU training/publication phases are
-plans. Read `phases/README.md`, `phases/status.json`, the claim ledger and the
+The current task covers phases 01–04 through three 60M, 1B-token, single-seed
+runs on the existing 16-chip v4-32 pod. Later scaling/publication phases are plans.
+Read `phases/README.md`, `phases/status.json`, the claim ledger and the
 results report when resuming; inspect the real worktree and remote state.
 
 ## Commands
@@ -11,9 +12,9 @@ uv sync --frozen
 lake exe cache get
 lake build
 uv run python scripts/audit_formal.py
-uv run ruff check analysis scripts
-uv run ruff format --check analysis scripts
-OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 uv run pytest -q
+uv run ruff check analysis lm scripts
+uv run ruff format --check analysis lm scripts
+JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 uv run pytest -q
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 uv run python -m analysis.run
 uv run python scripts/report.py
 uv run python scripts/verify_results.py
@@ -38,7 +39,10 @@ run. It cannot certify a full phase. Lean/mathlib and Python packages are pinned
   holdout result; changed hypotheses/methods require versioned fresh holdouts.
 - Save raw trial arrays and provenance; statistical sampling units are whole
   trials/trajectories, not dependent queries/tokens within them.
-- Do not launch later training merely because investigation artifacts pass.
+- Phases 03–04 are now authorized by the user; stop before 125M scaling.
+- CPU tests use JAX_PLATFORMS=cpu. Only the pod controller launches TPU jobs.
+- Run `uv run python -m scripts.pod sync --data` before pod execution; never
+  redeploy changed source during a live run. Inspect live processes before resume.
 
 ## Working notes
 

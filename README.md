@@ -3,7 +3,9 @@
 Phases 01 and 02 are complete: deep mathematical analysis, 61 checked Lean 4
 theorems across 15 modules, and reproducible statistical/Monte Carlo operator
 comparisons. Several original claims are repaired; attention's wins are
-retained. Full language-model training is deferred.
+retained. Phases 03–04 now implement the full models and run the authorized
+60M, 1B-token, single-seed screen on the existing v4-32 pod. Training completion
+and a trained win require actual final checkpoints and evaluation results.
 
 Start with the [results report](analysis/results/REPORT.md),
 [corrected paper](mamba4.md), [claim ledger](docs/claim-ledger.md), and
@@ -39,5 +41,7 @@ full numerical study and report.
 
 The [seven-phase workflow](phases/README.md), [status](phases/status.json),
 [repair log](docs/iterations.md), and [CLAUDE.md](CLAUDE.md) guide continuation.
-Later plans preserve v4-32 fused-model work, the 60M/1B-token one-seed screen,
-and 125M/3B-token three-seed study. They have not been run.
+The [language-model workflow](lm/README.md) records full JAX models, fused
+kernels, exact data accounting, the matched parameter ledger and measured
+all-chip hardware evidence. The 60M runs are in progress. The later
+125M/3B-token three-seed study is outside the current authorized scope.

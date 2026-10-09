@@ -1,7 +1,9 @@
 {
   "authorized_scope": [
     1,
-    2
+    2,
+    3,
+    4
   ],
   "phases": [
     {
@@ -19,11 +21,50 @@
     },
     {
       "id": 3,
-      "status": "planned"
+      "status": "in_progress",
+      "evidence": "lm/results/kernel-conformance/host-*.json",
+      "mamba4_production_cpu_preflight": "lm/results/cpu-preflight/mamba4-production.json",
+      "remaining": "Source-matched full-size train, prefill, cached-decode and memory benchmarks for all three models"
     },
     {
       "id": 4,
-      "status": "planned"
+      "status": "in_progress",
+      "runs": [
+        {
+          "architecture": "transformer",
+          "status": "completed_and_audited",
+          "training_targets": 1000000000,
+          "heldout_nll": 3.535235732793808,
+          "evidence": "lm/results/screen-60m-v1/transformer-audit.json"
+        },
+        {
+          "architecture": "mamba3",
+          "status": "completed_and_audited",
+          "training_targets": 1000000000,
+          "heldout_nll": 3.475754991173744,
+          "evidence": "lm/results/screen-60m-v1/mamba3-audit.json"
+        },
+        {
+          "architecture": "mamba4",
+          "protocol": "screen-60m-v1",
+          "status": "interrupted_not_resumed",
+          "benchmark_status": "passed_all_four_hosts",
+          "logged_optimizer_steps": 1026,
+          "durable_checkpoint_step": 1000,
+          "training_targets_at_checkpoint": 131072000,
+          "heldout_nll_by_step": {
+            "500": 5.2963255643844604,
+            "1000": 4.607257008552551
+          },
+          "interruption": "Cloud TPU defragmentation preemption and two maintenance reboots, 2026-10-09 02:43-04:24 UTC",
+          "decision": "Not resumed: trailed both peers at matched steps and needed ~47 more pod hours; final v1 NLL unobserved",
+          "evidence": "lm/results/screen-60m-v1/mamba4-interrupted.json",
+          "learning_curves": "lm/results/screen-60m-v1/learning-curves.json",
+          "checkpoint_500_audit": "lm/results/screen-60m-v1/mamba4-checkpoint-00000500-audit.json",
+          "benchmark_evidence": "lm/results/benchmarks-frozen-v1/mamba4-host-*.json"
+        }
+      ],
+      "screen_win": "not_established"
     },
     {
       "id": 5,
@@ -38,5 +79,5 @@
       "status": "planned"
     }
   ],
-  "promotion": "No trained performance or TPU speed claim. Review corrected methods before authorizing phase 03."
+  "promotion": "Phases 03-04 authorized. Transformer and Mamba-3 completed and were independently audited at exactly 1B targets. The frozen Mamba-4 v1 run was interrupted by external TPU maintenance after 1,026 steps, trailed both peers at matched steps, and was not resumed. The diagnosed replacement is a versioned screen-60m-v2 method; no 125M scaling is authorized."
 }

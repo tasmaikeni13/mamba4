@@ -1,7 +1,8 @@
 # Autonomous, self-correcting research workflow
 
-Current authorized execution scope: phases 01 and 02. The remaining phases are
-plans for later work. Training, cloud jobs and final publication are deferred.
+Current authorized execution scope: phases 01–04, through the three 60M,
+1B-token, single-seed runs on the existing v4-32 pod. Phases05–07 remain
+plans for later work.
 See the machine-readable [status](status.json) and checked-in evidence.
 
 The research target is a useful Mamba 4 that preserves efficient scan memory,
@@ -52,8 +53,8 @@ stronger feasible method. This is part of solving the mathematical problem.
 |---|---|---|
 | [01](01-mathematical-formal.md) | Deep mathematical audit, corrected theory, multi-file Lean proofs | Completed investigation |
 | [02](02-statistical-monte-carlo.md) | Reproducible statistical/Monte Carlo comparisons and repair evaluation | Completed investigation; universal superiority falsified |
-| [03](03-models-and-kernels.md) | Full JAX models, fused kernels and v4-32 conformance | Planned |
-| [04](04-60m-screen.md) | 60M, 1B FineWeb-Edu tokens, one seed, all target TPU chips | Planned; training win required before scaling |
+| [03](03-models-and-kernels.md) | Full JAX models, fused kernels and v4-32 conformance | In progress |
+| [04](04-60m-screen.md) | 60M, 1B FineWeb-Edu tokens, one seed, all target TPU chips | In progress; training win required before scaling |
 | [05](05-125m-sweep.md) | Budget-limited 125M hyperparameter selection | Planned |
 | [06](06-125m-main.md) | 125M, 3B tokens, three seeds, Mamba 4 vs Transformer | Planned; losses are publishable outcomes |
 | [07](07-publication.md) | Clean, document, humanize and prepare the paper/repository | Planned |

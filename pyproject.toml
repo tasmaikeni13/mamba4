@@ -3,7 +3,18 @@ name = "mamba4-analysis"
 version = "0.1.0"
 description = "Auditable mathematical and Monte Carlo analysis of conjugate sequence memory"
 requires-python = ">=3.10"
-dependencies = ["numpy==2.2.6", "scipy==1.15.3", "matplotlib==3.10.3"]
+dependencies = [
+    "numpy==2.2.6",
+    "scipy==1.15.3",
+    "matplotlib==3.10.3",
+    "jax[tpu]==0.6.2",
+    "flax==0.10.6",
+    "optax==0.2.5",
+    "tokenizers==0.21.4",
+    "huggingface-hub==0.35.3",
+    "pyarrow==21.0.0",
+    "requests==2.32.5",
+]
 
 [dependency-groups]
 dev = ["pytest==8.4.2", "ruff==0.14.0"]
@@ -12,5 +23,5 @@ dev = ["pytest==8.4.2", "ruff==0.14.0"]
 line-length = 88
 
 [tool.pytest.ini_options]
-testpaths = ["analysis/tests"]
+testpaths = ["analysis/tests", "lm/tests"]
 pythonpath = ["."]

@@ -9,3 +9,8 @@ analysis/runs/
 *.ilean
 *.trace
 lake-manifest.json.tmp
+data/
+checkpoints/
+lm/runs/
+.jax_cache/
+vendor/

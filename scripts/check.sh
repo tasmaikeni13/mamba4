@@ -4,11 +4,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
+export JAX_PLATFORMS=cpu
 uv sync --frozen
 lake build
 uv run python scripts/audit_formal.py
-uv run ruff check analysis scripts
-uv run ruff format --check analysis scripts
+uv run ruff check analysis lm scripts
+uv run ruff format --check analysis lm scripts
 uv run pytest -q
 if [[ "${1:-}" == "--full" ]]; then
     uv run python -m analysis.run

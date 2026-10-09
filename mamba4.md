@@ -320,3 +320,25 @@ The [complete claim ledger](docs/claim-ledger.md),
 [deep derivations](docs/mathematical-analysis.md),
 [Lean project](formal/Mamba4.lean), and [phases](phases/README.md) preserve the
 original scope and make every corrected contract and remaining gate reviewable.
+
+## 11. Concrete language-model realization
+
+The phase-03 candidate now implements learned normalized Gaussian keys and
+queries, token precision, differentiable per-head epsilon and constant cyclic
+gates, protected redundant QR banks with counted all-bank routing, an
+order-sensitive vector scan, learned output gates and feed-forward layers.
+Fixed isotropic-floor variable-gate mode is a distinct refactor fallback.
+Operator guarantees retain their existing hypotheses; learned representations
+and geometry routing do not acquire exact-recall or calibration guarantees.
+
+The first fused prefill path uses chunked affine evidence prefixes followed
+by a batched Cholesky factorization at every token. Its factor work is
+O(N d cubed), so the compatible rank-update training bound in §6.2 is not
+claimed for this implementation. Cached cyclic Gaussian decode uses two
+quadratic rank-one updates; the full protected decode also pays all-bank
+reads and boundary reselection. The neural composition keeps a global
+discounted Gaussian background rather than optional additive backgrounds in
+each protected bank. The [implementation contract](docs/mamba4-implementation.md)
+records actual state, gradients, routing, parameter accounting and conformance
+scope. Full TPU performance and the requested trained screen require measured
+evidence and remain separate from these mathematical contracts.

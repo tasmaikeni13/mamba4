@@ -1,0 +1,69 @@
+{
+  "architecture": "mamba4",
+  "decision": "Not resumed. At matched optimizer steps the frozen v1 model trailed both completed peers on held-out NLL and training loss, at 33x the Mamba-3 and 270x the Transformer step time. Its final NLL is unobserved; the checkpoint remains resumable with the v1 source snapshot. The failure is diagnosed and replaced by a versioned screen-60m-v2 method (docs/iterations.md, iteration H).",
+  "durable_checkpoint": {
+    "fingerprint": "2a55f36555477babbe51c9609e795831c2ab13ac5bbbfd6ec461045a84a6d7db",
+    "optimizer_steps": 1000,
+    "path": "lm/runs/screen-60m-v1/mamba4/checkpoints/step-00001000/state.msgpack",
+    "sha256_by_host": {
+      "10.130.0.14": "10c958e92a8178bdce92d27e16a3cd1758a511fdfa529b3b1bc9ddeb8a65d6f8",
+      "10.130.0.15": "10c958e92a8178bdce92d27e16a3cd1758a511fdfa529b3b1bc9ddeb8a65d6f8",
+      "10.130.0.16": "10c958e92a8178bdce92d27e16a3cd1758a511fdfa529b3b1bc9ddeb8a65d6f8",
+      "10.130.0.17": "10c958e92a8178bdce92d27e16a3cd1758a511fdfa529b3b1bc9ddeb8a65d6f8"
+    },
+    "training_targets": 131072000,
+    "verified_utc": "2026-10-09T05:20:00+00:00"
+  },
+  "heldout": {
+    "0": {
+      "nll": 10.923252999782562,
+      "targets": 2097152
+    },
+    "1000": {
+      "nll": 4.607257008552551,
+      "targets": 2097152
+    },
+    "500": {
+      "nll": 5.2963255643844604,
+      "targets": 2097152
+    }
+  },
+  "interruption": {
+    "cause": "Cloud TPU host events, not a training error: PreemptionEvent for Defragmentation (02:42:55 UTC), then HW/SW MaintenanceEvent reboots at 03:33:52 and 04:23:51 UTC on 2026-10-09",
+    "controller_and_workers_alive_after_reboot": false,
+    "evidence": "host-0 systemd journal (interruptions.go PreemptionEvent/MaintenanceEvent lines, logind power-off); XLA preemption notifier SIGTERM 02:43:51 in lm/runs/train-mamba4-60m-v1/host-0.log; coordination-service heartbeat failure 02:45:01"
+  },
+  "launch": "lm/runs/train-mamba4-60m-v1/launch.json",
+  "launched_utc": "2026-10-08T19:12:29+00:00",
+  "logged_steps": 1026,
+  "logged_training_targets": 134479872,
+  "matched_step_heldout_nll": {
+    "1000": {
+      "mamba3": 4.236396759748459,
+      "mamba4": 4.607257008552551,
+      "transformer": 4.359631925821304
+    },
+    "500": {
+      "mamba3": 4.764110803604126,
+      "mamba4": 5.2963255643844604,
+      "transformer": 4.914423882961273
+    }
+  },
+  "matched_step_mean_train_loss_previous_100_steps": {
+    "1000": {
+      "mamba3": 4.260611020000001,
+      "mamba4": 4.638130220000001,
+      "transformer": 4.39766257
+    },
+    "500": {
+      "mamba3": 4.85927838,
+      "mamba4": 5.411380660000001,
+      "transformer": 5.01514205
+    }
+  },
+  "median_step_seconds": 25.532925220904872,
+  "projected_remaining_hours_at_logged_rate": 47.0,
+  "protocol": "screen-60m-v1",
+  "remaining_steps": 6630,
+  "status": "interrupted_not_completed"
+}

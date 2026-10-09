@@ -1,0 +1,1571 @@
+{
+  "backend": "cpu",
+  "batch": {
+    "eos_input_count": 9,
+    "input_ids_sha256": "6005b4ed6b28bf502638878c5d6e7df052ada5327dcbc8ef0ebb841e8a55c95c",
+    "input_max": 50256,
+    "input_min": 0,
+    "shape": [
+      8,
+      1024
+    ],
+    "source_offset": 0,
+    "targets": 8192,
+    "targets_sha256": "6fce719ed458239d901dce5fe5453629a3b99efbcd31750352aced3b674f73f0"
+  },
+  "compile_seconds": 359.3616136449855,
+  "compiled_memory_analysis": {
+    "alias_size_in_bytes": 719872908,
+    "argument_size_in_bytes": 719971212,
+    "generated_code_size_in_bytes": 0,
+    "output_size_in_bytes": 719876931,
+    "temp_size_in_bytes": 13501582384
+  },
+  "config_sha256": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+  "configuration": {
+    "model": {
+      "architecture": "mamba4",
+      "chunk_size": 64,
+      "d_ff": 1272,
+      "d_model": 512,
+      "d_state": 64,
+      "dropout_rate": 0.0,
+      "dtype": "bfloat16",
+      "expand": 2,
+      "head_dim": 64,
+      "key_dim": 16,
+      "mamba3_outproj_norm": false,
+      "max_seq_len": 1024,
+      "memory_decay": 0.99,
+      "memory_epsilon": 0.05,
+      "memory_floor": "cyclic",
+      "memory_hops": 1,
+      "mimo_rank": 1,
+      "n_groups": 1,
+      "n_heads": 8,
+      "n_layers": 9,
+      "norm_eps": 1e-05,
+      "param_dtype": "float32",
+      "protected_anchor_budget": 4,
+      "protected_block_size": 64,
+      "protected_routing": "all",
+      "remat": true,
+      "rope_fraction": 0.5,
+      "vocab_size": 50257
+    },
+    "protocol_id": "screen-60m-v1",
+    "training": {
+      "adam_epsilon": 1e-08,
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "checkpoint_every": 500,
+      "clip_norm": 1.0,
+      "eval_every": 500,
+      "eval_tokens": 2097152,
+      "global_batch": 128,
+      "learning_rate": 0.0006,
+      "log_every": 10,
+      "min_lr_ratio": 0.1,
+      "seed": 42,
+      "sequence_length": 1024,
+      "token_budget": 1000000000,
+      "warmup_steps": 200,
+      "weight_decay": 0.1
+    }
+  },
+  "corpus_dataset": {
+    "files": [
+      {
+        "hub_git_oid": "2d957ee648fd11181750f3908da434d71b33bc1a",
+        "local_file": "train-00000-of-00010.parquet",
+        "path": "data/train-00000-of-00010.parquet",
+        "sha256": "0325361551a5030a112c41a7aa3ef6a204b8cdc4ac165bfc38aaf6c3e55e8903",
+        "size_bytes": 276706977
+      },
+      {
+        "hub_git_oid": "012940da144833e0780859a342b43f5ebfed4acc",
+        "local_file": "train-00001-of-00010.parquet",
+        "path": "data/train-00001-of-00010.parquet",
+        "sha256": "0bcb47ce49f21e868bd242ffc0f8dd97acf8a53f661e6726b8a8b236fadfda09",
+        "size_bytes": 273217832
+      },
+      {
+        "hub_git_oid": "44e2ad94433f042f6506c4ce7f51bffe9d419894",
+        "local_file": "train-00002-of-00010.parquet",
+        "path": "data/train-00002-of-00010.parquet",
+        "sha256": "06926b82e3d78a2a08a4cd9600f56a90d4f70081cf14117a707c6c8472b2f21e",
+        "size_bytes": 272322892
+      },
+      {
+        "hub_git_oid": "44f2183bd8ef7d94bba9c346bfccc65468e32211",
+        "local_file": "train-00003-of-00010.parquet",
+        "path": "data/train-00003-of-00010.parquet",
+        "sha256": "3ba65d71e5dcf3c258fbc7fcce0c05f809ec7c143658721c6c818255426d9e35",
+        "size_bytes": 277502321
+      },
+      {
+        "hub_git_oid": "b656636c27845249209883e219d6b776ba03b8a3",
+        "local_file": "train-00004-of-00010.parquet",
+        "path": "data/train-00004-of-00010.parquet",
+        "sha256": "b3bd5ca95129f314509cf84cf6cb5666da75039222e6cc2d06b7d687e2b4f86a",
+        "size_bytes": 276093637
+      },
+      {
+        "hub_git_oid": "cde69725935cba1d0459c224f6bc1aefa6ed329c",
+        "local_file": "train-00005-of-00010.parquet",
+        "path": "data/train-00005-of-00010.parquet",
+        "sha256": "96f22e3983dd5ccdcd7371794bc7a49511683e3430cc5e916d27596a22944190",
+        "size_bytes": 274264694
+      },
+      {
+        "hub_git_oid": "5311910be559adb67e50dedf357585fb696be727",
+        "local_file": "train-00006-of-00010.parquet",
+        "path": "data/train-00006-of-00010.parquet",
+        "sha256": "1172141a4219d63d7153e4d3e54e5db2e195bc098097f38626eddbe60695c7ea",
+        "size_bytes": 275373229
+      },
+      {
+        "hub_git_oid": "d26533d7389f5f1a00a7d10a580541b17a66e0c1",
+        "local_file": "train-00007-of-00010.parquet",
+        "path": "data/train-00007-of-00010.parquet",
+        "sha256": "1237f512bc898e9a08aaa3094b229a11022f694e8f9d5a835401d3d31681729c",
+        "size_bytes": 272924127
+      },
+      {
+        "hub_git_oid": "90c01ab8a508788641458da62df108d2e991dca4",
+        "local_file": "train-00008-of-00010.parquet",
+        "path": "data/train-00008-of-00010.parquet",
+        "sha256": "8395fec5c599b8872b557b0452db4f483dec8910a7d937626d84888e6dfc05d8",
+        "size_bytes": 274187682
+      },
+      {
+        "hub_git_oid": "a97bcf7d8dc0bdc76edc65c32abc6ebbb76a00e1",
+        "local_file": "train-00009-of-00010.parquet",
+        "path": "data/train-00009-of-00010.parquet",
+        "sha256": "0d432bf9f0709f8d89bb9fd56aaf106a0ffedd356e85bbbe10b3e12bafc5fa9b",
+        "size_bytes": 279431897
+      }
+    ],
+    "repo": "codelion/fineweb-edu-1B",
+    "revision": "66b78cd134ab7b0545a1a618a1cc029f3091eb20",
+    "source_tokens_including_eos": 1000970542
+  },
+  "corpus_manifest_sha256": "35c5390c0bf3a43131d8a4950d4a0082903bf2175c085ca233064cb5593e4054",
+  "corpus_train_sha256": "8cf4568cc5cc0e1b5a47c3dd0ccfe156fffa3138f0ccfa3b146f54fb5a8c9ef9",
+  "cpu_affinity": [
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223
+  ],
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "elapsed_seconds": 500.1074350080453,
+  "initial_learning_rate": 3.00002284348011e-06,
+  "initialization_seconds": 14.308377163019031,
+  "jax": "0.6.2",
+  "lowering_seconds": 42.1461266130209,
+  "metrics": {
+    "all_gradients_finite": true,
+    "all_optimizer_state_finite": true,
+    "all_updated_parameters_finite": true,
+    "grad_norm": 16.370195388793945,
+    "loss": 10.924057960510254,
+    "optimizer_step": 1
+  },
+  "optimizer_step_seconds": 81.9898607400246,
+  "parameter_count": 59989408,
+  "parameter_ledger": {
+    "embedding": 25731584,
+    "non_embedding": 34257824,
+    "parameters": [
+      {
+        "count": 512,
+        "name": "final_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_0/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_0/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_0/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_0/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_0/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_0/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_0/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_0/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_0/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_0/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_0/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_0/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_1/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_1/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_1/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_1/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_1/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_1/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_1/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_1/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_1/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_1/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_1/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_1/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_2/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_2/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_2/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_2/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_2/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_2/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_2/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_2/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_2/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_2/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_2/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_2/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_3/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_3/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_3/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_3/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_3/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_3/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_3/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_3/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_3/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_3/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_3/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_3/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_3/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_4/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_4/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_4/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_4/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_4/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_4/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_4/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_4/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_4/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_4/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_4/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_4/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_5/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_5/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_5/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_5/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_5/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_5/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_5/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_5/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_5/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_5/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_5/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_5/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_6/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_6/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_6/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_6/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_6/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_6/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_6/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_6/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_6/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_6/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_6/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_6/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_7/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_7/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_7/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_7/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_7/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_7/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_7/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_7/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_7/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_7/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_7/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_7/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_7/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/confidence_scale",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/decay",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/epsilon",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_8/memory/key/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_8/memory/order_decay/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/order_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_8/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_8/memory/output_gate/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_8/memory/precision/kernel",
+        "shape": [
+          512,
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/protected_mix",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/memory/protected_route_strength",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 131072,
+        "name": "layer_8/memory/query/kernel",
+        "shape": [
+          512,
+          256
+        ]
+      },
+      {
+        "count": 64,
+        "name": "layer_8/memory/read_norm/scale",
+        "shape": [
+          64
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_8/memory/value/kernel",
+        "shape": [
+          512,
+          1024
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_8/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1302528,
+        "name": "layer_8/mlp/in_proj/kernel",
+        "shape": [
+          512,
+          2544
+        ]
+      },
+      {
+        "count": 651264,
+        "name": "layer_8/mlp/out_proj/kernel",
+        "shape": [
+          1272,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_8/mlp_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 25731584,
+        "name": "token_embedding/embedding/embedding",
+        "shape": [
+          50257,
+          512
+        ]
+      }
+    ],
+    "total": 59989408
+  },
+  "peak_host_rss_bytes": 18456702976,
+  "pid": 2350708,
+  "preflight_script_sha256": "5940e8b26af7d33582811ef12610236ba2aa3cdfb160f3cffcaa967aaa9124f7",
+  "provenance_after": {
+    "git_commit": "ef9728ca91ce8d90224e057aaed72bc5cc70617f",
+    "sha256": {
+      "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+      "lm/config.py": "60f412db2c070102edb06d6357036f3a5e8974efb9de55705a0e15e39615934c",
+      "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+      "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+      "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+      "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+      "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+      "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+      "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+      "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+      "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+      "lm/kernels/mamba4.py": "55bc2833540e0236586f0a4275043fc4dcd18c65ed86732a66ddc75e609ac852",
+      "lm/kernels/mamba4_reference.py": "2bbf3021b9215ffec4eb1874e3be680427fe0cde77d67815bd849dd021d37ddd",
+      "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+      "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+      "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+      "lm/models/mamba4.py": "66287689ba569d5f9962d55440714f10ed46ab509d964f4b69f993c3ce108b5c",
+      "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+      "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+      "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+      "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+      "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+      "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+      "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+      "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+      "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+      "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+      "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+      "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+      "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+      "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+      "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+      "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+      "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+      "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+      "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+      "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+      "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+      "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+    }
+  },
+  "provenance_before": {
+    "git_commit": "ef9728ca91ce8d90224e057aaed72bc5cc70617f",
+    "sha256": {
+      "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+      "lm/config.py": "60f412db2c070102edb06d6357036f3a5e8974efb9de55705a0e15e39615934c",
+      "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+      "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+      "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+      "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+      "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+      "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+      "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+      "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+      "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+      "lm/kernels/mamba4.py": "55bc2833540e0236586f0a4275043fc4dcd18c65ed86732a66ddc75e609ac852",
+      "lm/kernels/mamba4_reference.py": "2bbf3021b9215ffec4eb1874e3be680427fe0cde77d67815bd849dd021d37ddd",
+      "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+      "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+      "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+      "lm/models/mamba4.py": "66287689ba569d5f9962d55440714f10ed46ab509d964f4b69f993c3ce108b5c",
+      "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+      "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+      "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+      "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+      "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+      "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+      "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+      "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+      "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+      "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+      "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+      "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+      "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+      "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+      "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+      "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+      "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+      "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+      "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+      "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+      "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+      "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+    }
+  },
+  "scope": "one CPU-only local B8 T1024 actual 60M value/gradient/optimizer step; not TPU evidence",
+  "source_files_changed_during_preflight": [],
+  "started_unix": 1791484081.4107544,
+  "status": "passed"
+}

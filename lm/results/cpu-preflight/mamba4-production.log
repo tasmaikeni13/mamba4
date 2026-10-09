@@ -1,0 +1,14 @@
+{"stage": "initializing", "elapsed_seconds": 1.6756535260938108}
+{"stage": "lowering", "elapsed_seconds": 16.527214786037803}
+{"stage": "compiling", "elapsed_seconds": 58.68055963795632}
+2026-10-08 18:31:33.524358: E external/xla/xla/service/slow_operation_alarm.cc:73] 
+********************************
+[Compiling module jit_production_step] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+2026-10-08 18:34:57.820036: E external/xla/xla/service/slow_operation_alarm.cc:140] The operation took 5m24.295806605s
+
+********************************
+[Compiling module jit_production_step] Very slow compile? If you want to file a bug, run with envvar XLA_FLAGS=--xla_dump_to=/tmp/foo and attach the results.
+********************************
+{"stage": "running", "elapsed_seconds": 418.09723231894895}
+{"stage": "passed", "elapsed_seconds": 500.1074350080453, "metrics": {"all_gradients_finite": true, "all_optimizer_state_finite": true, "all_updated_parameters_finite": true, "grad_norm": 16.370195388793945, "loss": 10.924057960510254, "optimizer_step": 1}, "optimizer_step_seconds": 81.9898607400246, "compile_seconds": 359.3616136449855, "peak_host_rss_bytes": 18456702976}

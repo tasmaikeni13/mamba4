@@ -1,0 +1,27 @@
+{
+  "architecture": "transformer",
+  "verified_utc": "2026-10-08 18:24 UTC",
+  "method": "Read sha256sum of the actual final state.msgpack and checkpoint metadata independently on each of the four physical workers",
+  "optimizer_steps": 7630,
+  "training_targets": 1000000000,
+  "fingerprint": "04a9186d78f083f97cde4a5327d0d5701515846eb4ce96c888d2dcd3e190fa5b",
+  "all_actual_payloads_equal": true,
+  "workers": [
+    {
+      "host": "10.130.0.15",
+      "checkpoint_sha256": "0607687b7a8fa6dc1a7f52b142964c81e8092a3c46390316482100ac6a35081f"
+    },
+    {
+      "host": "10.130.0.14",
+      "checkpoint_sha256": "0607687b7a8fa6dc1a7f52b142964c81e8092a3c46390316482100ac6a35081f"
+    },
+    {
+      "host": "10.130.0.16",
+      "checkpoint_sha256": "0607687b7a8fa6dc1a7f52b142964c81e8092a3c46390316482100ac6a35081f"
+    },
+    {
+      "host": "10.130.0.17",
+      "checkpoint_sha256": "0607687b7a8fa6dc1a7f52b142964c81e8092a3c46390316482100ac6a35081f"
+    }
+  ]
+}

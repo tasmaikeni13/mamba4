@@ -1,0 +1,213 @@
+{
+  "accounting": {
+    "final_step_targets": 51712,
+    "logged_steps": 7630,
+    "replayed_log_steps_after_resume": 0,
+    "unique_steps": 7630
+  },
+  "all_four_workers_completed": true,
+  "architecture": "mamba3",
+  "embedding_parameters": 25731584,
+  "final_checkpoint_sha256": "226d882385d836ff003076a3f962a107fde39c40e9c2182f531024f90d017a4f",
+  "fingerprint": "48e89da100da50afc841fc53afe626134742f43c84edc4f76cf7f8b58248a8d1",
+  "heldout": {
+    "nll": 3.475754991173744,
+    "perplexity": 32.322222319473575,
+    "targets": 2097152
+  },
+  "initial_nll": 10.927706599235535,
+  "non_embedding_parameters": 34237312,
+  "optimizer_steps": 7630,
+  "recall": {
+    "groups": {
+      "length-1024-far": {
+        "accuracy": 0.047619047619047616,
+        "accuracy_wilson_95": [
+          0.008455987809826399,
+          0.22669360074122563
+        ],
+        "gold_candidate_nll": 2.0685886141191823,
+        "gold_candidate_nll_bootstrap_95": [
+          1.8793935974041192,
+          2.2493426649247446
+        ],
+        "gold_full_vocab_nll": 8.744025207701183,
+        "gold_full_vocab_nll_bootstrap_95": [
+          8.536961649713062,
+          8.9516229561397
+        ],
+        "prompts": 21
+      },
+      "length-1024-near": {
+        "accuracy": 0.19047619047619047,
+        "accuracy_wilson_95": [
+          0.07667565052761793,
+          0.40000564690204926
+        ],
+        "gold_candidate_nll": 1.5190485979351405,
+        "gold_candidate_nll_bootstrap_95": [
+          1.279405073543985,
+          1.7439808970828756
+        ],
+        "gold_full_vocab_nll": 7.280527114868164,
+        "gold_full_vocab_nll_bootstrap_95": [
+          6.946536293483915,
+          7.586653443177541
+        ],
+        "prompts": 21
+      },
+      "length-128-far": {
+        "accuracy": 0.22727272727272727,
+        "accuracy_wilson_95": [
+          0.10123039985248516,
+          0.4343995317522171
+        ],
+        "gold_candidate_nll": 1.7509832262599077,
+        "gold_candidate_nll_bootstrap_95": [
+          1.5700701564989117,
+          1.9364307501635007
+        ],
+        "gold_full_vocab_nll": 6.85252343524586,
+        "gold_full_vocab_nll_bootstrap_95": [
+          6.633971748568795,
+          7.0657114413651545
+        ],
+        "prompts": 22
+      },
+      "length-128-near": {
+        "accuracy": 0.45454545454545453,
+        "accuracy_wilson_95": [
+          0.2692029418081331,
+          0.6534020467926505
+        ],
+        "gold_candidate_nll": 1.6332943876311823,
+        "gold_candidate_nll_bootstrap_95": [
+          1.4611470682778098,
+          1.815735249422062
+        ],
+        "gold_full_vocab_nll": 6.4196952256289395,
+        "gold_full_vocab_nll_bootstrap_95": [
+          6.2215504288673396,
+          6.628933921185406
+        ],
+        "prompts": 22
+      },
+      "length-512-far": {
+        "accuracy": 0.23809523809523808,
+        "accuracy_wilson_95": [
+          0.10628013022636468,
+          0.4509117368295075
+        ],
+        "gold_candidate_nll": 1.9277228420054946,
+        "gold_candidate_nll_bootstrap_95": [
+          1.6562205941784398,
+          2.18840664716842
+        ],
+        "gold_full_vocab_nll": 7.919944763183594,
+        "gold_full_vocab_nll_bootstrap_95": [
+          7.647267133281344,
+          8.193442463307154
+        ],
+        "prompts": 21
+      },
+      "length-512-near": {
+        "accuracy": 0.23809523809523808,
+        "accuracy_wilson_95": [
+          0.10628013022636468,
+          0.4509117368295075
+        ],
+        "gold_candidate_nll": 1.6505341057451666,
+        "gold_candidate_nll_bootstrap_95": [
+          1.433008978808992,
+          1.8493048137620378
+        ],
+        "gold_full_vocab_nll": 6.867968354906354,
+        "gold_full_vocab_nll_bootstrap_95": [
+          6.606938804331279,
+          7.1147977948188785
+        ],
+        "prompts": 21
+      }
+    },
+    "overall": {
+      "accuracy": 0.234375,
+      "accuracy_wilson_95": [
+        0.16939357691207274,
+        0.31483543110822865
+      ],
+      "gold_candidate_nll": 1.7573272254805363,
+      "gold_candidate_nll_bootstrap_95": [
+        1.6675749914928801,
+        1.8480563911370589
+      ],
+      "gold_full_vocab_nll": 7.336332693696022,
+      "gold_full_vocab_nll_bootstrap_95": [
+        7.166061699669808,
+        7.501734687946737
+      ],
+      "prompts": 128
+    },
+    "protocol": {
+      "array_sha256": "2293d01b59723109155c60e3f12ec463e5e67339b9013970af7bd5daefbd0117",
+      "candidate_count": 8,
+      "chance_accuracy": 0.125,
+      "effective_length_range": [
+        128,
+        1024
+      ],
+      "prompt_count": 128,
+      "protocol": "trained-textual-recall-v1",
+      "sampling_unit": "one independently generated key/value prompt",
+      "seed": 20261008,
+      "selection": "frozen diagnostic; no architecture or optimizer selection",
+      "sequence_length": 1024,
+      "tokenizer_sha256": "8414cab924d8b9b33013f0d221c5862f365ee9be39c5c2bfae8a5a9e970478a6",
+      "uncertainty": "prompt variability only; one training seed"
+    }
+  },
+  "seed": 42,
+  "sources": {
+    "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+    "lm/config.py": "60f412db2c070102edb06d6357036f3a5e8974efb9de55705a0e15e39615934c",
+    "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+    "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+    "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+    "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+    "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+    "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+    "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+    "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+    "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+    "lm/kernels/mamba4.py": "55bc2833540e0236586f0a4275043fc4dcd18c65ed86732a66ddc75e609ac852",
+    "lm/kernels/mamba4_reference.py": "2bbf3021b9215ffec4eb1874e3be680427fe0cde77d67815bd849dd021d37ddd",
+    "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+    "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+    "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+    "lm/models/mamba4.py": "66287689ba569d5f9962d55440714f10ed46ab509d964f4b69f993c3ce108b5c",
+    "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+    "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+    "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+    "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+    "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+    "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+    "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+    "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+    "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+    "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+    "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+    "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+    "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+    "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+    "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+    "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+    "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+    "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+    "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+    "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+    "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+    "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+  },
+  "steady_tokens_per_second": 152334.92349043957,
+  "total_parameters": 59968896,
+  "training_targets": 1000000000
+}

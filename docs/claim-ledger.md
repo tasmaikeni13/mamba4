@@ -47,3 +47,18 @@ prose or an entire architecture. All named original results are included.
 `Capacity.exact_bit_budget` above denotes the theorem in Capacity.lean; the
 qualified Lean name is `Mamba4.exact_bit_budget`. All remaining listed names
 also live in `Mamba4`, except scan names in `Mamba4.AffineSummary`.
+
+## Phase-03 implementation contracts
+
+| Concrete implementation | Scope and cost | Evidence |
+|---|---|---|
+| Learned cyclic Gaussian LM head | Constant learned per-head gates and positive learned epsilon, differentiating initialized prior and scheduled injection. Learned neural confidence is not out-of-model calibration. | `lm/models/mamba4.py`, dense forward/gate/epsilon gradient conformance tests. |
+| Fixed-floor variable gates | Explicit full-rank prior injection and dense refactor fallback; distinct from cyclic semantics. | `gaussian_memory(..., floor="fixed")`, variable-gate and floor tests. |
+| Fused prefill | Two-level chronological evidence scan plus factorization at each token; O(N d cubed) factor work. Does not realize the ideal compatible rank-update training work bound in original claim 6.2. | `lm/kernels/mamba4.py`, multiple-chunk dense-reference tests. |
+| Cached Gaussian decode | Two quadratic cyclic rank updates; fixed-floor mode refactors. Full model also counts protected routing/maintenance and order state. | Cyclic reference, factor and full cached/prefill agreement tests. |
+| Protected neural branch | Redundant QR banks retain up to configured a<=d independent anchors per eligible bank. All-bank geometry mixture is learned and has no exact-routing guarantee; explicit retained-ID routing has the conditional left-inverse contract. | CPU cascade retained-ID/reselection comparison, isolation and missing-ID tests. |
+| Global background composition | All writes enter one discounted Gaussian state. Optional per-bank additive background merging is not implemented by this LM composition. | [Implementation contract](mamba4-implementation.md), separate Gaussian/QR state definitions. |
+
+These implementation entries do not certify trained-model quality, device speed
+or a completed phase-03/04 gate. Measured hardware and training evidence must
+be recorded separately.
