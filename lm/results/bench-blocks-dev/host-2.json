@@ -1,0 +1,399 @@
+{
+  "cases": {
+    "M16_blocked": {
+      "forward": {
+        "compile_seconds": 7.585463811001318,
+        "first_seconds": 0.06671801899938146,
+        "median_seconds": 0.034074724000674905,
+        "steady_seconds": [
+          0.03621097400173312,
+          0.034049593999952776,
+          0.034074724000674905
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 15.174598493000303,
+        "first_seconds": 0.08467250600006082,
+        "median_seconds": 0.06701061999956437,
+        "steady_seconds": [
+          0.0670877800002927,
+          0.06699054899945622,
+          0.06701061999956437
+        ]
+      }
+    },
+    "M16_loop": {
+      "forward": {
+        "compile_seconds": 5.727879070998824,
+        "first_seconds": 0.05961323399969842,
+        "median_seconds": 0.040738936000707326,
+        "steady_seconds": [
+          0.040738936000707326,
+          0.04098539499864273,
+          0.04068722599913599
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 13.792761249998875,
+        "first_seconds": 0.08492710599966813,
+        "median_seconds": 0.07374832800087461,
+        "steady_seconds": [
+          0.07383041799948842,
+          0.07374832800087461,
+          0.07372439800019492
+        ]
+      }
+    },
+    "M16_noconv": {
+      "forward": {
+        "compile_seconds": 5.488147863999984,
+        "first_seconds": 0.06285853999906976,
+        "median_seconds": 0.040655183998751454,
+        "steady_seconds": [
+          0.04223863299921504,
+          0.04061868300050264,
+          0.040655183998751454
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 13.09156226199957,
+        "first_seconds": 0.09606383400023333,
+        "median_seconds": 0.07336910800040641,
+        "steady_seconds": [
+          0.07349254899963853,
+          0.07336910800040641,
+          0.07328807700105244
+        ]
+      }
+    },
+    "M16_noorder": {
+      "forward": {
+        "compile_seconds": 5.0397573070004,
+        "first_seconds": 0.06274144999952114,
+        "median_seconds": 0.02012410700081091,
+        "steady_seconds": [
+          0.0224048860000039,
+          0.02007288700042409,
+          0.02012410700081091
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 11.423971014999552,
+        "first_seconds": 0.040022273000431596,
+        "median_seconds": 0.031972725000741775,
+        "steady_seconds": [
+          0.031972725000741775,
+          0.031985974999770406,
+          0.03194222500133037
+        ]
+      }
+    },
+    "M16_remat": {
+      "forward": {
+        "compile_seconds": 5.9132041840002785,
+        "first_seconds": 0.080579667001075,
+        "median_seconds": 0.0408562639986485,
+        "steady_seconds": [
+          0.04104099299911468,
+          0.0408562639986485,
+          0.040740112999628764
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 16.587634452000202,
+        "first_seconds": 0.1379952970000886,
+        "median_seconds": 0.1136002120001649,
+        "steady_seconds": [
+          0.11360289200092666,
+          0.11358343100073398,
+          0.1136002120001649
+        ]
+      }
+    },
+    "M32_blocked": {
+      "forward": {
+        "compile_seconds": 9.927607599000112,
+        "first_seconds": 0.09830031400088046,
+        "median_seconds": 0.06186650000017835,
+        "steady_seconds": [
+          0.06187934999979916,
+          0.06186650000017835,
+          0.06184491000021808
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 18.807079859001533,
+        "first_seconds": 0.13188795799942454,
+        "median_seconds": 0.10729002299922286,
+        "steady_seconds": [
+          0.10729002299922286,
+          0.1072465329998522,
+          0.10735701200064796
+        ]
+      }
+    },
+    "M32_loop": {
+      "forward": {
+        "compile_seconds": 5.95229026800007,
+        "first_seconds": 0.1351338879994728,
+        "median_seconds": 0.09185135500047181,
+        "steady_seconds": [
+          0.09187738499895204,
+          0.09183483400011028,
+          0.09185135500047181
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 13.417781838999872,
+        "first_seconds": 0.15823315499983437,
+        "median_seconds": 0.1374407870007417,
+        "steady_seconds": [
+          0.1374407870007417,
+          0.13756279799963522,
+          0.13740146700001787
+        ]
+      }
+    },
+    "M64h128_blocked": {
+      "forward": {
+        "compile_seconds": 14.95582130799994,
+        "first_seconds": 0.12854198899913172,
+        "median_seconds": 0.07787948699842673,
+        "steady_seconds": [
+          0.07787948699842673,
+          0.07782462800059875,
+          0.07794097700025304
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 22.0972909910015,
+        "first_seconds": 0.11838303100012126,
+        "median_seconds": 0.10685905200080015,
+        "steady_seconds": [
+          0.10703657200065209,
+          0.10661456300113059,
+          0.10685905200080015
+        ]
+      }
+    },
+    "S": {
+      "forward": {
+        "compile_seconds": 4.224748976999763,
+        "first_seconds": 0.007923469000161276,
+        "median_seconds": 0.005489908999152249,
+        "steady_seconds": [
+          0.005489908999152249,
+          0.005371530000047642,
+          0.005540199001188739
+        ]
+      },
+      "forward_backward": {
+        "compile_seconds": 7.747369499000342,
+        "first_seconds": 0.044947074999072356,
+        "median_seconds": 0.039020104999508476,
+        "steady_seconds": [
+          0.039020104999508476,
+          0.03897524599960889,
+          0.03906631599966204
+        ]
+      }
+    }
+  },
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-2",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 41916,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 2,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "shape": {
+    "batch_per_device": 8,
+    "chunk": 64,
+    "heads": 16,
+    "time": 1024,
+    "value_dim": 64
+  }
+}

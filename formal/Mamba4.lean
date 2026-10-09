@@ -13,3 +13,4 @@ import Mamba4.Floor
 import Mamba4.Conjugacy
 import Mamba4.Embedding
 import Mamba4.Regression
+import Mamba4.Selective

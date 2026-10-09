@@ -1,6 +1,6 @@
 {
-  "theorem_count": 61,
-  "modules": 15,
+  "theorem_count": 70,
+  "modules": 16,
   "declarations": [
     "Mamba4.encoding_injective",
     "Mamba4.deterministic_state_count",
@@ -60,6 +60,15 @@
     "Mamba4.AffineSummary.fold_act",
     "Mamba4.AffineSummary.scan_equals_sequential",
     "Mamba4.AffineSummary.undiscounted_commutes",
+    "Mamba4.selective_evidence_psd",
+    "Mamba4.diagonal_floor_bound",
+    "Mamba4.selective_precision_posDef",
+    "Mamba4.selective_floor_arbitrary_gates",
+    "Mamba4.selective_variance_bound",
+    "Mamba4.diag_ridge_minimizes",
+    "Mamba4.selective_solve_minimizes",
+    "Mamba4.selective_step_is_affine",
+    "Mamba4.selective_scan_equals_sequential",
     "Mamba4.evidence_invariant",
     "Mamba4.decay_product_nonexpansive",
     "Mamba4.fixed_prior_discount_changes_precision"
@@ -86,12 +95,13 @@
     "formal/Mamba4/Ridge.lean": "fd25bdcaf86b9ac99fd8a07b67da40a923fd45f1cd3b886c7b977e89dca38455",
     "formal/Mamba4/Risk.lean": "be85bde9a042f9e5b841bea2fc88a687e22bbd5c6eca8f1afd2de1b9bc81582c",
     "formal/Mamba4/Scan.lean": "ae5fed382bbe1a8f81c22b02a34401ea514c6ed22b251535faa34980bcecabca",
+    "formal/Mamba4/Selective.lean": "96fb9da12b46a75b5301ee10487701c7b2987bb1e88f396677d73ad9fbe8e919",
     "formal/Mamba4/Stability.lean": "e508c3d2a15f50c7d45942114c30fc2f0296db5d006740a8d0a171207827fdde",
-    "formal/Mamba4.lean": "e06d2fec2c19274009d75b1d4274fb909ab07a105f10b5e9aceb4104399af782",
-    "formal/Verify.lean": "093f07212aa9b5b2f17fa9f669dcc4acf18d8fb5bfb5ceb37d9a6c660993a9a5",
+    "formal/Mamba4.lean": "b28c0a6b0373fca24f2984e2208d846828e980f674e95f67ff9b8251967214f4",
+    "formal/Verify.lean": "cd8c32c4adf9c904f3a2764ad55421c973b93887fbe1650cdec34eb66a814d39",
     "lakefile.toml": "eaeee2567c1b01130db6d06f704bddc860ef28de8b83d3588706423c623d1fe8",
     "lean-toolchain": "d5edba4e4b8faad9c1baeadb265716d20d03be4d1a2647dc5e35b0c0325bea7b",
     "lake-manifest.json": "7e3ca2d51a486a28185908f59a25a39f0dedab2c2072137a82d44ef82a8a1b2a"
   },
-  "log_sha256": "103f5a4cc08a50ca743681ba4797cfcb2cea1d80e200c2b8604dd20f7cfdd96c"
+  "log_sha256": "40f7dea7403d3ac431b71f7b784f9cc0d75c6ff394a09c49eb080ca023840964"
 }

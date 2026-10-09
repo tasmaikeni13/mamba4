@@ -1,0 +1,364 @@
+{
+  "config": {
+    "model": {
+      "architecture": "mamba4",
+      "chunk_size": 64,
+      "conv_kernel": 4,
+      "d_ff": 0,
+      "d_model": 512,
+      "d_state": 96,
+      "dropout_rate": 0.0,
+      "dtype": "bfloat16",
+      "expand": 2,
+      "floor_init": 1.0,
+      "floor_min": 0.25,
+      "head_dim": 64,
+      "key_dim": 64,
+      "layer_pattern": "SSSMSSSMSSSMSSSMSSS",
+      "mamba3_outproj_norm": false,
+      "max_seq_len": 1024,
+      "memory_decay": 0.99,
+      "memory_epsilon": 0.05,
+      "memory_floor": "fixed",
+      "memory_head_dim": 128,
+      "memory_hops": 1,
+      "memory_mixer": "selective",
+      "memory_solver": "blocked",
+      "mimo_rank": 1,
+      "n_groups": 1,
+      "n_heads": 8,
+      "n_layers": 19,
+      "norm_eps": 1e-05,
+      "order_head": true,
+      "param_dtype": "float32",
+      "protected_anchor_budget": 0,
+      "protected_block_size": 64,
+      "protected_routing": "all",
+      "qk_activation": "silu",
+      "remat": true,
+      "rope_fraction": 0.5,
+      "vocab_size": 50257
+    },
+    "protocol_id": "screen-60m-v2",
+    "training": {
+      "adam_epsilon": 1e-08,
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "checkpoint_every": 500,
+      "clip_norm": 1.0,
+      "eval_every": 500,
+      "eval_tokens": 2097152,
+      "global_batch": 128,
+      "learning_rate": 0.0006,
+      "log_every": 10,
+      "min_lr_ratio": 0.1,
+      "seed": 42,
+      "sequence_length": 1024,
+      "token_budget": 1000000000,
+      "warmup_steps": 200,
+      "weight_decay": 0.1
+    }
+  },
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-0",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 133354,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 0,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "passed": true,
+  "sources": {
+    "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+    "lm/config.py": "fd0cf1ac1def243248feb0960aba38586e59a6ab29db71c20e81134774a0cffe",
+    "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+    "lm/configs/mamba4-60m-v2.json": "fe9607bf281329a012e9aa6fba7e716209b55b06759af16e9db6d48d1f4cdcd8",
+    "lm/configs/mamba4-60m.json": "b2b11f630955e7b1ec8c5a4ee7aa75f4cdd6dc5216cf1ad2381f72c76cf93896",
+    "lm/configs/screen-protocol-v2.json": "9f0bb4fadf62e1bac30eca02b0bcb3c24c6999d2bc22ffcd7ba595535647362f",
+    "lm/configs/screen-protocol.json": "379ed3d982d094e5155d48ad3702ce1437db32b31429ce99fcd372b0adef86bb",
+    "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+    "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+    "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+    "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+    "lm/kernels/attention.py": "6f0d7610292c84f7acf7102243c65a79cdd48eba69405c52b36bbddcd5c0f008",
+    "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+    "lm/kernels/mamba4.py": "57fc0ee3945065c211eec0d363787b5769529fa871a73a2368a0bd2f4463057d",
+    "lm/kernels/mamba4_reference.py": "40db3fab6bad82ea3e1e10e616c7526236a0bb4b0dd559b5bef0a56de27e64aa",
+    "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+    "lm/models/common.py": "60b70a9d8fee2da308cb5f5e44201b14d72dd236181ec27c8bd787278dc6b834",
+    "lm/models/mamba3.py": "51321fedad423391e5058fa40b471a2188cbfe1b56a5f8f738b1a02769425b86",
+    "lm/models/mamba4.py": "9e673a7136a6c0864dec55758af96a96f15af69ca48b3aadec84657de904854a",
+    "lm/models/transformer.py": "759a31327a63c95872393935343c976fd9014ccc97fe8e6248a7e8464115cae4",
+    "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+    "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+    "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+    "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+    "lm/tests/test_mamba4.py": "8f5a182df9b7111f7ff7b20fa96eaae30d2c0f0cc6d39f759719156c5421df17",
+    "lm/tests/test_mamba4_selective.py": "6412f66a1bbc9ed44e91a1b84756fdcd6f946884e719f612e50e46708424afd5",
+    "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+    "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+    "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+    "lm/train.py": "d14d7e2a8470c85568241f8c95e3e6696860deb9484fe119bb0b05bbb64a818f",
+    "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+    "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+    "scripts/kernel_conformance.py": "969d7ea6ce9edf18cc947b5db0540405163e837d52715b27074312fb7af90728",
+    "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+    "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+    "scripts/prepare_fineweb.py": "6bce16fb0a76a4277e2606e555e24b816464641dcbef96bffa05dce7e9b5fc97",
+    "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+    "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+    "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+    "scripts/verify_lm_runs.py": "10b4d749115384a4c717e4425c65d01d25d8299bf2d44b25bbf9d244f6273e80",
+    "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+    "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+  },
+  "timings_seconds_including_compile": {
+    "diagnostics": 87.80952574700132,
+    "eval": 89.16662870300024,
+    "recall": 90.1927099530003,
+    "train_0": 244.10313137999947,
+    "train_1": 1.4030306459990243
+  },
+  "values": {
+    "diagnostics": {
+      "layer_11/memory/beta_max": 0.8947885036468506,
+      "layer_11/memory/beta_min": 0.08881980925798416,
+      "layer_11/memory/decay_max": 0.9992778897285461,
+      "layer_11/memory/decay_min": 0.21822969615459442,
+      "layer_11/memory/floor_max": 1.0000057220458984,
+      "layer_11/memory/floor_min": 0.9999967813491821,
+      "layer_11/memory/gaussian_allfinite": 1.0,
+      "layer_11/memory/gaussian_cross_abs_max": 3.1681528091430664,
+      "layer_11/memory/precision_condition_max": 11.382048606872559,
+      "layer_11/memory/precision_eigenvalue_max": 13.927127838134766,
+      "layer_11/memory/precision_eigenvalue_min": 0.9999996423721313,
+      "layer_11/memory/variance_max": 0.9999958872795105,
+      "layer_11/memory/variance_min": 0.29602184891700745,
+      "layer_15/memory/beta_max": 0.8918110132217407,
+      "layer_15/memory/beta_min": 0.06853809207677841,
+      "layer_15/memory/decay_max": 0.9991694688796997,
+      "layer_15/memory/decay_min": 0.08091896772384644,
+      "layer_15/memory/floor_max": 1.0000056028366089,
+      "layer_15/memory/floor_min": 0.9999969005584717,
+      "layer_15/memory/gaussian_allfinite": 1.0,
+      "layer_15/memory/gaussian_cross_abs_max": 6.581737041473389,
+      "layer_15/memory/precision_condition_max": 19.548866271972656,
+      "layer_15/memory/precision_eigenvalue_max": 21.86077880859375,
+      "layer_15/memory/precision_eigenvalue_min": 0.9999987483024597,
+      "layer_15/memory/variance_max": 0.9999953508377075,
+      "layer_15/memory/variance_min": 0.27074843645095825,
+      "layer_3/memory/beta_max": 0.9046512246131897,
+      "layer_3/memory/beta_min": 0.088819719851017,
+      "layer_3/memory/decay_max": 0.9982414841651917,
+      "layer_3/memory/decay_min": 0.030566638335585594,
+      "layer_3/memory/floor_max": 1.000005841255188,
+      "layer_3/memory/floor_min": 0.9999966025352478,
+      "layer_3/memory/gaussian_allfinite": 1.0,
+      "layer_3/memory/gaussian_cross_abs_max": 1.8317934274673462,
+      "layer_3/memory/precision_condition_max": 5.812207221984863,
+      "layer_3/memory/precision_eigenvalue_max": 6.00405740737915,
+      "layer_3/memory/precision_eigenvalue_min": 0.9999975562095642,
+      "layer_3/memory/variance_max": 0.999995768070221,
+      "layer_3/memory/variance_min": 0.5029898285865784,
+      "layer_7/memory/beta_max": 0.8872038125991821,
+      "layer_7/memory/beta_min": 0.09009261429309845,
+      "layer_7/memory/decay_max": 0.9988771677017212,
+      "layer_7/memory/decay_min": 0.05983429029583931,
+      "layer_7/memory/floor_max": 1.0000057220458984,
+      "layer_7/memory/floor_min": 0.9999967813491821,
+      "layer_7/memory/gaussian_allfinite": 1.0,
+      "layer_7/memory/gaussian_cross_abs_max": 2.325561285018921,
+      "layer_7/memory/precision_condition_max": 9.00671100616455,
+      "layer_7/memory/precision_eigenvalue_max": 9.374472618103027,
+      "layer_7/memory/precision_eigenvalue_min": 0.9999980926513672,
+      "layer_7/memory/variance_max": 0.9999958276748657,
+      "layer_7/memory/variance_min": 0.4115670323371887
+    },
+    "eval_nll": 10.874929428100586,
+    "recall_accuracy_untrained": 0.1171875,
+    "train_loss_0": 10.928573608398438,
+    "train_loss_1": 10.91031551361084
+  }
+}

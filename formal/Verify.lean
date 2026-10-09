@@ -59,6 +59,15 @@ import Mamba4
 #print axioms Mamba4.AffineSummary.fold_act
 #print axioms Mamba4.AffineSummary.scan_equals_sequential
 #print axioms Mamba4.AffineSummary.undiscounted_commutes
+#print axioms Mamba4.selective_evidence_psd
+#print axioms Mamba4.diagonal_floor_bound
+#print axioms Mamba4.selective_precision_posDef
+#print axioms Mamba4.selective_floor_arbitrary_gates
+#print axioms Mamba4.selective_variance_bound
+#print axioms Mamba4.diag_ridge_minimizes
+#print axioms Mamba4.selective_solve_minimizes
+#print axioms Mamba4.selective_step_is_affine
+#print axioms Mamba4.selective_scan_equals_sequential
 #print axioms Mamba4.evidence_invariant
 #print axioms Mamba4.decay_product_nonexpansive
 #print axioms Mamba4.fixed_prior_discount_changes_precision

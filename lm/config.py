@@ -33,6 +33,17 @@ class ModelConfig:
     protected_anchor_budget: int = 4
     protected_block_size: int = 64
     protected_routing: str = "all"
+    # screen-60m-v2 fields; defaults reproduce the frozen v1 composition.
+    memory_mixer: str = "v1"
+    layer_pattern: str = ""
+    conv_kernel: int = 0
+    floor_min: float = 0.25
+    floor_init: float = 1.0
+    order_head: bool = True
+    qk_activation: str = "silu"
+    memory_rope_fraction: float = 0.0
+    memory_head_dim: int = 0
+    memory_solver: str = "loop"
 
     @property
     def num_heads(self) -> int:
@@ -41,6 +52,23 @@ class ModelConfig:
     @property
     def value_dim(self) -> int:
         return self.head_dim
+
+    @property
+    def memory_value_dim(self) -> int:
+        """Selective memory heads may be wider than the hybrid Mamba-3 heads."""
+        return self.memory_head_dim or self.head_dim
+
+    @property
+    def memory_heads(self) -> int:
+        return self.d_model * self.expand // self.memory_value_dim
+
+    @property
+    def layer_kinds(self) -> str:
+        """One character per layer: M conjugate memory, S official Mamba-3."""
+        pattern = self.layer_pattern or "M" * self.n_layers
+        if len(pattern) != self.n_layers or set(pattern) - {"M", "S"}:
+            raise ValueError("layer_pattern must contain n_layers M/S characters")
+        return pattern
 
     def to_dict(self) -> dict:
         return asdict(self)
