@@ -95,11 +95,18 @@ def _factor_token(e_ref, a_ref, key, lam, beta, floor, dim):
         index = rows[part]
         column = e_ref[j, part] + jnp.where(index == j, floor[j : j + 1], 0.0)
 
-        def subtract(k, column, j=j, part=part):
-            return column - a_ref[k, part] * a_ref[k, j : j + 1]
+        # Earlier columns in blocks of eight (a dynamic loop with a static
+        # body), then the remainder of the current block.
+        def block(index, column, j=j, part=part):
+            for offset in range(8):
+                k = 8 * index + offset
+                column = column - a_ref[k, part] * a_ref[k, j : j + 1]
+            return column
 
-        if j:
-            column = lax.fori_loop(0, j, subtract, column, unroll=min(j, 8))
+        if j >= 8:
+            column = lax.fori_loop(0, j // 8, block, column)
+        for k in range(8 * (j // 8), j):
+            column = column - a_ref[k, part] * a_ref[k, j : j + 1]
         local = j % 8
         reciprocal = lax.rsqrt(column[local : local + 1])
         below = jnp.where(index > j, column * reciprocal, 0.0)
