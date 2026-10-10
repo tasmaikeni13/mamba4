@@ -101,7 +101,7 @@ def remat_block(block, config, memory=False, position=0):
     "kernels" keeps the scan and memory-solve outputs; "mixers" recomputes
     every block except memory blocks, which keep all their activations,
     including the stored Cholesky factors that their backward pass reuses;
-    "mixers:N" recomputes only the first N non-memory blocks (position counts
+    "mixers-N" recomputes only the first N non-memory blocks (position counts
     them), trading memory for fewer recomputed forwards.
     """
     if not config.remat:
@@ -113,7 +113,7 @@ def remat_block(block, config, memory=False, position=0):
             "memory_solve", "ssd_scan"
         )
     elif config.remat_policy.startswith("mixers"):
-        _, _, count = config.remat_policy.partition(":")
+        _, _, count = config.remat_policy.partition("-")
         if memory or (count and position >= int(count)):
             return block
         policy = None
