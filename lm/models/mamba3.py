@@ -12,7 +12,7 @@ from flax import linen as nn
 import jax
 import jax.numpy as jnp
 
-from lm.kernels.flashmamba import mamba3_flash
+from lm.kernels.flashmamba import mamba3_flash_heads
 from lm.kernels.mamba3 import mamba3_chunked
 from lm.kernels.mamba3_fast import mamba3_fast
 from lm.models.common import (
@@ -71,62 +71,128 @@ class Mamba3Mixer(nn.Module):
             sections.append(projected[..., cursor : cursor + size])
             cursor += size
         z, x, b, c, raw_dt, raw_a, trap, angles = sections
-        b = b.reshape(*u.shape[:2], rank, config.n_groups, config.d_state)
-        c = c.reshape(b.shape)
-        b = RMSNorm(config.d_state, config.norm_eps, dtype, param_dtype, name="B_norm")(
-            b
-        )
-        c = RMSNorm(config.d_state, config.norm_eps, dtype, param_dtype, name="C_norm")(
-            c
-        )
-        b = jnp.transpose(b, (0, 1, 3, 2, 4))
-        c = jnp.transpose(c, (0, 1, 3, 2, 4))
-        b = jnp.repeat(b, heads // config.n_groups, axis=2)
-        c = jnp.repeat(c, heads // config.n_groups, axis=2)
-        b_bias = self.param(
-            "B_bias", nn.initializers.ones, (heads, rank, config.d_state), param_dtype
-        )
-        c_bias = self.param(
-            "C_bias", nn.initializers.ones, (heads, rank, config.d_state), param_dtype
-        )
-        dt_bias = self.param("dt_bias", timestep_bias_init, (heads,), jnp.float32)
-        dt = jax.nn.softplus(raw_dt.astype(jnp.float32) + dt_bias)
-        a = -jnp.maximum(heavy_tail_activation(raw_a.astype(jnp.float32)), 1e-4)
-        angles = jnp.broadcast_to(
-            angles.astype(jnp.float32)[..., None, :],
-            (*u.shape[:2], heads, angles_count),
-        )
-        x = x.reshape(*u.shape[:2], heads, config.head_dim)
-        z = z.reshape(x.shape)
-        if rank > 1:
-            mimo_x = self.param(
-                "mimo_x",
-                nn.initializers.constant(1 / rank),
-                (heads, rank, config.head_dim),
-                param_dtype,
-            )
-            mimo_z = self.param(
-                "mimo_z",
-                nn.initializers.ones,
-                (heads, rank, config.head_dim),
-                param_dtype,
-            )
-            mimo_o = self.param(
-                "mimo_o",
-                nn.initializers.constant(1 / rank),
-                (heads, rank, config.head_dim),
-                param_dtype,
-            )
-            values = (x[..., None, :] * mimo_x.astype(dtype)).astype(dtype)
-            gates = (z[..., None, :] * mimo_z.astype(dtype)).astype(dtype)
-        else:
-            values, gates = x[..., None, :], z[..., None, :]
         if config.ssd_kernel == "flash":
-            # FlashMamba picks its own chunk length; the scan is exact for any.
-            y, _ = mamba3_flash(
-                c, b, values, a * dt, dt, trap, angles, q_bias=c_bias, k_bias=b_bias
+            if rank != 1:
+                raise ValueError("FlashMamba implements rank-one (SISO) heads")
+            # [B,T,G,N] and then heads, with no singleton rank axis (TPU tiling
+            # would pad it 8-fold); parameters keep their shapes and order.
+            b = b.reshape(*u.shape[:2], config.n_groups, config.d_state)
+            c = c.reshape(b.shape)
+            b = RMSNorm(
+                config.d_state, config.norm_eps, dtype, param_dtype, name="B_norm"
+            )(b)
+            c = RMSNorm(
+                config.d_state, config.norm_eps, dtype, param_dtype, name="C_norm"
+            )(c)
+            b = jnp.repeat(b, heads // config.n_groups, axis=2)
+            c = jnp.repeat(c, heads // config.n_groups, axis=2)
+            b_bias = self.param(
+                "B_bias",
+                nn.initializers.ones,
+                (heads, rank, config.d_state),
+                param_dtype,
             )
+            c_bias = self.param(
+                "C_bias",
+                nn.initializers.ones,
+                (heads, rank, config.d_state),
+                param_dtype,
+            )
+            dt_bias = self.param("dt_bias", timestep_bias_init, (heads,), jnp.float32)
+            dt = jax.nn.softplus(raw_dt.astype(jnp.float32) + dt_bias)
+            a = -jnp.maximum(heavy_tail_activation(raw_a.astype(jnp.float32)), 1e-4)
+            angles = jnp.broadcast_to(
+                angles.astype(jnp.float32)[..., None, :],
+                (*u.shape[:2], heads, angles_count),
+            )
+            x = x.reshape(*u.shape[:2], heads, config.head_dim)
+            z = z.reshape(x.shape)
+            y, _ = mamba3_flash_heads(
+                c,
+                b,
+                x,
+                a * dt,
+                dt,
+                trap,
+                angles,
+                q_bias=c_bias[:, 0],
+                k_bias=b_bias[:, 0],
+            )
+            skip = self.param("D", nn.initializers.ones, (heads,), param_dtype)
+            y = (
+                y.astype(jnp.float32)
+                + x.astype(jnp.float32) * skip[None, None, :, None]
+            )
+            if config.mamba3_outproj_norm:
+                weight = self.param(
+                    "out_norm_scale",
+                    nn.initializers.ones,
+                    (heads, config.head_dim),
+                    param_dtype,
+                )
+                y *= jax.lax.rsqrt(
+                    jnp.mean(jnp.square(y), axis=-1, keepdims=True) + config.norm_eps
+                )
+                y *= weight[None, None]
+            y *= jax.nn.silu(z.astype(jnp.float32))
+            y = y.reshape(*u.shape[:2], inner).astype(dtype)
         else:
+            b = b.reshape(*u.shape[:2], rank, config.n_groups, config.d_state)
+            c = c.reshape(b.shape)
+            b = RMSNorm(
+                config.d_state, config.norm_eps, dtype, param_dtype, name="B_norm"
+            )(b)
+            c = RMSNorm(
+                config.d_state, config.norm_eps, dtype, param_dtype, name="C_norm"
+            )(c)
+            b = jnp.transpose(b, (0, 1, 3, 2, 4))
+            c = jnp.transpose(c, (0, 1, 3, 2, 4))
+            b = jnp.repeat(b, heads // config.n_groups, axis=2)
+            c = jnp.repeat(c, heads // config.n_groups, axis=2)
+            b_bias = self.param(
+                "B_bias",
+                nn.initializers.ones,
+                (heads, rank, config.d_state),
+                param_dtype,
+            )
+            c_bias = self.param(
+                "C_bias",
+                nn.initializers.ones,
+                (heads, rank, config.d_state),
+                param_dtype,
+            )
+            dt_bias = self.param("dt_bias", timestep_bias_init, (heads,), jnp.float32)
+            dt = jax.nn.softplus(raw_dt.astype(jnp.float32) + dt_bias)
+            a = -jnp.maximum(heavy_tail_activation(raw_a.astype(jnp.float32)), 1e-4)
+            angles = jnp.broadcast_to(
+                angles.astype(jnp.float32)[..., None, :],
+                (*u.shape[:2], heads, angles_count),
+            )
+            x = x.reshape(*u.shape[:2], heads, config.head_dim)
+            z = z.reshape(x.shape)
+            if rank > 1:
+                mimo_x = self.param(
+                    "mimo_x",
+                    nn.initializers.constant(1 / rank),
+                    (heads, rank, config.head_dim),
+                    param_dtype,
+                )
+                mimo_z = self.param(
+                    "mimo_z",
+                    nn.initializers.ones,
+                    (heads, rank, config.head_dim),
+                    param_dtype,
+                )
+                mimo_o = self.param(
+                    "mimo_o",
+                    nn.initializers.constant(1 / rank),
+                    (heads, rank, config.head_dim),
+                    param_dtype,
+                )
+                values = (x[..., None, :] * mimo_x.astype(dtype)).astype(dtype)
+                gates = (z[..., None, :] * mimo_z.astype(dtype)).astype(dtype)
+            else:
+                values, gates = x[..., None, :], z[..., None, :]
             kernel = mamba3_fast if config.ssd_kernel == "fast" else mamba3_chunked
             y, _ = kernel(
                 c,
@@ -141,28 +207,28 @@ class Mamba3Mixer(nn.Module):
                 chunk_size=config.chunk_size,
                 pairwise=rank == 1,
             )
-        skip = self.param("D", nn.initializers.ones, (heads,), param_dtype)
-        y = (
-            y.astype(jnp.float32)
-            + values.astype(jnp.float32) * skip[None, None, :, None, None]
-        )
-        if config.mamba3_outproj_norm:
-            weight = self.param(
-                "out_norm_scale",
-                nn.initializers.ones,
-                (heads, config.head_dim),
-                param_dtype,
+            skip = self.param("D", nn.initializers.ones, (heads,), param_dtype)
+            y = (
+                y.astype(jnp.float32)
+                + values.astype(jnp.float32) * skip[None, None, :, None, None]
             )
-            y *= jax.lax.rsqrt(
-                jnp.mean(jnp.square(y), axis=-1, keepdims=True) + config.norm_eps
-            )
-            y *= weight[None, None, :, None, :]
-        y *= jax.nn.silu(gates.astype(jnp.float32))
-        if rank > 1:
-            y = jnp.sum(y * mimo_o[None, None], axis=-2)
-        else:
-            y = y[..., 0, :]
-        y = y.reshape(*u.shape[:2], inner).astype(dtype)
+            if config.mamba3_outproj_norm:
+                weight = self.param(
+                    "out_norm_scale",
+                    nn.initializers.ones,
+                    (heads, config.head_dim),
+                    param_dtype,
+                )
+                y *= jax.lax.rsqrt(
+                    jnp.mean(jnp.square(y), axis=-1, keepdims=True) + config.norm_eps
+                )
+                y *= weight[None, None, :, None, :]
+            y *= jax.nn.silu(gates.astype(jnp.float32))
+            if rank > 1:
+                y = jnp.sum(y * mimo_o[None, None], axis=-2)
+            else:
+                y = y[..., 0, :]
+            y = y.reshape(*u.shape[:2], inner).astype(dtype)
         return nn.Dense(
             config.d_model,
             use_bias=False,

@@ -29,7 +29,8 @@ class ModelConfig:
     attention_kernel: str = "flash"
     attention_block: int = 0
     # "full" recomputes every block activation in the backward pass; "kernels"
-    # keeps the memory-solve and FlashMamba scan outputs (no rerun kernels).
+    # keeps the memory-solve and FlashMamba scan outputs; "mixers" leaves the
+    # memory blocks unrematerialized (see lm.models.common.remat_block).
     remat_policy: str = "full"
     mamba3_outproj_norm: bool = False
     # Mamba-3 scan: "chunked" (XLA autodiff), "fast" (hand-derived backward)

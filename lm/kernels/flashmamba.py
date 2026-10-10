@@ -28,7 +28,6 @@ from jax.experimental import pallas as pl
 from jax.experimental.pallas import tpu as pltpu
 import jax.numpy as jnp
 
-from lm.kernels.mamba3 import _rotary_frame
 
 CHUNK = 128
 # Most heads one grid step may process; the largest divisor of H up to it is used.
@@ -42,18 +41,21 @@ def _rotate_pairs(x, angles):
     """`lm.kernels.mamba3.rotate` with pairwise=True, without size-2 axes.
 
     Adjacent coordinates (2i, 2i+1) rotate by angle i; coordinates beyond the
-    angles stay fixed. Each coordinate's partner comes from a lane roll, so
-    no [..., N/2, 2] intermediate is formed in either direction of autodiff.
+    angles stay fixed. Each coordinate's partner comes from a lane roll, and
+    the cosine and sine are evaluated once per angle.
     """
-    width = x.shape[-1]
-    angles = jnp.pad(
-        angles, [(0, 0)] * (angles.ndim - 1) + [(0, width // 2 - angles.shape[-1])]
-    )
-    angles = jnp.repeat(angles, 2, axis=-1)
+    width, count = x.shape[-1], angles.shape[-1]
+    cosine = jnp.repeat(jnp.cos(angles), 2, axis=-1)
+    sine = jnp.repeat(jnp.sin(angles), 2, axis=-1)
+    rest = width - 2 * count
+    if rest:
+        shape = (*angles.shape[:-1], rest)
+        cosine = jnp.concatenate((cosine, jnp.ones(shape, F32)), axis=-1)
+        sine = jnp.concatenate((sine, jnp.zeros(shape, F32)), axis=-1)
     x32 = x.astype(F32)
     even = jnp.arange(width) % 2 == 0
     partner = jnp.where(even, -jnp.roll(x32, -1, axis=-1), jnp.roll(x32, 1, axis=-1))
-    return (x32 * jnp.cos(angles) + partner * jnp.sin(angles)).astype(x.dtype)
+    return (x32 * cosine + partner * sine).astype(x.dtype)
 
 
 def prefix_sum(x, chunk=CHUNK):
@@ -78,12 +80,13 @@ def prefix_sum(x, chunk=CHUNK):
 
 
 def _rotary_frame_pairs(q, k, dt, angles, q_bias, k_bias):
-    """`lm.kernels.mamba3._rotary_frame` for pairwise rotation."""
+    """`lm.kernels.mamba3._rotary_frame` for pairwise rotation of [B,T,H,N]
+    arrays, with angle rates [B,T,H,A] and biases [H,N]."""
     if q_bias is not None:
         q = (q.astype(F32) + q_bias).astype(q.dtype)
     if k_bias is not None:
         k = (k.astype(F32) + k_bias).astype(k.dtype)
-    phase = prefix_sum(angles.astype(F32) * dt[..., None])[..., None, :]
+    phase = prefix_sum(angles.astype(F32) * dt[..., None])
     return _rotate_pairs(q, phase), _rotate_pairs(k, phase)
 
 
@@ -461,6 +464,44 @@ def _ssd_backward(chunk, interpret, heads_per_step, residuals, cotangents):
 ssd.defvjp(_ssd_forward, _ssd_backward)
 
 
+def mamba3_flash_heads(
+    q,
+    k,
+    v,
+    adt,
+    dt,
+    trap_logits,
+    angles,
+    *,
+    q_bias=None,
+    k_bias=None,
+    chunk_size=CHUNK,
+    interpret=None,
+    heads_per_step=None,
+):
+    """SISO Mamba-3 scan on [B,T,H,N] queries and keys and [B,T,H,P] values.
+
+    angles [B,T,H,A] are rotation rates and q_bias, k_bias [H,N]; rotation is
+    pairwise. Returns [B,T,H,P] outputs and the [B,H,N,P] final state. No
+    array carries a singleton rank axis, which TPU tiling would pad 8-fold.
+    """
+    if interpret is None:
+        interpret = jax.default_backend() != "tpu"
+    if heads_per_step is None:
+        heads = q.shape[2]
+        heads_per_step = max(
+            size for size in range(1, HEADS_PER_STEP + 1) if heads % size == 0
+        )
+    q, k = _rotary_frame_pairs(q, k, dt, angles, q_bias, k_bias)
+    trap = jax.nn.sigmoid(trap_logits.astype(F32))
+    gamma = dt.astype(F32) * trap
+    previous_weight = dt.astype(F32) * (1 - trap)
+    scale = gamma + jnp.concatenate(
+        (previous_weight[:, 1:], jnp.zeros_like(previous_weight[:, :1])), axis=1
+    )
+    return ssd(q, k, v, adt, gamma, scale, chunk_size, interpret, heads_per_step)
+
+
 def mamba3_flash(
     q,
     k,
@@ -480,32 +521,20 @@ def mamba3_flash(
     """Drop-in for `mamba3_chunked` with rank-one heads ([B,T,H,1,*] shapes)."""
     if q.shape[3] != 1:
         raise ValueError("mamba3_flash supports SISO (rank-one) heads only")
-    if interpret is None:
-        interpret = jax.default_backend() != "tpu"
-    if heads_per_step is None:
-        heads = q.shape[2]
-        heads_per_step = max(
-            size for size in range(1, HEADS_PER_STEP + 1) if heads % size == 0
-        )
-    if pairwise:
-        q, k = _rotary_frame_pairs(q, k, dt, angles, q_bias, k_bias)
-    else:
-        q, k, _ = _rotary_frame(q, k, dt, angles, q_bias, k_bias, pairwise)
-    trap = jax.nn.sigmoid(trap_logits.astype(F32))
-    gamma = dt.astype(F32) * trap
-    previous_weight = dt.astype(F32) * (1 - trap)
-    scale = gamma + jnp.concatenate(
-        (previous_weight[:, 1:], jnp.zeros_like(previous_weight[:, :1])), axis=1
-    )
-    output, final = ssd(
+    if not pairwise:
+        raise ValueError("mamba3_flash implements pairwise rotation")
+    output, final = mamba3_flash_heads(
         q[..., 0, :],
         k[..., 0, :],
         v[..., 0, :],
         adt,
-        gamma,
-        scale,
-        chunk_size,
-        interpret,
-        heads_per_step,
+        dt,
+        trap_logits,
+        angles,
+        q_bias=None if q_bias is None else q_bias[:, 0],
+        k_bias=None if k_bias is None else k_bias[:, 0],
+        chunk_size=chunk_size,
+        interpret=interpret,
+        heads_per_step=heads_per_step,
     )
     return output[..., None, :], final

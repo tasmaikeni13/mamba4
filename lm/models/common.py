@@ -94,8 +94,14 @@ class TokenEmbedding(nn.Module):
         return self.embedding.attend(x).astype(jnp.float32)
 
 
-def remat_block(block, config):
-    """The block itself, or its rematerialized form under the config's policy."""
+def remat_block(block, config, memory=False):
+    """The block itself, or its rematerialized form under the config's policy.
+
+    "full" recomputes every activation of every block in the backward pass;
+    "kernels" keeps the scan and memory-solve outputs; "mixers" recomputes
+    every block except memory blocks, which keep all their activations,
+    including the stored Cholesky factors that their backward pass reuses.
+    """
     if not config.remat:
         return block
     if config.remat_policy == "full":
@@ -104,6 +110,10 @@ def remat_block(block, config):
         policy = jax.checkpoint_policies.save_only_these_names(
             "memory_solve", "ssd_scan"
         )
+    elif config.remat_policy == "mixers":
+        if memory:
+            return block
+        policy = None
     else:
         raise ValueError(f"Unknown remat_policy: {config.remat_policy}")
     return nn.remat(block, static_argnums=(2,), policy=policy)

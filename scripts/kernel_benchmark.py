@@ -128,7 +128,7 @@ def part_benchmarks(results, batch, length, heads=24, state=128, width=64):
     both(
         "part/rotary-pairs",
         flashmamba._rotary_frame_pairs,
-        (q, k, dt, angles, qb, kb),
+        (q[..., 0, :], k[..., 0, :], dt, angles, qb[:, 0], kb[:, 0]),
         (0, 1, 2, 3),
         results,
     )
