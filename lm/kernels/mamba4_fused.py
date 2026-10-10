@@ -78,41 +78,32 @@ def _substitute(tile_of, value, dim):
 def _factor_token(e_ref, a_ref, key, lam, beta, floor, dim):
     """Evidence update E = lam E + beta k k^T, then Cholesky of E + diag(floor).
 
-    e_ref[j] and a_ref[j] hold column j, rows on sublanes. Only rows from the
-    column's 8-row tile down are kept current: the lower triangle plus a few
-    finite entries above it that no step reads. The factorization runs over a
-    dynamic pivot column; its trailing update is unrolled over 8-column blocks
-    behind dynamic guards, about d^3/24 vector operations. The diagonal keeps
-    1 / L_jj (one reciprocal square root), so neither the factorization nor
-    the solves divide.
+    e_ref[j] and a_ref[j] hold column j of the evidence and of the factor L,
+    rows on sublanes; only rows from the column's 8-row tile down are used.
+    The factorization is left-looking over static columns: column j starts
+    from E's column plus the floor and subtracts every earlier column scaled
+    by its row-j entry, so the working column stays in registers and only the
+    finished column is stored. The diagonal keeps 1 / L_jj, so neither the
+    factorization nor the solves divide.
     """
-    blocks = dim // 8
     rows = lax.broadcasted_iota(jnp.int32, (dim, 1), 0)
     for c in range(dim):
         part = slice(8 * (c // 8), dim)
-        evidence = lam * e_ref[c, part] + (beta * key[c : c + 1]) * key[part]
-        e_ref[c, part] = evidence
-        on_diagonal = rows[part] == c
-        a_ref[c, part] = evidence + jnp.where(on_diagonal, floor[c : c + 1], 0.0)
+        e_ref[c, part] = lam * e_ref[c, part] + (beta * key[c : c + 1]) * key[part]
+    for j in range(dim):
+        part = slice(8 * (j // 8), dim)
+        index = rows[part]
+        column = e_ref[j, part] + jnp.where(index == j, floor[j : j + 1], 0.0)
 
-    def column(j, carry):
-        col = a_ref[j]
-        reciprocal = lax.rsqrt(
-            jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True)
-        )
-        below = jnp.where(rows > j, col * reciprocal, 0.0)
-        a_ref[j] = jnp.where(rows == j, reciprocal, below)
-        for block in range(blocks):
+        def subtract(k, column, j=j, part=part):
+            return column - a_ref[k, part] * a_ref[k, j : j + 1]
 
-            @pl.when(j < 8 * block + 7)
-            def _():
-                part = slice(8 * block, dim)
-                for c in range(8 * block, 8 * block + 8):
-                    a_ref[c, part] = a_ref[c, part] - below[part] * below[c : c + 1]
-
-        return carry
-
-    lax.fori_loop(0, dim, column, 0)
+        if j:
+            column = lax.fori_loop(0, j, subtract, column, unroll=min(j, 8))
+        local = j % 8
+        reciprocal = lax.rsqrt(column[local : local + 1])
+        below = jnp.where(index > j, column * reciprocal, 0.0)
+        a_ref[j, part] = jnp.where(index == j, reciprocal, below)
 
 
 def _solve_kernel(

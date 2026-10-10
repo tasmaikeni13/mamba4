@@ -545,6 +545,23 @@ def mamba3_flash(
 # ---------------------------------------------------------------------------
 
 
+def _mask_dot(mask, x):
+    """mask @ x for a 0/1 mask, exact to float32 accumulation.
+
+    x splits into three bfloat16 parts that sum to it; each product with the
+    exactly representable mask is exact, and the MXU accumulates in float32.
+    In-kernel float32-precision products crash this Mosaic version.
+    """
+    weights = mask.astype(jnp.bfloat16)
+    high = x.astype(jnp.bfloat16)
+    rest = x - high.astype(F32)
+    middle = rest.astype(jnp.bfloat16)
+    low = (rest - middle.astype(F32)).astype(jnp.bfloat16)
+    total = jnp.dot(weights, high, preferred_element_type=F32)
+    total += jnp.dot(weights, middle, preferred_element_type=F32)
+    return total + jnp.dot(weights, low, preferred_element_type=F32)
+
+
 def _partner(x):
     """(-x[2i+1] at 2i, x[2i] at 2i+1) from two lane rotations (exact)."""
     width = x.shape[-1]
@@ -604,9 +621,7 @@ def _fused_forward_kernel(
     for head in range(heads):
         dt_col = _column(dt_ref[head], diagonal)
         start_phase = phase_ref[block, head]
-        theta = start_phase + jnp.dot(
-            inclusive, angles * dt_col, precision=HIGHEST, preferred_element_type=F32
-        )
+        theta = start_phase + _mask_dot(inclusive, angles * dt_col)
         phase0_ref[head] = start_phase
         phase_ref[block, head] = theta[chunk - 1 :]
         q_rot, k_rot, _, _ = _rotated(c_ref, b_ref, qb_ref[head], kb_ref[head], theta)
@@ -693,9 +708,7 @@ def _fused_backward_kernel(
     angles = angle_ref[...]
     for head in range(heads):
         dt_col = _column(dt_ref[head], diagonal)
-        theta = phase0_ref[head] + jnp.dot(
-            inclusive, angles * dt_col, precision=HIGHEST, preferred_element_type=F32
-        )
+        theta = phase0_ref[head] + _mask_dot(inclusive, angles * dt_col)
         q_rot, k_rot, cosine, sine = _rotated(
             c_ref, b_ref, qb_ref[head], kb_ref[head], theta
         )
@@ -757,9 +770,7 @@ def _fused_backward_kernel(
         d_theta = dq * _partner(q_rot) + dk * _partner(k_rot)
         # theta_t sums earlier increments, so each increment collects the
         # phase gradient of its own and every later position.
-        d_increment = later_ref[block, head] + jnp.dot(
-            suffix, d_theta, precision=HIGHEST, preferred_element_type=F32
-        )
+        d_increment = later_ref[block, head] + _mask_dot(suffix, d_theta)
         later_ref[block, head] = later_ref[block, head] + jnp.sum(
             d_theta, axis=0, keepdims=True
         )
