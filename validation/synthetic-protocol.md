@@ -1,8 +1,10 @@
-# Synthetic study B and in-context regression: design
+# Synthetic study and in-context regression: design
+
+*Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
 
 Recorded 2026-10-09 22:31 UTC, before either study runs.
 
-## Study B (token tasks)
+## Synthetic study (token tasks)
 
 Models are matched small stacks: two blocks of width 128 with a tied
 12,288-token embedding.
@@ -11,7 +13,8 @@ Models are matched small stacks: two blocks of width 128 with a tied
 - Mamba 4: selective memory blocks, key dimension 32, four heads of width 64,
   aligned keys (`memory_key_shift`).
 
-The no-key-shift memory layer was measured in study A. Pure stacks are used
+The memory layer without key alignment was measured during development
+(git history). Pure stacks are used
 because a small Mamba-3 + memory hybrid hits the TPU launch-identity halt
 (docs/iterations.md).
 

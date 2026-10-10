@@ -1,6 +1,7 @@
 # Key alignment: development selection rule
 
 *Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
+
 Recorded 2026-10-09 18:41 UTC (commit bc3ad3b), before the pilot launched at 18:41:46.
 
 The first claims evaluation found that the language model without key

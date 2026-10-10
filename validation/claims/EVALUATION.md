@@ -1,6 +1,7 @@
 # Claims-60m: the reported evaluation
 
 *Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
+
 Recorded 2026-10-09 21:03 UTC (commit db79c18), while the final Mamba 4 was still
 training and before any model was scored on these arrays.
 

@@ -1,6 +1,7 @@
 # Composition: development selection rule
 
 *Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
+
 Recorded 2026-10-09 07:08 UTC, after pilots p2 and p3 and before the p4/p5
 results were observed.
 

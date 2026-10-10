@@ -1,6 +1,7 @@
 # Claims-60m protocol
 
 *Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
+
 Frozen on 2026-10-09 before any model was scored. The 60M screen gated only
 on held-out NLL. This protocol tests the paper's distinctive claims on the
 trained 60M checkpoints, with no further training and no selection. The rules

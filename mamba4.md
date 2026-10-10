@@ -343,21 +343,25 @@ full learned models and cannot rank language-model perplexity or TPU speed.
 ## 10. Remaining dependencies
 
 Phases 03–04 implemented matched models and fused kernels on v4-32 and ran
-the requested 60M/1B-token one-seed screen (§11–§12). A budgeted 125M
-selection and 3B-token three-seed comparison remain plans; they need the
-user's authorization. Still open: protected banks and routing inside the
-selective composition, a profiled breakdown of hardware cost, and
-training-seed variability.
+the 60M, 1B-token, one-seed screen and its claims suite (§11–§13). A budgeted
+125M selection and a 3B-token, three-seed comparison remain plans and need
+the user's authorization. Still open:
+- retrieval and long-context use inside the language model (§13);
+- protected banks and routing inside the language-model composition;
+- a profiled breakdown of hardware cost;
+- training-seed variability.
 
 Other conjugate families need their own likelihood, calibration, capacity and
 resource proofs. An affine auxiliary head can distinguish AB from BA when
-undiscounted token-local Gaussian evidence loses order, but this does not prove
-general fixed-state reasoning. Universal growing-cache dominance is disproved.
+undiscounted token-local Gaussian evidence loses order, but this does not
+prove general fixed-state reasoning. Universal growing-cache dominance is
+disproved.
 
 The [complete claim ledger](docs/claim-ledger.md),
 [deep derivations](docs/mathematical-analysis.md),
-[Lean project](formal/Mamba4.lean), and [phases](phases/README.md) preserve the
-original scope and make every corrected contract and remaining gate reviewable.
+[Lean project](formal/Mamba4.lean) and [phases](phases/README.md) keep the
+original scope, and make every corrected contract and remaining gate
+reviewable.
 
 ## 11. Language-model architecture
 
@@ -431,3 +435,43 @@ Training throughput is 0.61× Mamba-3's. The cache is a constant 7.3 MiB per
 sequence. Every learned precision respected its floor at every scheduled
 diagnostic: the minimum eigenvalue was 0.7208 against a floor of 0.7179
 (`lm/results/screen-60m/`).
+
+## 13. Trained claims
+
+NLL cannot show the paper's distinctive claims, so a protocol frozen before
+scoring (`validation/claims/`) tests them on the trained checkpoints, with no
+further training. It is applied unchanged to fresh arrays. Prompts or documents
+are the sampling units. Holm-adjusted paired tests give each comparison one of
+three calls: exceeds, matches or trails.
+
+| Claim (60M language model) | Mamba 4 | Mamba-3 | Transformer |
+|---|---:|---:|---:|
+| Copy 16 random words, top-1 | 11.8% | 5.7% | 42.3% |
+| Copy 256 words | 0.2% | 0.1% | 13.5% |
+| Passkey, exact, 512 / 1,024 tokens | 0% / 0% | 0% / 0% | 68.8% / 41.2% |
+| Passkey, 2,048–16,384 tokens | 0% | 0% | 0% |
+| Long-document NLL, positions 8K–16K | 3.508 | 3.515 | 6.491 |
+| One-token decode at 1K / 64K context | 5.3 / 5.3 ms | 2.8 / 2.8 ms | 4.6 / 904 ms |
+
+Verdicts:
+- **Exact retrieval inside the window:** refuted against the Transformer,
+  supported against Mamba-3.
+- **Long context:** refuted against both. No passkey is retrieved at any
+  length. NLL stays flat where the Transformer's collapses, but it does not
+  improve beyond the 1,024-token training length.
+- **Calibrated confidence:** refuted. Answer-slot calibration is worse on
+  passkey prompts, and the memory variance does not consistently predict
+  errors.
+- **Context-independent decode:** supported.
+
+Zeroing the conjugate read removes most of the gain over Mamba-3 and costs
+0.04–0.18 nats, more at longer range. The key alignment changed none of these
+behaviours (`lm/results/claims-60m/`).
+
+These results fit the capacity wall of §2. In ordinary text every token is
+written, so about a thousand tokens of context pass through 64-dimensional
+keys per head. Exact recall of arbitrary earlier tokens then exceeds the
+memory's capacity, while attention keeps every token. Retention beyond the
+training length is not trained at 1,024 tokens. `Retention.lean` quantifies the
+remaining mechanism: a single decayed write competes with an undiscounted
+floor.
