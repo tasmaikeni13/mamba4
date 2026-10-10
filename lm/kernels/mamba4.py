@@ -170,6 +170,8 @@ def _factor_and_solve(precision, rhs, backend):
     matrix = jnp.transpose(precision.reshape(count, dim, dim), (1, 2, 0))
     vector = rhs.reshape(count, dim).T
     backend = SOLVE_BACKEND if backend is None else backend
+    # The fused path solves whole chunks on chip; single solves use blocks.
+    backend = "auto" if backend == "fused" else backend
     if backend == "unrolled":
         lower = _cholesky_unrolled(matrix)
     elif backend == "blocked" or (backend == "auto" and dim % 8 == 0):
@@ -244,6 +246,20 @@ def selective_gaussian_memory(
     evidence is a masked decay matrix product; chunk boundaries use an
     associative affine scan. Solves are exact Cholesky solves, O(T D^3).
     """
+    if solver == "fused":
+        from lm.kernels.mamba4_fused import selective_memory_fused
+
+        return selective_memory_fused(
+            keys,
+            values,
+            queries,
+            beta,
+            log_decay,
+            floor,
+            chunk_size=chunk_size,
+            initial=initial,
+            interpret=jax.default_backend() != "tpu",
+        )
     keys, values, queries = (
         jnp.asarray(a, jnp.float32) for a in (keys, values, queries)
     )

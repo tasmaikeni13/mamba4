@@ -377,3 +377,43 @@ def test_key_shift_writes_each_value_under_the_previous_context():
         Mamba4LM(
             model_config("M", memory_key_shift=True, memory_rope_fraction=1.0)
         ).init(jax.random.key(0), tokens)
+
+
+def test_fused_memory_matches_exact_reads_and_every_gradient():
+    """The on-chip solve kernel (interpreted on CPU) equals the reference path."""
+    keys, values, queries, beta, decay, floor = arrays(time=21, dim=6)
+    log_decay = jnp.log(decay)
+    args = (keys, values, queries, beta, log_decay, floor)
+    weight = jnp.linspace(-1.0, 1.0, values.size).reshape(values.shape)
+
+    def loss(solver, *a):
+        result = selective_gaussian_memory(*a, chunk_size=8, solver=solver)
+        return (
+            jnp.sum(result.output * weight)
+            + jnp.sum(result.variance)
+            + 0.01 * jnp.sum(result.state.evidence**2)
+        )
+
+    exact = selective_gaussian_memory(*args, chunk_size=8, solver="loop")
+    fused = selective_gaussian_memory(*args, chunk_size=8, solver="fused")
+    for a, b in zip(jax.tree.leaves(exact), jax.tree.leaves(fused)):
+        np.testing.assert_allclose(a, b, rtol=2e-5, atol=2e-6)
+    reference = jax.grad(lambda *a: loss("loop", *a), argnums=range(6))(*args)
+    candidate = jax.grad(lambda *a: loss("fused", *a), argnums=range(6))(*args)
+    for a, b in zip(reference, candidate):
+        np.testing.assert_allclose(a, b, rtol=2e-4, atol=2e-5)
+
+
+def test_fused_model_prefill_matches_cached_decode():
+    config = model_config("SM", memory_solver="fused", memory_key_shift=True)
+    model = Mamba4LM(config)
+    tokens = (jnp.arange(11)[None] * 5) % config.vocab_size
+    params = model.init(jax.random.key(3), tokens)["params"]
+    logits = model.apply({"params": params}, tokens)
+    cache = initialize_cache(config, 1)
+    step = jax.jit(lambda token, cache: decode_step(config, params, token, cache))
+    outputs = []
+    for position in range(tokens.shape[1]):
+        output, cache = step(tokens[:, position], cache)
+        outputs.append(output)
+    np.testing.assert_allclose(jnp.stack(outputs, 1), logits, rtol=2e-5, atol=2e-6)
