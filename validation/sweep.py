@@ -71,11 +71,7 @@ def report(options):
             continue
         training = record["config"]["training"]
         architecture = record["config"]["model"]["architecture"]
-        steps = -(
-            -training["token_budget"]
-            // (training["global_batch"] * training["sequence_length"])
-        )
-        if record["steps"] != steps:
+        if record["steps"] != _steps(training):
             raise ValueError(f"{path.name} stopped before its schedule ended")
         grouped.setdefault(architecture, {})[training["learning_rate"]] = record[
             "train_loss"
@@ -93,6 +89,58 @@ def report(options):
     print(json.dumps(summary, indent=1))
 
 
+def launch(options):
+    """Run every sweep configuration through the pod controller, in order.
+
+    A pilot that stops (for example on a nonfinite loss) is recorded and the
+    sweep continues; ``report`` then scores it as infinite.
+    """
+    import os
+    import subprocess
+    import sys
+
+    from scripts.pod import ROOT
+    from validation.run_screen import clear_caches, wait_for_hosts
+
+    environment = os.environ.copy()
+    environment.pop("JAX_PLATFORMS", None)
+    raw = Path(options.raw)
+    raw.mkdir(parents=True, exist_ok=True)
+    for path in options.configs:
+        name = Path(path).stem
+        if (raw / f"{name}.json").exists():
+            continue
+        wait_for_hosts()
+        clear_caches()
+        command = [
+            sys.executable,
+            "-u",
+            "-m",
+            "scripts.pod",
+            "run",
+            "--tag",
+            f"sweep-{name}",
+            "validation.pilot",
+            "--config",
+            path,
+            "--data",
+            options.data,
+            "--steps",
+            str(_steps(json.loads(Path(path).read_text())["training"])),
+            "--output",
+            str(raw),
+            "--name",
+            name,
+        ]
+        code = subprocess.run(command, cwd=ROOT, env=environment).returncode
+        print(json.dumps({"sweep_run": name, "exit": code}), flush=True)
+
+
+def _steps(training):
+    capacity = training["global_batch"] * training["sequence_length"]
+    return -(-training["token_budget"] // capacity)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)
@@ -108,8 +156,13 @@ def main():
         "--architectures", nargs="+", default=["transformer", "mamba4"]
     )
     summarize.add_argument("--grid", nargs="+", type=float, required=True)
+    run = sub.add_parser("launch")
+    run.add_argument("--configs", nargs="+", required=True)
+    run.add_argument("--data", default="data/fineweb-edu-3b")
+    run.add_argument("--raw", required=True)
     options = parser.parse_args()
-    {"configs": write_configs, "report": report}[options.action](options)
+    actions = {"configs": write_configs, "report": report, "launch": launch}
+    actions[options.action](options)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,25 @@
+{
+  "id": "lm-125m",
+  "scope": "Mamba 4 versus a Transformer at 125M parameters, 3B FineWeb-Edu training targets, three seeds each (docs/scaling-125m.md)",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "training_targets_per_architecture": 3000000000,
+  "heldout_targets": 2097152,
+  "dataset": "HuggingFaceFW/fineweb-edu",
+  "dataset_revision": "87f09149ef4734204d70ed1d046ddc9ca3f2b8f9",
+  "source_files": 5,
+  "tokenizer": "openai-community/gpt2",
+  "tokenizer_revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+  "vocabulary": 50257,
+  "training_replay_targets": 0,
+  "primary_metric": "held-out mean next-token negative log likelihood in natural logarithm units",
+  "outcome": "win: Mamba 4 mean held-out NLL lower and all three seed differences favour it; loss: mean higher and all three favour the Transformer; otherwise inconclusive",
+  "recall_protocol": "trained-textual-recall-v1",
+  "recall_seed": 20261008,
+  "recall_array_sha256": "2293d01b59723109155c60e3f12ec463e5e67339b9013970af7bd5daefbd0117",
+  "development_selection": "Peak learning rate per architecture from {6e-4, 1.2e-3, 2.4e-3} on 300M-target runs, lowest mean pre-update training loss over the final 100 steps (validation/sweep.py); held-out data never used",
+  "fairness": "Shared tokenizer, tied embedding, data order, budget, batch, length, optimizer and schedule shape; parameters matched within 1%; each architecture runs its fastest exact kernels"
+}

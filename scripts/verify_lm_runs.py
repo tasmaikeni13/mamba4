@@ -67,7 +67,8 @@ def validate_data(corpus, protocol):
         "Evaluation source was replayed",
     )
     require(
-        len(manifest["dataset"]["files"]) == 10, "Missing source parquet identities"
+        len(manifest["dataset"]["files"]) == protocol.get("source_files", 10),
+        "Missing source parquet identities",
     )
     require(
         sha256_file(corpus.path / "tokenizer.json") == manifest["tokenizer"]["sha256"],
@@ -343,8 +344,10 @@ def audit_run(
     )
     require(result["status"] == "completed", "Run is not completed")
     require(result["architecture"] == architecture, "Architecture result mismatch")
+    seeds = protocol.get("seeds", [protocol.get("seed")])
     require(
-        result["seed"] == protocol["seed"] == training["seed"], "Training seed mismatch"
+        result["seed"] == training["seed"] and training["seed"] in seeds,
+        "Training seed mismatch",
     )
     require(
         result["training_targets"]

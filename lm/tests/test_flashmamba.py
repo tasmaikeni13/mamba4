@@ -63,3 +63,33 @@ def test_flash_kernels_keep_hybrid_prefill_equal_to_decode():
         output, cache = step(tokens[:, position], cache)
         outputs.append(output)
     np.testing.assert_allclose(jnp.stack(outputs, 1), logits, rtol=2e-5, atol=2e-6)
+
+
+def test_jitted_hybrid_gradients_match_across_remat_policies():
+    """Under jit, keeping the kernel outputs gives the full-remat gradients."""
+    import dataclasses
+
+    config = model_config(
+        "SMS",
+        memory_solver="fused",
+        memory_key_shift=True,
+        ssd_kernel="flash",
+        remat=True,
+        remat_policy="kernels",
+    )
+    tokens = (jnp.arange(24)[None] * 7) % config.vocab_size
+    params = Mamba4LM(config).init(jax.random.key(1), tokens)["params"]
+
+    def gradients(policy):
+        model = Mamba4LM(dataclasses.replace(config, remat_policy=policy))
+
+        def loss(params):
+            logits = model.apply({"params": params}, tokens)
+            return jnp.mean(logits.astype(jnp.float32) ** 2)
+
+        return jax.jit(jax.grad(loss))(params)
+
+    for a, b in zip(
+        jax.tree.leaves(gradients("kernels")), jax.tree.leaves(gradients("full"))
+    ):
+        np.testing.assert_allclose(a, b, rtol=1e-6, atol=1e-7)

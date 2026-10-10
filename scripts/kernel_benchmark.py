@@ -91,10 +91,18 @@ def ssd_benchmarks(results, shapes):
     from lm.kernels.mamba3 import mamba3_chunked
     from lm.kernels.mamba3_fast import mamba3_fast
 
+    def flash(heads):
+        return lambda *a: mamba3_flash(
+            *a[:7], q_bias=a[7], k_bias=a[8], heads_per_step=heads
+        )
+
     kernels = {
         "chunked": lambda *a: mamba3_chunked(*a[:7], q_bias=a[7], k_bias=a[8]),
         "fast": lambda *a: mamba3_fast(*a[:7], q_bias=a[7], k_bias=a[8]),
-        "flash": lambda *a: mamba3_flash(*a[:7], q_bias=a[7], k_bias=a[8]),
+        "flash-h1": flash(1),
+        "flash-h2": flash(2),
+        "flash-h4": flash(4),
+        "flash-h8": flash(8),
     }
     for label, shape in shapes.items():
         args = ssd_inputs(*shape)

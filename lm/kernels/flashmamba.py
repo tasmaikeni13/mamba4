@@ -27,6 +27,8 @@ import jax.numpy as jnp
 from lm.kernels.mamba3 import _rotary_frame
 
 CHUNK = 128
+# Most heads one grid step may process; the largest divisor of H up to it is used.
+HEADS_PER_STEP = 1
 TRANS_B = (((1,), (1,)), ((), ()))
 F32 = jnp.float32
 
@@ -47,7 +49,9 @@ def _decay_weights(p_col, p_row, gamma_col, scale_row, lower, diagonal):
     return decay, decay * scale_row + jnp.where(diagonal, gamma_col, 0.0)
 
 
-def _forward_kernel(
+def _forward_head(
+    index,
+    last_index,
     q_ref,
     k_ref,
     v_ref,
@@ -61,12 +65,11 @@ def _forward_kernel(
     final_ref,
     state_ref,
 ):
-    index = pl.program_id(2)
     chunk = q_ref.shape[0]
 
     @pl.when(index == 0)
     def _():
-        state_ref[...] = jnp.zeros_like(state_ref)
+        state_ref[...] = jnp.zeros(state_ref.shape, F32)
 
     q, k, v = q_ref[...], k_ref[...], v_ref[...]
     p_col = p_col_ref[...]
@@ -85,12 +88,20 @@ def _forward_kernel(
     state = jnp.exp(p_col[chunk - 1 :, :]) * state + update
     state_ref[...] = state
 
-    @pl.when(index == pl.num_programs(2) - 1)
+    @pl.when(index == last_index)
     def _():
         final_ref[...] = state
 
 
-def _backward_kernel(
+def _forward_kernel(*refs):
+    """One grid step: a chunk of every head in a block of heads."""
+    index, last_index = pl.program_id(2), pl.num_programs(2) - 1
+    for head in range(refs[0].shape[0]):
+        _forward_head(index, last_index, *(ref.at[head] for ref in refs))
+
+
+def _backward_head(
+    index,
     q_ref,
     k_ref,
     v_ref,
@@ -112,7 +123,6 @@ def _backward_kernel(
     d_scale_row_ref,
     carry_ref,
 ):
-    index = pl.program_id(2)
     chunk = q_ref.shape[0]
 
     @pl.when(index == 0)
@@ -174,23 +184,33 @@ def _backward_kernel(
     carry_ref[...] = d_start
 
 
+def _backward_kernel(*refs):
+    """One reverse grid step: a chunk of every head in a block of heads."""
+    index = pl.program_id(2)
+    for head in range(refs[0].shape[0]):
+        _backward_head(index, *(ref.at[head] for ref in refs))
+
+
 def _specs(batch, heads, chunks, chunk, state_dim, value_dim, reverse=False):
+    """Block specs over a (batch, head block, chunk) grid; heads is the block."""
+
     def at(i):
         return chunks - 1 - i if reverse else i
 
     def rows(width):
         return pl.BlockSpec(
-            (None, None, chunk, width), lambda b, h, i: (b, h, at(i), 0)
+            (None, heads, chunk, width), lambda b, h, i: (b, h, at(i), 0)
         )
 
     row = pl.BlockSpec(
-        (None, None, None, 1, chunk), lambda b, h, i: (b, h, at(i), 0, 0)
+        (None, heads, None, 1, chunk), lambda b, h, i: (b, h, at(i), 0, 0)
     )
     start = pl.BlockSpec(
-        (None, None, None, state_dim, value_dim), lambda b, h, i: (b, h, at(i), 0, 0)
+        (None, heads, None, state_dim, value_dim),
+        lambda b, h, i: (b, h, at(i), 0, 0),
     )
     whole = pl.BlockSpec(
-        (None, None, state_dim, value_dim), lambda b, h, i: (b, h, 0, 0)
+        (None, heads, state_dim, value_dim), lambda b, h, i: (b, h, 0, 0)
     )
     return rows, row, start, whole
 
@@ -229,24 +249,35 @@ def _layout(q, k, v, log_decay, gamma, scale, chunk):
     return blocks, chunks
 
 
-@partial(jax.custom_vjp, nondiff_argnums=(6, 7))
-def ssd(q, k, v, log_decay, gamma, scale, chunk=CHUNK, interpret=False):
-    """Scan output [B,T,H,P] and final state [B,H,N,P]; inputs as mamba3_fast.ssd."""
+@partial(jax.custom_vjp, nondiff_argnums=(6, 7, 8))
+def ssd(
+    q, k, v, log_decay, gamma, scale, chunk=CHUNK, interpret=False, heads_per_step=1
+):
+    """Scan output [B,T,H,P] and final state [B,H,N,P]; inputs as mamba3_fast.ssd.
+
+    heads_per_step heads share one grid step (it must divide H).
+    """
     output, final, _ = _ssd_forward_pass(
-        q, k, v, log_decay, gamma, scale, chunk, interpret
+        q, k, v, log_decay, gamma, scale, chunk, interpret, heads_per_step
     )
     return output, final
 
 
-def _ssd_forward_pass(q, k, v, log_decay, gamma, scale, chunk, interpret):
+def _ssd_forward_pass(
+    q, k, v, log_decay, gamma, scale, chunk, interpret, heads_per_step
+):
     batch, length, heads, state_dim = q.shape
     value_dim = v.shape[-1]
+    if heads % heads_per_step:
+        raise ValueError("heads_per_step must divide the number of heads")
     blocks, chunks = _layout(q, k, v, log_decay, gamma, scale, chunk)
-    rows, row, start, whole = _specs(batch, heads, chunks, chunk, state_dim, value_dim)
+    rows, row, start, whole = _specs(
+        batch, heads_per_step, chunks, chunk, state_dim, value_dim
+    )
     padded = chunks * chunk
     y, starts, final = pl.pallas_call(
         _forward_kernel,
-        grid=(batch, heads, chunks),
+        grid=(batch, heads // heads_per_step, chunks),
         in_specs=[
             rows(state_dim),
             rows(state_dim),
@@ -263,7 +294,7 @@ def _ssd_forward_pass(q, k, v, log_decay, gamma, scale, chunk, interpret):
             jax.ShapeDtypeStruct((batch, heads, chunks, state_dim, value_dim), F32),
             jax.ShapeDtypeStruct((batch, heads, state_dim, value_dim), F32),
         ],
-        scratch_shapes=[pltpu.VMEM((state_dim, value_dim), F32)],
+        scratch_shapes=[pltpu.VMEM((heads_per_step, state_dim, value_dim), F32)],
         compiler_params=pltpu.CompilerParams(
             dimension_semantics=("parallel", "parallel", "arbitrary")
         ),
@@ -273,16 +304,17 @@ def _ssd_forward_pass(q, k, v, log_decay, gamma, scale, chunk, interpret):
     return output, final, (blocks, starts, length)
 
 
-def _ssd_forward(q, k, v, log_decay, gamma, scale, chunk, interpret):
+def _ssd_forward(q, k, v, log_decay, gamma, scale, chunk, interpret, heads_per_step):
     output, final, (blocks, starts, length) = _ssd_forward_pass(
-        q, k, v, log_decay, gamma, scale, chunk, interpret
+        q, k, v, log_decay, gamma, scale, chunk, interpret, heads_per_step
     )
     # A "kernels" remat policy keeps these instead of rerunning the scan.
-    output, starts = checkpoint_name((output, starts), "ssd_scan")
+    output = checkpoint_name(output, "ssd_scan")
+    starts = checkpoint_name(starts, "ssd_scan")
     return (output, final), (blocks, starts, length)
 
 
-def _ssd_backward(chunk, interpret, residuals, cotangents):
+def _ssd_backward(chunk, interpret, heads_per_step, residuals, cotangents):
     blocks, starts, length = residuals
     d_output, d_final = cotangents
     q_blocks = blocks[0]
@@ -294,12 +326,12 @@ def _ssd_backward(chunk, interpret, residuals, cotangents):
         [(0, 0), (0, 0), (0, padded - length), (0, 0)],
     )
     rows, row, start, whole = _specs(
-        batch, heads, chunks, chunk, state_dim, value_dim, reverse=True
+        batch, heads_per_step, chunks, chunk, state_dim, value_dim, reverse=True
     )
     shape = lambda *s: jax.ShapeDtypeStruct(s, F32)  # noqa: E731
     dq, dk, dv, dp_col, dp_row, d_gamma, d_scale_col, d_scale_row = pl.pallas_call(
         _backward_kernel,
-        grid=(batch, heads, chunks),
+        grid=(batch, heads // heads_per_step, chunks),
         in_specs=[
             rows(state_dim),
             rows(state_dim),
@@ -333,7 +365,7 @@ def _ssd_backward(chunk, interpret, residuals, cotangents):
             shape(batch, heads, padded, 1),
             shape(batch, heads, chunks, 1, chunk),
         ],
-        scratch_shapes=[pltpu.VMEM((state_dim, value_dim), F32)],
+        scratch_shapes=[pltpu.VMEM((heads_per_step, state_dim, value_dim), F32)],
         compiler_params=pltpu.CompilerParams(
             dimension_semantics=("parallel", "parallel", "arbitrary")
         ),
@@ -379,12 +411,18 @@ def mamba3_flash(
     k_bias=None,
     pairwise=True,
     interpret=None,
+    heads_per_step=None,
 ):
     """Drop-in for `mamba3_chunked` with rank-one heads ([B,T,H,1,*] shapes)."""
     if q.shape[3] != 1:
         raise ValueError("mamba3_flash supports SISO (rank-one) heads only")
     if interpret is None:
         interpret = jax.default_backend() != "tpu"
+    if heads_per_step is None:
+        heads = q.shape[2]
+        heads_per_step = max(
+            size for size in range(1, HEADS_PER_STEP + 1) if heads % size == 0
+        )
     q, k, _ = _rotary_frame(q, k, dt, angles, q_bias, k_bias, pairwise)
     trap = jax.nn.sigmoid(trap_logits.astype(F32))
     gamma = dt.astype(F32) * trap
@@ -401,5 +439,6 @@ def mamba3_flash(
         scale,
         chunk_size,
         interpret,
+        heads_per_step,
     )
     return output[..., None, :], final
