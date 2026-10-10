@@ -4,7 +4,7 @@
 sample, removes every document whose exact UTF-8 SHA256 occurs anywhere in the
 screen corpus (training or held-out), permutes the remaining unique documents
 with a new seed and tokenizes them exactly like the screen corpus. No model or
-training choice may use this set; it exists for the versioned v2 comparison.
+training choice may use this set; it exists for confirmatory comparisons.
 
 ``evaluate`` (pod only) loads final checkpoints and records per-sequence NLL
 sums on the original held-out stream and on the fresh stream, so model
@@ -268,14 +268,14 @@ def main():
     sub = parser.add_subparsers(dest="action", required=True)
     build = sub.add_parser("prepare")
     build.add_argument("--screen-data", default="data/fineweb-edu-1b")
-    build.add_argument("--output", default="data/fresh-holdout-v2")
+    build.add_argument("--output", default="data/fresh-holdout")
     build.add_argument("--seed", type=int, default=SEED)
     build.add_argument("--shard", help="local pinned shard instead of a download")
     build.add_argument("--shard-source", help="JSON with the shard's lfs_sha256")
     build.add_argument("--exclude", nargs="*", default=[], help="earlier ledgers")
     run = sub.add_parser("evaluate")
     run.add_argument("--screen-data", default="data/fineweb-edu-1b")
-    run.add_argument("--fresh-data", default="data/fresh-holdout-v2")
+    run.add_argument("--fresh-data", default="data/fresh-holdout")
     run.add_argument("--output", required=True)
     run.add_argument("models", nargs="+", help="name=config.json,run_directory")
     options = parser.parse_args()

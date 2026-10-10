@@ -1,4 +1,4 @@
-"""Conformance of the selective fixed-floor memory used by screen-60m-v2."""
+"""Conformance of the selective fixed-floor memory layer."""
 
 import jax
 import jax.numpy as jnp

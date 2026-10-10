@@ -21,6 +21,9 @@ from functools import partial
 
 import jax
 from jax import lax
+from jax.ad_checkpoint import checkpoint_name
+from jax.experimental import pallas as pl
+from jax.experimental.pallas import tpu as pltpu
 import jax.numpy as jnp
 
 from lm.kernels.mamba4 import SelectiveResult, SelectiveState, selective_initial_state
@@ -34,88 +37,119 @@ def _solve_kernel(
 ):
     """Lane-major blocks: s0 [d,d,L]; k, rhs, y [c,d,L]; beta, lam [c,1,L]; floor [d,L].
 
-    a_ref[j] holds column j of the working matrix, so every dynamic index is on
-    the leading axis; values are read out of a column with masked reductions.
+    e_ref[j] and a_ref[j] hold column j of the evidence and of the working
+    matrix, rows on sublanes. Only rows from the column's 8-row tile down are
+    kept current: the lower triangle plus a few finite entries above it that
+    no step reads. The factorization runs over a dynamic pivot column; its
+    trailing update is unrolled over 8-column blocks behind dynamic guards,
+    so it costs about d^3/24 vector operations instead of d^3. Triangular
+    solves are fully unrolled, which turns every element pick into a static
+    sublane slice.
     """
     chunk, dim = k_ref.shape[0], k_ref.shape[1]
-    column_index = lax.broadcasted_iota(jnp.int32, (dim, dim, 1), 0)
-    row_index = lax.broadcasted_iota(jnp.int32, (dim, dim, 1), 1)
-    eye = (column_index == row_index).astype(jnp.float32)
+    blocks = dim // 8
     rows = lax.broadcasted_iota(jnp.int32, (dim, 1), 0)
 
-    def pick(vector, j):
-        return jnp.sum(jnp.where(rows == j, vector, 0.0), axis=0, keepdims=True)
+    def tile(c):
+        return slice(8 * (c // 8), dim)
 
-    e_ref[...] = s0_ref[...]
+    # The grid's second axis walks the chunk's tokens in blocks; the evidence
+    # carries between them in e_ref.
+    @pl.when(pl.program_id(1) == 0)
+    def _():
+        for c in range(dim):
+            e_ref[c, tile(c)] = s0_ref[c, tile(c)]
 
     def token(t, carry):
-        key = k_ref[t]
-        evidence = lam_ref[t] * e_ref[...] + beta_ref[t] * (
-            key[:, None, :] * key[None, :, :]
-        )
-        e_ref[...] = evidence
-        a_ref[...] = evidence + eye * floor_ref[...][None, :, :]
+        key, lam, beta = k_ref[t], lam_ref[t], beta_ref[t]
+        floor = floor_ref[...]
+        for c in range(dim):
+            part = tile(c)
+            evidence = lam * e_ref[c, part] + (beta * key[c : c + 1]) * key[part]
+            e_ref[c, part] = evidence
+            on_diagonal = rows[part] == c
+            a_ref[c, part] = evidence + jnp.where(on_diagonal, floor[c : c + 1], 0.0)
 
         def column(j, inner):
             col = a_ref[j]
-            pivot = jnp.sqrt(pick(col, j))
+            pivot = jnp.sqrt(
+                jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True)
+            )
             below = jnp.where(rows > j, col / pivot, 0.0)
             a_ref[j] = jnp.where(rows == j, pivot, below)
-            # a_ref[c][r] holds A[r, c]; only the trailing block changes.
-            update = below[:, None, :] * below[None, :, :]
-            trailing = (column_index > j) & (row_index > j)
-            a_ref[...] = a_ref[...] - jnp.where(trailing, update, 0.0)
+            for block in range(blocks):
+
+                @pl.when(j < 8 * block + 7)
+                def _():
+                    part = slice(8 * block, dim)
+                    for c in range(8 * block, 8 * block + 8):
+                        a_ref[c, part] = a_ref[c, part] - below[part] * below[c : c + 1]
+
             return inner
 
         lax.fori_loop(0, dim, column, 0)
-
-        def forward(j, value):
+        value = rhs_ref[t]
+        for j in range(dim):
             col = a_ref[j]
-            step = pick(value, j) / pick(col, j)
+            step = value[j : j + 1] / col[j : j + 1]
             value = jnp.where(rows > j, value - col * step, value)
-            return jnp.where(rows == j, step, value)
-
-        solved = lax.fori_loop(0, dim, forward, rhs_ref[t])
-
-        def backward(i, value):
-            j = dim - 1 - i
+            value = jnp.where(rows == j, step, value)
+        for j in reversed(range(dim)):
             col = a_ref[j]
             total = jnp.sum(
                 jnp.where(rows > j, col * value, 0.0), axis=0, keepdims=True
             )
-            step = (pick(value, j) - total) / pick(col, j)
-            return jnp.where(rows == j, step, value)
-
-        y_ref[t] = lax.fori_loop(0, dim, backward, solved)
+            value = jnp.where(
+                rows == j, (value[j : j + 1] - total) / col[j : j + 1], value
+            )
+        y_ref[t] = value
         return carry
 
     lax.fori_loop(0, chunk, token, 0)
 
 
 def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret):
-    """Lane-major arrays whose last axis is a multiple of 128."""
-    from jax.experimental import pallas as pl
-    from jax.experimental.pallas import tpu as pltpu
+    """Lane-major arrays whose last axis is a multiple of 128.
 
+    Grid: lane groups (parallel) by blocks of up to 16 tokens (sequential),
+    which keeps the double-buffered blocks well inside scoped VMEM.
+    """
     dim, lanes = s0.shape[0], s0.shape[-1]
+    chunk = keys.shape[0]
+    block = next(size for size in (16, 8, 4, 2, 1) if chunk % size == 0)
 
-    def spec(shape):
+    def whole(shape):
         leading = (0,) * (len(shape) - 1)
-        return pl.BlockSpec((*shape[:-1], LANES), lambda i: (*leading, i))
+        return pl.BlockSpec((*shape[:-1], LANES), lambda i, j: (*leading, i))
 
-    arrays = (s0, keys, beta, lam, floor, rhs)
+    def tokens(shape):
+        return pl.BlockSpec(
+            (block, *shape[1:-1], LANES),
+            lambda i, j: (j,) + (0,) * (len(shape) - 2) + (i,),
+        )
+
     return pl.pallas_call(
         _solve_kernel,
-        grid=(lanes // LANES,),
-        in_specs=[spec(a.shape) for a in arrays],
-        out_specs=spec(rhs.shape),
+        grid=(lanes // LANES, chunk // block),
+        in_specs=[
+            whole(s0.shape),
+            tokens(keys.shape),
+            tokens(beta.shape),
+            tokens(lam.shape),
+            whole(floor.shape),
+            tokens(rhs.shape),
+        ],
+        out_specs=tokens(rhs.shape),
         out_shape=jax.ShapeDtypeStruct(rhs.shape, jnp.float32),
         scratch_shapes=[
             pltpu.VMEM((dim, dim, LANES), jnp.float32),
             pltpu.VMEM((dim, dim, LANES), jnp.float32),
         ],
+        compiler_params=pltpu.CompilerParams(
+            dimension_semantics=("parallel", "arbitrary")
+        ),
         interpret=interpret,
-    )(*arrays)
+    )(s0, keys, beta, lam, floor, rhs)
 
 
 def batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
@@ -124,9 +158,17 @@ def batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
     s0 [S,d,d] symmetric; keys, rhs [S,c,d]; beta, log_prefix [S,c]; floor
     [S,d]. log_prefix is the inclusive prefix sum of the chunk's log decays.
     """
-    sequences = s0.shape[0]
+    sequences, dim = s0.shape[0], s0.shape[-1]
     pad = (-sequences) % LANES
+    extra = (-dim) % 8
     lam = jnp.exp(jnp.diff(log_prefix, prepend=0.0, axis=-1))
+    if extra:
+        # Padded coordinates form an identity block: they solve to zero and
+        # leave the true coordinates unchanged.
+        s0 = jnp.pad(s0, [(0, 0), (0, extra), (0, extra)])
+        keys = jnp.pad(keys, [(0, 0), (0, 0), (0, extra)])
+        rhs = jnp.pad(rhs, [(0, 0), (0, 0), (0, extra)])
+        floor = jnp.pad(floor, [(0, 0), (0, extra)], constant_values=1.0)
 
     def lane(x, expand=False):
         x = jnp.moveaxis(x.astype(jnp.float32), 0, -1)
@@ -146,7 +188,7 @@ def batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
         lane(rhs),
         interpret,
     )
-    return jnp.moveaxis(solved[..., :sequences], -1, 0)
+    return jnp.moveaxis(solved[..., :sequences], -1, 0)[..., :dim]
 
 
 @partial(jax.custom_vjp, nondiff_argnums=(6,))
@@ -157,6 +199,8 @@ def chunk_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
 
 def _chunk_solve_forward(s0, keys, beta, log_prefix, floor, rhs, interpret):
     y = batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret)
+    # A "kernels" remat policy keeps this; the backward then needs no new solve.
+    y = checkpoint_name(y, "memory_solve")
     return y, (s0, keys, beta, log_prefix, floor, y)
 
 

@@ -1,4 +1,4 @@
-"""Statistics and log handling of the screen-60m-v2 audit, without TPUs."""
+"""Statistics and log handling of the screen audit, without TPUs."""
 
 import numpy as np
 import pytest

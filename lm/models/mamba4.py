@@ -26,6 +26,7 @@ from lm.models.common import (
     TokenEmbedding,
     dense_init,
     dtype_from_name,
+    remat_block,
     residual_projection_init,
 )
 from lm.kernels.mamba3 import rotate
@@ -494,7 +495,7 @@ class Mamba4LM(nn.Module):
         embedding = TokenEmbedding(config, name="token_embedding")
         x = embedding(tokens)
         for i, kind in enumerate(_layer_types(config)):
-            block = nn.remat(kind, static_argnums=(2,)) if config.remat else kind
+            block = remat_block(kind, config)
             x = block(config, name=f"layer_{i}")(x, train)
         x = RMSNorm(
             epsilon=config.norm_eps,

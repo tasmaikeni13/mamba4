@@ -10,6 +10,7 @@ from lm.models.common import (
     TokenEmbedding,
     dense_init,
     dtype_from_name,
+    remat_block,
     residual_projection_init,
 )
 
@@ -57,7 +58,13 @@ class TransformerBlock(nn.Module):
             *x.shape[:2], 3, config.n_heads, config.d_model // config.n_heads
         )
         q, k, v = (qkv[:, :, index] for index in range(3))
-        output = causal_attention(rotary_positions(q), rotary_positions(k), v)
+        output = causal_attention(
+            rotary_positions(q),
+            rotary_positions(k),
+            v,
+            config.attention_kernel,
+            config.attention_block,
+        )
         output = output.reshape(x.shape)
         output = nn.Dense(
             config.d_model,
@@ -82,11 +89,7 @@ class TransformerLM(nn.Module):
         config = self.config
         embedding = TokenEmbedding(config, name="tokens")
         x = embedding(token_ids)
-        block = (
-            nn.remat(TransformerBlock, static_argnums=(2,))
-            if config.remat
-            else TransformerBlock
-        )
+        block = remat_block(TransformerBlock, config)
         for index in range(config.n_layers):
             x = block(config, name=f"layer_{index}")(x, train)
         x = RMSNorm(

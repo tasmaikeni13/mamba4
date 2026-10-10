@@ -267,8 +267,9 @@ def run(args):
         train=False,
     )["params"]
     ledger = parameter_ledger(params)
-    if not args.allow_small and abs(ledger["total"] / 60_000_000 - 1) > 0.02:
-        raise RuntimeError(f"Model not within 2% of 60M: {ledger['total']}")
+    target = train_config.parameter_target
+    if not args.allow_small and abs(ledger["total"] / target - 1) > 0.02:
+        raise RuntimeError(f"Model not within 2% of {target:,}: {ledger['total']}")
     tx, schedule = optimizer(train_config, params)
     state = TrainState.create(apply_fn=model.apply, params=params, tx=tx)
     provenance = source_provenance()

@@ -3,6 +3,7 @@
 import math
 
 from flax import linen as nn
+import jax
 import jax.numpy as jnp
 
 
@@ -91,3 +92,18 @@ class TokenEmbedding(nn.Module):
     def attend(self, x):
         # The head shares exactly the embedding parameter, including gradients.
         return self.embedding.attend(x).astype(jnp.float32)
+
+
+def remat_block(block, config):
+    """The block itself, or its rematerialized form under the config's policy."""
+    if not config.remat:
+        return block
+    if config.remat_policy == "full":
+        policy = None
+    elif config.remat_policy == "kernels":
+        policy = jax.checkpoint_policies.save_only_these_names(
+            "memory_solve", "ssd_scan"
+        )
+    else:
+        raise ValueError(f"Unknown remat_policy: {config.remat_policy}")
+    return nn.remat(block, static_argnums=(2,), policy=policy)

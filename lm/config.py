@@ -24,8 +24,16 @@ class ModelConfig:
     dropout_rate: float = 0.0
     max_seq_len: int = 1024
     remat: bool = True
+    # Transformer attention: "flash" or "splash" Pallas kernels; block 0 keeps
+    # FlashAttention's default tiles (exact attention either way).
+    attention_kernel: str = "flash"
+    attention_block: int = 0
+    # "full" recomputes every block activation in the backward pass; "kernels"
+    # keeps the memory-solve and FlashMamba scan outputs (no rerun kernels).
+    remat_policy: str = "full"
     mamba3_outproj_norm: bool = False
-    # "fast" selects the hand-derived SSD backward (identical recurrence).
+    # Mamba-3 scan: "chunked" (XLA autodiff), "fast" (hand-derived backward)
+    # or "flash" (FlashMamba Pallas kernels); one recurrence.
     ssd_kernel: str = "chunked"
     # Mamba 4 memory layers (lm/models/mamba4.py).
     key_dim: int = 16
@@ -97,6 +105,8 @@ class TrainConfig:
     eval_tokens: int = 2_000_000
     checkpoint_every: int = 500
     log_every: int = 10
+    # Total parameters a run must match within 2%.
+    parameter_target: int = 60_000_000
 
     @property
     def tokens_per_step(self) -> int:

@@ -12,6 +12,7 @@ from flax import linen as nn
 import jax
 import jax.numpy as jnp
 
+from lm.kernels.flashmamba import mamba3_flash
 from lm.kernels.mamba3 import mamba3_chunked
 from lm.kernels.mamba3_fast import mamba3_fast
 from lm.models.common import (
@@ -19,6 +20,7 @@ from lm.models.common import (
     TokenEmbedding,
     dense_init,
     dtype_from_name,
+    remat_block,
     residual_projection_init,
 )
 
@@ -119,20 +121,26 @@ class Mamba3Mixer(nn.Module):
             gates = (z[..., None, :] * mimo_z.astype(dtype)).astype(dtype)
         else:
             values, gates = x[..., None, :], z[..., None, :]
-        kernel = mamba3_fast if config.ssd_kernel == "fast" else mamba3_chunked
-        y, _ = kernel(
-            c,
-            b,
-            values,
-            a * dt,
-            dt,
-            trap,
-            angles,
-            q_bias=c_bias,
-            k_bias=b_bias,
-            chunk_size=config.chunk_size,
-            pairwise=rank == 1,
-        )
+        if config.ssd_kernel == "flash":
+            # FlashMamba picks its own chunk length; the scan is exact for any.
+            y, _ = mamba3_flash(
+                c, b, values, a * dt, dt, trap, angles, q_bias=c_bias, k_bias=b_bias
+            )
+        else:
+            kernel = mamba3_fast if config.ssd_kernel == "fast" else mamba3_chunked
+            y, _ = kernel(
+                c,
+                b,
+                values,
+                a * dt,
+                dt,
+                trap,
+                angles,
+                q_bias=c_bias,
+                k_bias=b_bias,
+                chunk_size=config.chunk_size,
+                pairwise=rank == 1,
+            )
         skip = self.param("D", nn.initializers.ones, (heads,), param_dtype)
         y = (
             y.astype(jnp.float32)
@@ -189,9 +197,7 @@ class Mamba3LM(nn.Module):
         config = self.config
         embedding = TokenEmbedding(config, name="tokens")
         x = embedding(token_ids)
-        block = (
-            nn.remat(Mamba3Block, static_argnums=(2,)) if config.remat else Mamba3Block
-        )
+        block = remat_block(Mamba3Block, config)
         for index in range(config.n_layers):
             x = block(config, name=f"layer_{index}")(x, train)
         x = RMSNorm(
