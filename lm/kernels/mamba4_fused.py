@@ -27,6 +27,7 @@ from jax.experimental.pallas import tpu as pltpu
 import jax.numpy as jnp
 
 from lm.kernels.mamba4 import SelectiveResult, SelectiveState, selective_initial_state
+from lm.kernels.prefix import chunk_carry, cumulative
 
 LANES = 128
 HIGHEST = lax.Precision.HIGHEST
@@ -403,24 +404,20 @@ def selective_memory_fused(
 
     k, v, q = chunks(keys), chunks(values), chunks(queries)
     b, g = chunks(beta), chunks(log_decay)
-    prefix = jnp.cumsum(g, axis=-1)
+    prefix = cumulative(g)
     tail = b * jnp.exp(prefix[..., -1:] - prefix)
     chunk_evidence = jnp.einsum(
         "bnhs,bnhsd,bnhse->bnhde", tail, k, k, precision=HIGHEST
     )
     chunk_cross = jnp.einsum("bnhs,bnhsp,bnhsd->bnhpd", tail, v, k, precision=HIGHEST)
-    chunk_decay = jnp.exp(prefix[..., -1])
 
-    def combine(earlier, later):
-        d0, s0, c0 = earlier
-        d1, s1, c1 = later
-        return d1 * d0, s1 + d1[..., None, None] * s0, c1 + d1[..., None, None] * c0
+    def carry(updates, initial):
+        flat = updates.reshape(*updates.shape[:3], -1)
+        ends = chunk_carry(prefix[..., -1], flat, initial.reshape(batch, heads, -1))
+        return ends.reshape(updates.shape)
 
-    total, ends_s, ends_c = lax.associative_scan(
-        combine, (chunk_decay, chunk_evidence, chunk_cross), axis=1
-    )
-    ends_s = ends_s + total[..., None, None] * state.evidence[:, None]
-    ends_c = ends_c + total[..., None, None] * state.cross[:, None]
+    ends_s = carry(chunk_evidence, state.evidence)
+    ends_c = carry(chunk_cross, state.cross)
     starts_s = jnp.concatenate((state.evidence[:, None], ends_s[:, :-1]), axis=1)
     starts_c = jnp.concatenate((state.cross[:, None], ends_c[:, :-1]), axis=1)
     sequences = batch * count * heads

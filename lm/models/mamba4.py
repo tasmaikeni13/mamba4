@@ -14,6 +14,7 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
+from lm.kernels.prefix import chunk_carry, cumulative
 from lm.kernels.mamba4 import (
     selective_decode,
     selective_diagnostics,
@@ -60,7 +61,8 @@ def order_memory_chunked(values, log_decay, chunk_size=64):
 
     h_t = lam_t h_(t-1) + (1 - lam_t) v_t from h_0 = 0. Within a chunk the
     recurrence is one masked decay-weighted matrix product; chunk ends combine
-    by the associative affine scan. Taking log(lam) keeps 1 - lam exact.
+    by a decay-weighted product over chunks. Taking log(lam) keeps 1 - lam
+    exact.
     """
     x = values.astype(jnp.float32)
     batch, time, heads, width = x.shape
@@ -74,7 +76,7 @@ def order_memory_chunked(values, log_decay, chunk_size=64):
 
     value, logs = chunks(x), chunks(log_decay.astype(jnp.float32))
     inflow = -jnp.expm1(logs)
-    prefix = jnp.cumsum(logs, axis=-1)
+    prefix = cumulative(logs)
     position = jnp.arange(chunk_size)
     causal = position[:, None] >= position[None, :]
     difference = prefix[..., :, None] - prefix[..., None, :]
@@ -86,14 +88,7 @@ def order_memory_chunked(values, log_decay, chunk_size=64):
         precision=lax.Precision.HIGHEST,
     )
 
-    def combine(earlier, later):
-        d0, x0 = earlier
-        d1, x1 = later
-        return d1 * d0, x1 + d1[..., None] * x0
-
-    _, ends = lax.associative_scan(
-        combine, (jnp.exp(prefix[..., -1]), local[..., -1, :]), axis=1
-    )
+    ends = chunk_carry(prefix[..., -1], local[..., -1, :])
     starts = jnp.concatenate((jnp.zeros_like(ends[:, :1]), ends[:, :-1]), axis=1)
     output = local + jnp.exp(prefix)[..., None] * starts[..., None, :]
     output = jnp.swapaxes(output, 2, 3).reshape(batch, count * chunk_size, heads, width)
