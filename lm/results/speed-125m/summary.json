@@ -1,0 +1,67 @@
+{
+  "bench-steps2/mamba4-fullremat": {
+    "overrides": {
+      "remat_policy": "full"
+    },
+    "tokens_per_second": 204211,
+    "median_step_seconds": 1.2836910510086454
+  },
+  "bench-steps2/mamba4-kernels": {
+    "overrides": {},
+    "tokens_per_second": 221762,
+    "median_step_seconds": 1.1820947320084088
+  },
+  "bench-steps2/mamba4-noremat": {
+    "overrides": {
+      "remat": false
+    },
+    "error": "XlaRuntimeError: RESOURCE_EXHAUSTED: XLA:TPU compile permanent error. Ran out of memory in memory space hbm. Used 50.07G of 30.75G hbm. Exceeded hbm capacity by 19.32G.\n\nTotal hbm usage >= 51.32G:\n   "
+  },
+  "bench-steps2/transformer-flash512-noremat": {
+    "overrides": {
+      "attention_block": 512,
+      "remat": false
+    },
+    "tokens_per_second": 1550373,
+    "median_step_seconds": 0.16908446900197305
+  },
+  "bench-steps7/mamba4-kernels": {
+    "overrides": {},
+    "tokens_per_second": 415721,
+    "median_step_seconds": 0.6305773350031814
+  },
+  "bench-steps7/mamba4-mixers": {
+    "overrides": {
+      "remat_policy": "mixers"
+    },
+    "tokens_per_second": 445500,
+    "median_step_seconds": 0.5884266549983295
+  },
+  "bench-steps7/mamba4-noremat": {
+    "overrides": {
+      "remat": false
+    },
+    "error": "XlaRuntimeError: RESOURCE_EXHAUSTED: Error loading program: Attempting to reserve 27.44G at the bottom of memory. That was not possible. There are 27.09G free, 0B reserved, and 27.09G reservable.: whi"
+  },
+  "bench-steps9/mamba4-mixers3": {
+    "overrides": {
+      "remat_policy": "mixers-3"
+    },
+    "tokens_per_second": 504882,
+    "median_step_seconds": 0.5192186359927291
+  },
+  "bench-steps9/mamba4-mixers5": {
+    "overrides": {
+      "remat_policy": "mixers-5"
+    },
+    "tokens_per_second": 493992,
+    "median_step_seconds": 0.5306649650010513
+  },
+  "bench-steps9/mamba4-mixers8": {
+    "overrides": {
+      "remat_policy": "mixers-8"
+    },
+    "tokens_per_second": 479546,
+    "median_step_seconds": 0.5466505460062763
+  }
+}

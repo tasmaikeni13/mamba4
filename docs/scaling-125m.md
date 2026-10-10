@@ -102,3 +102,30 @@ from full training-step benchmarks (`scripts/step_benchmark.py`, records in
 
 The Transformer's sweep runs first, while Mamba 4's kernels are finished;
 both sweeps use the rule and grid above.
+
+### Settings fixed before the Mamba 4 sweep (10 October 2026, 13:55 UTC)
+
+- **Transformer sweep, final under the rule:**
+
+  | Peak rate | Final-100-step loss |
+  |---|---:|
+  | 6e-4 | 3.9215 |
+  | 1.2e-3 | 3.7815 |
+  | 2.4e-3 | 3.7249 |
+  | 4.8e-3 (rule-triggered extension) | 4.7738 |
+
+  2.4e-3 is selected (`lm/results/lm-125m/sweep-selection.json`).
+- **Mamba 4 kernels:** the fused FlashMamba scan (rotation, phase and scan in
+  one Pallas kernel pair) and the fused memory read (left-looking per-token
+  Cholesky with stored factors). Only the first three Mamba-3 blocks are
+  rematerialized (`remat_policy` "mixers-3").
+- **Throughput** on the 16 chips at batch 256 × 1,024 (step benchmarks,
+  `lm/results/speed-125m/summary.json`):
+
+  | Model and setting | Tokens per second |
+  |---|---:|
+  | Transformer, 512-token attention tiles, no remat | 1.55–1.62M |
+  | Transformer, stock 128-token tiles with remat | 0.82M |
+  | Mamba 4, final settings | 0.505M |
+
+  Mamba 4 started this work at 0.22M, before the kernel and layout fixes.

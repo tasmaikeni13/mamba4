@@ -40,7 +40,7 @@
     "layer_pattern": "SSSMSSSSMSSSSMSSSSMSS",
     "memory_key_shift": true,
     "ssd_kernel": "flash",
-    "remat_policy": "kernels"
+    "remat_policy": "mixers-3"
   },
   "training": {
     "seed": 42,

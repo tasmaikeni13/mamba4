@@ -1,0 +1,307 @@
+{
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-0",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 758565,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 0,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "runs": {
+    "mamba4-mixers3": {
+      "bytes_limit": 33014407168,
+      "compile_seconds": 109.55919886699121,
+      "config": "lm/configs/mamba4-125m.json",
+      "loss": 10.176626205444336,
+      "median_step_seconds": 0.5192186359927291,
+      "overrides": {
+        "remat_policy": "mixers-3"
+      },
+      "parameters": 122636368,
+      "peak_bytes_in_use": 3069747712,
+      "step_seconds": [
+        0.520429456999409,
+        0.5188663660082966,
+        0.5180928259942448,
+        0.5192186359927291,
+        0.5207653370016487
+      ],
+      "tokens_per_second": 504881.72385952447
+    },
+    "mamba4-mixers5": {
+      "bytes_limit": 33014407168,
+      "compile_seconds": 130.43440231199202,
+      "config": "lm/configs/mamba4-125m.json",
+      "loss": 10.176531791687012,
+      "median_step_seconds": 0.5306649650010513,
+      "overrides": {
+        "remat_policy": "mixers-5"
+      },
+      "parameters": 122636368,
+      "peak_bytes_in_use": 3832245248,
+      "step_seconds": [
+        0.5863757460028864,
+        0.5306649650010513,
+        0.5305827970005339,
+        0.5303793759958353,
+        0.5306907760095783
+      ],
+      "tokens_per_second": 493991.53380981286
+    },
+    "mamba4-mixers8": {
+      "bytes_limit": 33014407168,
+      "compile_seconds": 133.6195945780055,
+      "config": "lm/configs/mamba4-125m.json",
+      "loss": 10.176620483398438,
+      "median_step_seconds": 0.5466505460062763,
+      "overrides": {
+        "remat_policy": "mixers-8"
+      },
+      "parameters": 122636368,
+      "peak_bytes_in_use": 4331726848,
+      "step_seconds": [
+        0.8716396329982672,
+        0.5468162360048154,
+        0.5465125659975456,
+        0.5464947459986433,
+        0.5466505460062763
+      ],
+      "tokens_per_second": 479545.8486507946
+    }
+  },
+  "sources": {
+    "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+    "lm/config.py": "8582792408828d16eaee0894ea0388256f42607e3013a77d131236bf391268b3",
+    "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+    "lm/configs/mamba4-125m.json": "9fe063529e17f9f6bbbf2d074a60d1587f17d7d078b43d1a6cc538113b10213e",
+    "lm/configs/mamba4-60m.json": "2028be6b1ed3e6321ee346eba766cb4fc1ae0ecbc80309c8e1ab246824142659",
+    "lm/configs/protocol-125m.json": "93522b72b648ab4d9d04728181471e0568883ef21d0ce8693250f7738c63348b",
+    "lm/configs/screen-protocol.json": "7201ebb57a94828e234e4722cadf3f8dcf4de2d9ea428ef225f7b4dabe9a8f3a",
+    "lm/configs/transformer-125m.json": "6cd51f02ada4387bed169839f68b18809fbe436f6c1d4091aaf5892478446a3d",
+    "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+    "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+    "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+    "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+    "lm/kernels/attention.py": "208b269e49e677a0915a738466ebfb1d1f3cbf1f2461c6f38a0f9ebf230f8c25",
+    "lm/kernels/flashmamba.py": "7c53f99d68f7947814b8d507a4669e1b3b471fb97618b79a2e6b4d2d5bdef495",
+    "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+    "lm/kernels/mamba3_fast.py": "424b7113854454fe4471513265da9bdbcd41aff51de699aeb39b322e53b36581",
+    "lm/kernels/mamba4.py": "1f83b9888640e654b4abf8c0b625c2f3950297edf6a7004a661ca3510da8dd06",
+    "lm/kernels/mamba4_fused.py": "2d9b54db08b6060044fcaf433e55f5993ecf3340c73bb6dccbe614db95e06623",
+    "lm/kernels/mamba4_reference.py": "add2170c358c6d94053c0e18d6ccd00c3a5f095733991ef1c2d8d50c8dc86f63",
+    "lm/kernels/prefix.py": "3b209205b9691bd4a87ea7718cb8d4b3009474d34feb6f8ac81ed2870b940b2c",
+    "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+    "lm/models/common.py": "414c87482d3ebfe31bf3a931c041ecbb1c815c0e5059cd231beb29e0e01a0a4c",
+    "lm/models/mamba3.py": "ffcd01e155f8570afad8924aedd55e5e860bf36ac25dba986830e7bae6996998",
+    "lm/models/mamba4.py": "f4606051801e6697f6ba779da728f563d5c342517db9c3a533fdacbb70593bee",
+    "lm/models/transformer.py": "c2400316b2ae2845682550c759075c4f9744af2d54007e5797b69c3c4d6bdb31",
+    "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+    "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+    "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+    "lm/tests/test_flashmamba.py": "78b827ccc01221aa0a6d71ea42dc309950927e85bd2e1ed856a0827b8fa84453",
+    "lm/tests/test_mamba3_fast.py": "a59a895a44f2023ae303524eb18b22b3b0bfc242d046e2e6814122da376605bc",
+    "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+    "lm/tests/test_mamba4.py": "918b4299b6333f7c0e1a395e693f65d5abaa31c00258b7d55e3b3ca5d7266af5",
+    "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+    "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+    "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+    "lm/train.py": "1dd54d1346f45e6f549088b07d61c86a14ce50015617a8091a7f7fe9d54e7e63",
+    "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+    "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+    "scripts/kernel_benchmark.py": "6be5504888b98b753202f82220de400ae8f019df97dda56229370324bc49672f",
+    "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+    "scripts/mosaic_probe.py": "64a79debb8d4da1ca5a8349497984429176a7d2d242ebdb83cc1c830ae0986e9",
+    "scripts/pod.py": "ee914abf33cdc9607201ff2358fbeb4706ce8bc7443a57404b2ac90122b437e8",
+    "scripts/prepare_fineweb.py": "696c84e746b903829cf6aabec836127ea3250e0e0ae109e2b0c67256af169138",
+    "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+    "scripts/profile_step.py": "6739efcc91b853029e7a1385dcecd98acd63dc3c82b75cfc87bc4759e2da594c",
+    "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+    "scripts/step_benchmark.py": "ef750f10b3a9d72f6a00d012abc325a76c5121e7011a91e612e134cae29ac899",
+    "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+    "scripts/verify_lm_runs.py": "b090a0eb1e26935fd16b7df8849f772ceeae22357d3c0ea1824c5f8b96d25559",
+    "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+    "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+  }
+}

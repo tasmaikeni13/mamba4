@@ -1,0 +1,407 @@
+{
+  "attention/flash-128": {
+    "forward": {
+      "first_seconds": 0.0045046000013826415,
+      "median_seconds": 0.0035771799957728945
+    },
+    "forward_backward": {
+      "first_seconds": 0.016648969991365448,
+      "median_seconds": 0.014896654996846337
+    }
+  },
+  "attention/flash-256": {
+    "forward": {
+      "first_seconds": 0.0027240199997322634,
+      "median_seconds": 0.0015998300004866906
+    },
+    "forward_backward": {
+      "first_seconds": 0.011167699994985014,
+      "median_seconds": 0.008823380005196668
+    }
+  },
+  "attention/flash-512": {
+    "forward": {
+      "first_seconds": 0.002300020001712255,
+      "median_seconds": 0.0011496750012156554
+    },
+    "forward_backward": {
+      "first_seconds": 0.009480590000748634,
+      "median_seconds": 0.0070621904960717075
+    }
+  },
+  "attention/splash-1024-fused": {
+    "error": "NotImplementedError: head_dim_v=64 should be a multiple of 128"
+  },
+  "attention/splash-512": {
+    "error": "NotImplementedError: head_dim_v=64 should be a multiple of 128"
+  },
+  "attention/splash-512-fused": {
+    "error": "NotImplementedError: head_dim_v=64 should be a multiple of 128"
+  },
+  "block/mamba3-chunked": {
+    "forward": {
+      "first_seconds": 0.031898689005174674,
+      "median_seconds": 0.01859842949488666
+    },
+    "forward_backward": {
+      "first_seconds": 0.16686726899934,
+      "median_seconds": 0.15235453900095308
+    }
+  },
+  "block/mamba3-flash": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1721 = \"vector.broadcast\"(%1720) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<128x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "block/memory-blocked": {
+    "forward": {
+      "first_seconds": 0.26411136898968834,
+      "median_seconds": 0.22979446350655053
+    },
+    "forward_backward": {
+      "first_seconds": 0.39304776801145636,
+      "median_seconds": 0.33642519850400276
+    }
+  },
+  "block/memory-fused": {
+    "forward": {
+      "first_seconds": 0.041313490000902675,
+      "median_seconds": 0.03298009499849286
+    },
+    "forward_backward": {
+      "first_seconds": 0.10472637000202667,
+      "median_seconds": 0.08315008450153982
+    }
+  },
+  "block/transformer": {
+    "forward": {
+      "first_seconds": 0.01601336000021547,
+      "median_seconds": 0.005307649997121189
+    },
+    "forward_backward": {
+      "first_seconds": 0.02824646000226494,
+      "median_seconds": 0.020588149505783804
+    }
+  },
+  "hardware": {
+    "backend": "tpu",
+    "device_count": 16,
+    "devices": [
+      {
+        "coords": [
+          0,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 0,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          0,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 1,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 2,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          1,
+          1,
+          0
+        ],
+        "core_on_chip": 0,
+        "id": 3,
+        "kind": "TPU v4",
+        "process_index": 0
+      },
+      {
+        "coords": [
+          0,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 4,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          0,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 5,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 6,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          1,
+          1,
+          1
+        ],
+        "core_on_chip": 0,
+        "id": 7,
+        "kind": "TPU v4",
+        "process_index": 1
+      },
+      {
+        "coords": [
+          0,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 8,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          0,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 9,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 10,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          1,
+          1,
+          2
+        ],
+        "core_on_chip": 0,
+        "id": 11,
+        "kind": "TPU v4",
+        "process_index": 2
+      },
+      {
+        "coords": [
+          0,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 12,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          0,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 13,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          0,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 14,
+        "kind": "TPU v4",
+        "process_index": 3
+      },
+      {
+        "coords": [
+          1,
+          1,
+          3
+        ],
+        "core_on_chip": 0,
+        "id": 15,
+        "kind": "TPU v4",
+        "process_index": 3
+      }
+    ],
+    "hostname": "t1v-n-0974eafe-w-0",
+    "jax": "0.6.2",
+    "local_device_count": 4,
+    "pid": 582734,
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 4,
+    "process_index": 0,
+    "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]"
+  },
+  "memory/125m/blocked": {
+    "forward": {
+      "first_seconds": 0.26202355900022667,
+      "median_seconds": 0.22451837950211484
+    },
+    "forward_backward": {
+      "first_seconds": 0.3616328789939871,
+      "median_seconds": 0.3199682085032691
+    }
+  },
+  "memory/125m/fused": {
+    "forward": {
+      "first_seconds": 0.03365911000582855,
+      "median_seconds": 0.027339780004695058
+    },
+    "forward_backward": {
+      "first_seconds": 0.08197459900111426,
+      "median_seconds": 0.06797618450218579
+    }
+  },
+  "sources": {
+    "lm/__init__.py": "3e61e3155a400bacb381593261a21389b2860d87daebc0b5660a08328295a02f",
+    "lm/config.py": "60c1b218997e988d434069cca18f04708a77ed7bbba14dc2cce3a9030d8f7d6f",
+    "lm/configs/mamba3-60m.json": "3388f9c32710780894bb1808ee932db1e7923d166b869c8ac5e4a2838ce1aea5",
+    "lm/configs/mamba4-125m.json": "9fe063529e17f9f6bbbf2d074a60d1587f17d7d078b43d1a6cc538113b10213e",
+    "lm/configs/mamba4-60m.json": "2028be6b1ed3e6321ee346eba766cb4fc1ae0ecbc80309c8e1ab246824142659",
+    "lm/configs/protocol-125m.json": "93522b72b648ab4d9d04728181471e0568883ef21d0ce8693250f7738c63348b",
+    "lm/configs/screen-protocol.json": "7201ebb57a94828e234e4722cadf3f8dcf4de2d9ea428ef225f7b4dabe9a8f3a",
+    "lm/configs/transformer-125m.json": "4a2bd0f295022f8b8b0f0a49250ca3bfcdc1578bf00862df3d47b4d3ab862ec1",
+    "lm/configs/transformer-60m.json": "ae8e412c3cf0578958368027721695e9bb810f9cc7dbb08741da6cdd7186a15d",
+    "lm/data.py": "c52ea6eade47980eb86489c84fcf9fcf3ad905085131145901e329d3153dcd03",
+    "lm/decode.py": "77507c10fb262d5149cf43e991418058ad6adb643a20c784425c1e7ddb45e421",
+    "lm/kernels/__init__.py": "84ddd446bc3578a44703c808e89a7eeb57b02b2beb5e3d83fad020735c5626a2",
+    "lm/kernels/attention.py": "208b269e49e677a0915a738466ebfb1d1f3cbf1f2461c6f38a0f9ebf230f8c25",
+    "lm/kernels/flashmamba.py": "91e67091dfafc46a56ea8c53822a61c2425ea55d424b51b036ef9fb4e2eb36aa",
+    "lm/kernels/mamba3.py": "e1b3c9cfaa899fd2de0819f21cbff410b63f9b295957e731cf7860117b0a8107",
+    "lm/kernels/mamba3_fast.py": "424b7113854454fe4471513265da9bdbcd41aff51de699aeb39b322e53b36581",
+    "lm/kernels/mamba4.py": "1f83b9888640e654b4abf8c0b625c2f3950297edf6a7004a661ca3510da8dd06",
+    "lm/kernels/mamba4_fused.py": "81810d56a3c7e3ef523faf2644ab6f77714956f12a97b0703ed54ecbaf28802b",
+    "lm/kernels/mamba4_reference.py": "add2170c358c6d94053c0e18d6ccd00c3a5f095733991ef1c2d8d50c8dc86f63",
+    "lm/models/__init__.py": "4b067454788b99dc41a4ad616be4524fe1a69d307c3136f968b60e1cd5640b04",
+    "lm/models/common.py": "253eaf2137f36a5907134b71869685826526d5c8aea3bfacae28c767b5451c14",
+    "lm/models/mamba3.py": "418a55c6b4e31f1a396c312b87ab5c57a0ff3fe021a01db8f1e5ac629ed6e884",
+    "lm/models/mamba4.py": "b408c5a28063de87b9737decc4677ebc6d722acfeff51b0c63431dcdf126e815",
+    "lm/models/transformer.py": "c2400316b2ae2845682550c759075c4f9744af2d54007e5797b69c3c4d6bdb31",
+    "lm/recall.py": "2f1ffc055e0217f96688c5830368c2a6c28db3ac0b2fcfb14691293171878494",
+    "lm/runtime.py": "76885daec4fa19889df091b892a3c2710e906ac56311b578ed7dbc582cd6ba00",
+    "lm/tests/test_data.py": "1fd3bb06ab20220f82a6de07f7f27a269c4fda19a3814000d143e0876f74f598",
+    "lm/tests/test_flashmamba.py": "89fed96fa5c7789db4765486bb1c48726b6c0c2006b6af3079d61d28fab57bc5",
+    "lm/tests/test_mamba3_fast.py": "a59a895a44f2023ae303524eb18b22b3b0bfc242d046e2e6814122da376605bc",
+    "lm/tests/test_mamba3_transformer.py": "6211b0889b486d65a9cc7bfbc49495c296dbaf2c9fcfead99087e59ef07f893b",
+    "lm/tests/test_mamba4.py": "918b4299b6333f7c0e1a395e693f65d5abaa31c00258b7d55e3b3ca5d7266af5",
+    "lm/tests/test_recall.py": "89f3a13ecb585850574e86a41efb470d196b1f4d86485f99cfa6230bb6c00ec1",
+    "lm/tests/test_run_audit.py": "a960abd2679b3028f5ead89d780be4a72fbbe8159c1438e161bd4e9a8f6d8f1c",
+    "lm/tests/test_training.py": "1c4f0b3ee2f7a0337a0e84c2e348cf22ae6331c81bef60e651e801c0e39015fa",
+    "lm/train.py": "1dd54d1346f45e6f549088b07d61c86a14ce50015617a8091a7f7fe9d54e7e63",
+    "pyproject.toml": "082cdd43a92ee47f4c9f178923ffffdd98ecda2e0f37caf4d1dc44cdc5d794e3",
+    "scripts/audit_formal.py": "ed36b277d1f0d5b96468fb1fef882cdd51607fca673d323d1334380dd968be86",
+    "scripts/kernel_benchmark.py": "77bb6e379bd08deac0824e3bba3030b72c16b281ea3641afd71d97be09715d8d",
+    "scripts/lm_benchmark.py": "b7d08e1c7f8cfb49fa95cdd51acc98a093d4d37d40f88563600de004ce0f00ce",
+    "scripts/pod.py": "85f49b3e8ed6d5fcc0bee67dfcd4d8ccceaed186ad825a5ca6c5468a5e39af66",
+    "scripts/prepare_fineweb.py": "696c84e746b903829cf6aabec836127ea3250e0e0ae109e2b0c67256af169138",
+    "scripts/probe_tpu.py": "70b7a95d2cffa76208be69cc5eaa765e5e7025b853f7f1ff94a8c607f9b1f469",
+    "scripts/report.py": "e0c29c5f26886712f04782375a1bed26df47056e91e70aa6fba12c1de45acc68",
+    "scripts/stop_pod_worker.py": "88fc154701e27ba1a0aef914034fa2cc8e658cb830a668a613b81ce6125f6d4b",
+    "scripts/verify_lm_runs.py": "b090a0eb1e26935fd16b7df8849f772ceeae22357d3c0ea1824c5f8b96d25559",
+    "scripts/verify_results.py": "b2c6751228c93b163243b78d9a0ae8eaa62d8a21214ae17a34c23c2132008f40",
+    "uv.lock": "ac05fa6712de2d7f3da9f06620a9abbb9161d03bb2d320b0851c91ff69dfd43d"
+  },
+  "ssd/125m/chunked": {
+    "forward": {
+      "first_seconds": 0.023213920008856803,
+      "median_seconds": 0.01922211449709721
+    },
+    "forward_backward": {
+      "first_seconds": 0.1696811500005424,
+      "median_seconds": 0.16004818000510568
+    }
+  },
+  "ssd/125m/fast": {
+    "forward": {
+      "first_seconds": 0.017260209991945885,
+      "median_seconds": 0.013294224998389836
+    },
+    "forward_backward": {
+      "first_seconds": 0.1550776490039425,
+      "median_seconds": 0.14562535900768125
+    }
+  },
+  "ssd/125m/flash-h1": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1721 = \"vector.broadcast\"(%1720) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<128x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/125m/flash-h2": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1722 = \"vector.broadcast\"(%1721) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<128x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/125m/flash-h4": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1724 = \"vector.broadcast\"(%1723) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<128x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/125m/flash-h8": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1728 = \"vector.broadcast\"(%1727) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<128x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/60m/chunked": {
+    "forward": {
+      "first_seconds": 0.01097217999631539,
+      "median_seconds": 0.0050823650090023875
+    },
+    "forward_backward": {
+      "first_seconds": 0.05457131000002846,
+      "median_seconds": 0.041558535005606245
+    }
+  },
+  "ssd/60m/fast": {
+    "forward": {
+      "first_seconds": 0.007620320000569336,
+      "median_seconds": 0.003522075006912928
+    },
+    "forward_backward": {
+      "first_seconds": 0.0496258700004546,
+      "median_seconds": 0.038044269997044466
+    }
+  },
+  "ssd/60m/flash-h1": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1750 = \"vector.broadcast\"(%1749) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<96x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/60m/flash-h2": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1751 = \"vector.broadcast\"(%1750) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<96x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/60m/flash-h4": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1753 = \"vector.broadcast\"(%1752) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<96x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  },
+  "ssd/60m/flash-h8": {
+    "error": "MosaicError: INTERNAL: Mosaic failed to compile TPU kernel: Not implemented: Broadcast in both sublanes and lanes\n\nThe MLIR operation involved:\n  %1757 = \"vector.broadcast\"(%1756) {in_layout = [#tpu.vpad<\"32,{7,0},(8,128)\">], out_layout = [#tpu.vpad<\"32,{*,*},(8,128)\">]} : (vector<1x1xf32>) -> vector<96x64xf32>\n\nPlease report a bug at: https://github.com/google/jax/issues/new?assignees=apaszke\n"
+  }
+}
