@@ -210,23 +210,31 @@ def main():
         for run in runs:
             if not run.completed():
                 train(run, options.max_attempts)
-            require(
-                source_provenance()["sha256"] == sources, "Execution sources changed"
-            )
-            audited = audit_run(
-                run.directory,
-                run.architecture,
-                protocol,
-                corpus,
-                frozen=read_json(run.config),
-                expected_sources=sources,
-                expected_recall=recall,
-                parameter_target=read_json(run.config)["training"]["parameter_target"],
-            )
-            atomic_json(EVIDENCE / f"{run.name}-audit.json", audited)
-            checkpoint_sidecar(run, audited)
-            prune_checkpoints(run)
-            record("audited", run=run.name, heldout=audited["heldout"])
+            # An audit failure is recorded and the remaining runs continue; the
+            # audit can be repeated later from the kept checkpoints.
+            try:
+                require(
+                    source_provenance()["sha256"] == sources,
+                    "Execution sources changed",
+                )
+                audited = audit_run(
+                    run.directory,
+                    run.architecture,
+                    protocol,
+                    corpus,
+                    frozen=read_json(run.config),
+                    expected_sources=sources,
+                    expected_recall=recall,
+                    parameter_target=read_json(run.config)["training"][
+                        "parameter_target"
+                    ],
+                )
+                atomic_json(EVIDENCE / f"{run.name}-audit.json", audited)
+                checkpoint_sidecar(run, audited)
+                prune_checkpoints(run)
+                record("audited", run=run.name, heldout=audited["heldout"])
+            except Exception as error:
+                record("audit_failed", run=run.name, error=repr(error))
     except BaseException as error:
         record("failed", error=repr(error))
         raise

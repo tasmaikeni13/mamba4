@@ -90,7 +90,7 @@ def test_jitted_hybrid_gradients_match_across_remat_policies():
         return jax.jit(jax.grad(loss))(params)
 
     reference = jax.tree.leaves(gradients("full"))
-    for policy in ("kernels", "mixers"):
+    for policy in ("kernels", "mixers", "mixers:1"):
         for a, b in zip(jax.tree.leaves(gradients(policy)), reference):
             np.testing.assert_allclose(a, b, rtol=1e-6, atol=1e-7)
 
