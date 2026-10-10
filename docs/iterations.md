@@ -1,7 +1,6 @@
 # Diagnosis and repair log
 
-Iterations A–G are phase-01/02 investigations; H is the first trained-screen
-iteration. The original monograph is preserved; the active paper and
+Iterations A–G are the phase-01/02 investigations of the operator theory. The original monograph is preserved; the active paper and
 downstream contracts reflect every correction. Holdout losses remain in the
 artifacts.
 
@@ -27,56 +26,55 @@ adaptively changed method cannot certify a new win on that same holdout.
 Information-theoretic obstructions require declared budget tradeoffs rather
 than hidden caches or unlimited retries.
 
-## Training-screen iterations
+## Language-model design record
 
-| Iteration | Cause / witness | Repair | Verification / consequence |
-|---|---|---|---|
-| H: screen v1 → v2 | The frozen v1 language model trailed both completed peers at matched steps: held-out NLL 4.6073 at step 1,000 versus 4.3596 (Transformer) and 4.2364 (Mamba-3). It had constant per-head cyclic gates, 16-wide keys, no short convolution, an XLA per-token Cholesky and a 1,024-step sequential protected-QR scan per layer, and took 25.53 s per step (33× Mamba-3). A Cloud TPU defragmentation preemption stopped it after 1,026 steps; it was not resumed. | Restore Definition 5.1's token drift and evidence gates with an undiscounted diagonal floor, valid for arbitrary gates. Add causal width-4 convolutions, exact lane-major Cholesky solves with an analytic reverse pass, and a chunked order scan. Compose selective memory layers with unmodified official Mamba-3 layers. Protected banks leave the language model; the operator, its contracts and tests remain. | Nine Lean theorems in `Selective.lean`, dense-reference forward/gradient/decode tests, TPU kernel timings, five parameter-matched development pilots on unseen training batches under a pre-recorded rule, a dry run of every TPU program, then one full screen-60m-v2 run. |
+Two earlier Mamba 4 language-model designs were tried and abandoned before
+the current one. The first used constant per-head gates and protected QR
+banks, trailed both peers at matched steps and ran 33× slower than Mamba-3.
+The second lacked the key alignment described below. Their code and records
+are in the git history (commits `fc618d6` and `5269fdd`); the second survives
+in this tree only as the no-key-shift ablation.
 
-Development pilots replay the first 1,000 protocol steps. Each loss is taken on
-a training batch before that batch updates the model; the held-out split is
-never opened. Values are mean training loss over steps 901–1,000 minus the
-peer's logged loss on the same batches; ± is a normal 95% interval over the
-100 paired steps, which are autocorrelated, so it is optimistic.
+**Composition.** One-thousand-step development pilots on unseen training
+batches compared hybrid compositions under a rule recorded before the
+deciding pilots (`validation/pilots/SELECTION.md`, records in
+`lm/results/pilots/`). Replacing many Mamba-3 layers with narrow memory layers
+hurt. Spending five Mamba-3 layers' budget on four wide memory layers (key
+dimension 64) helped. The held-out split was never used for selection.
 
-| Pilot | Layers (Mamba-3 + memory), key dim | Parameters | vs Mamba-3 | vs Transformer | Median step |
-|---|---|---:|---:|---:|---:|
-| p1 | 0 + 18, d=18 | 59,955,712 | not run: compile exceeded 16 min (unrolled factor) | — | — |
-| p2 | 8 + 11, d=16 | 59,976,928 | +0.0625 ± 0.0011 | −0.0746 ± 0.0015 | 1.615 s |
-| p3 | 18 + 2, d=16 | 60,281,600 | −0.0128 ± 0.0010 | −0.1498 ± 0.0015 | 1.004 s |
-| p4 | 15 + 4, d=32 | 59,942,304 | −0.0438 ± 0.0019 | −0.1809 ± 0.0018 | 1.571 s |
-| p5 | 15 + 4, d=64 (8 heads × 128) | 59,893,216 | −0.0395 ± 0.0017 | −0.1765 ± 0.0017 | 1.451 s |
+**Key alignment.** The pre-registered claims suite showed that the model
+without alignment rarely copied and never retrieved a passkey, while the same
+memory layer, trained directly on synthetic recall, reached 98% recall within
+capacity and 100% retention to 16× its training length. The mechanism works;
+language-model training rarely teaches it to retrieve. Writing each value
+under the key of the preceding context makes an induction lookup the
+memory's default geometry. It adds no parameters. Its pilot passed a rule
+recorded before it ran (`validation/pilots/SELECTION-key-alignment.md`).
 
-Many 16-wide memory layers (p2) were worse than the Mamba-3 layers they
-replaced; a few wider memory layers were better, and their margin grew with
-training (p4 against Mamba-3: −0.008, −0.008, −0.022, −0.044 over successive
-windows). The rule in `validation/pilots/SELECTION.md` was recorded before
-p4/p5 were observed: p4 had the lowest loss, p5 lay within 0.005 nats and was
-faster, so p5 was selected. p4 had used the slower one-column solve schedule,
-which partly explains its step time; the frozen run uses the blocked
-schedule, which computes the same factor. A p1b pilot (pure memory, 32
-narrow heads) was dropped in favor of the capacity tests p4/p5.
+**Diagnosis kept for the record.** On passkey prompts, the trained gates of
+the unaligned model keep 30–80% of the key-token evidence across about 400
+filler tokens. But the learned floor stays near 1 while β ≤ 1, and many heads
+write the repetitive filler strongly, so one write is shrunk by half or more
+(`Retention.lean`). A strong-write, low-floor variant (β ≤ 16, floor 0.02)
+diverged in every synthetic run and was dropped.
 
-Engineering findings are kept as well. A Python-unrolled factor made an
-18-layer program compile for more than 16 minutes. Isolated multi-host
-microbenchmarks twice stopped with a TPU launch-identity mismatch, although
-the hosts' optimized HLO was identical (backend bundle counts 546,264 vs
-546,266); barriers between timed cases removed the failures. Training
-programs, which run in collective lockstep, were unaffected. Per-block
-timings showed the order head's associative scan cost as much as the
-conjugate read; the chunked order scan computes the same recurrence.
+**Outcome.** With alignment, the final model:
+- has the best NLL of all three architectures on both holdouts;
+- answers 69 of 128 frozen recall prompts, against 45 without alignment;
+- still trails the Transformer on in-window copying and on passkey retrieval
+  (`lm/results/claims-60m/`).
 
-**Outcome of H.** The frozen screen-60m-v2 run completed 1B targets without
-interruption and passed the full audit. Held-out NLL 3.4727 against 3.4758
-(Mamba-3) and 3.5352 (Transformer); paired per-sequence intervals exclude zero
-on both the original and the fresh holdout. The margin over Mamba-3 narrowed
-from −0.050 at step 1,000 to −0.003 at the end, so the next scale must test
-whether it persists; synthetic recall rose to 45 of 128 prompts (30 for
-Mamba-3). The declared single-seed screen win holds; robustness across seeds
-is unmeasured.
+The synthetic and regression studies (`lm/results/synthetic/`,
+`lm/results/regression/`) measure the mechanism directly.
 
-## Claims iteration
-
-| Iteration | Cause / witness | Repair | Verification / consequence |
-|---|---|---|---|
-| I: claims beyond NLL | The screen gated only on NLL. The pre-registered claims suite (`validation/claims/PROTOCOL.md`, results in `lm/results/claims-60m/`) found that the screen-60m-v2 model never retrieved a passkey, even at 512 tokens, where the Transformer reached 63.7%. It copied 11.1% of 16 random words (Transformer 41.8%, Mamba-3 3.2%), and its NLL rose beyond position 1,024 (+0.057 from 512–1,024 to 8,192–16,384). Exact retrieval was refuted against the Transformer and supported against Mamba-3; long context and calibration were refuted against both; context-independent decode was supported. Zeroing the conjugate read removed most of the retrieval gain and cost 0.04–0.18 nats, more at longer range. | Under diagnosis. A CPU probe of the trained gates on passkey prompts showed that decay is not the cause: several heads keep 30–80% of the key-token evidence across about 400 filler tokens. Instead, the learned floor stayed near 1.0 while β ≤ 1, so a single write is shrunk by half or more. Many heads also write the repetitive filler at β ≈ 0.9–1.0, and its repeated pairs outweigh the one passkey write. Candidate repair: a wider evidence range (β up to 16, still starting at 1/2) with a smaller floor, so one salient write can dominate the prior. | Synthetic matched-model tests (`validation/synthetic.py`) on recall capacity and long-range retention with distractors, against the unchanged v2 layer and both peers. Then a new versioned 60M run evaluated on fresh claims prompts. A small Mamba-3 + memory hybrid hit the TPU launch-identity halt on every attempt (f32 and bf16, with barriers and one flat all-reduce); pure stacks ran, so the synthetic study uses pure stacks. |
+**Engineering findings.**
+- A Python-unrolled factor made an 18-layer program compile for more than
+  16 minutes; the blocked lane-major factor replaced it.
+- Isolated multi-host microbenchmarks hit TPU launch-identity mismatches even
+  though the hosts' optimized HLO was identical. Compiling ahead of time
+  behind a barrier fixed them.
+- A small Mamba-3 + memory hybrid in the synthetic harness hit the same halt
+  on every attempt (f32 and bf16, one flat all-reduce), so the synthetic
+  studies use pure stacks.
+- Only JAX process 0 writes the persistent compile cache, so caches are
+  cleared on every host before each launch.

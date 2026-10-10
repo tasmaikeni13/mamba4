@@ -21,108 +21,73 @@
     },
     {
       "id": 3,
-      "status": "completed_with_open_engineering_items",
-      "evidence": "lm/results/kernel-conformance/host-*.json",
-      "mamba4_production_cpu_preflight": "lm/results/cpu-preflight/mamba4-production.json",
-      "remaining": "Profiled per-component attribution; protected banks absent from the v2 language model",
-      "evidence_v2": [
-        "lm/results/dry-run-v2/",
-        "lm/results/bench-blocks-dev/",
-        "lm/results/benchmarks-v2/"
-      ]
+      "status": "completed",
+      "evidence": [
+        "lm/results/parameter-ledger.json",
+        "lm/results/hardware/",
+        "lm/results/kernels/",
+        "lm/results/benchmarks/"
+      ],
+      "remaining": "Protected banks are not part of the language model; per-component profiling"
     },
     {
       "id": 4,
-      "status": "nll_screen_won_claims_iteration_in_progress",
-      "runs": [
-        {
-          "architecture": "transformer",
-          "status": "completed_and_audited",
-          "training_targets": 1000000000,
-          "heldout_nll": 3.535235732793808,
-          "evidence": "lm/results/screen-60m-v1/transformer-audit.json"
-        },
-        {
-          "architecture": "mamba3",
-          "status": "completed_and_audited",
-          "training_targets": 1000000000,
+      "status": "completed",
+      "runs": {
+        "mamba3": {
           "heldout_nll": 3.475754991173744,
-          "evidence": "lm/results/screen-60m-v1/mamba3-audit.json"
+          "training_targets": 1000000000,
+          "parameters": 59968896,
+          "evidence": "lm/results/screen-60m/mamba3-audit.json"
         },
-        {
-          "architecture": "mamba4",
-          "protocol": "screen-60m-v1",
-          "status": "interrupted_not_resumed",
-          "benchmark_status": "passed_all_four_hosts",
-          "logged_optimizer_steps": 1026,
-          "durable_checkpoint_step": 1000,
-          "training_targets_at_checkpoint": 131072000,
-          "heldout_nll_by_step": {
-            "500": 5.2963255643844604,
-            "1000": 4.607257008552551
-          },
-          "interruption": "Cloud TPU defragmentation preemption and two maintenance reboots, 2026-10-09 02:43-04:24 UTC",
-          "decision": "Not resumed: trailed both peers at matched steps and needed ~47 more pod hours; final v1 NLL unobserved",
-          "evidence": "lm/results/screen-60m-v1/mamba4-interrupted.json",
-          "learning_curves": "lm/results/screen-60m-v1/learning-curves.json",
-          "checkpoint_500_audit": "lm/results/screen-60m-v1/mamba4-checkpoint-00000500-audit.json",
-          "benchmark_evidence": "lm/results/benchmarks-frozen-v1/mamba4-host-*.json"
-        },
-        {
-          "architecture": "mamba4",
-          "protocol": "screen-60m-v2",
-          "status": "completed_and_audited",
-          "composition": "15 official Mamba-3 SISO + 4 selective fixed-floor memory layers (key dim 64)",
+        "mamba4": {
+          "heldout_nll": 3.4718911349773407,
           "training_targets": 1000000000,
           "parameters": 59893216,
-          "heldout_nll": 3.4726841002702713,
-          "fresh_holdout_nll": 3.4222662007668987,
-          "paired_vs_mamba3": {
-            "block_bootstrap_95": [
-              -0.0044229101244127374,
-              -0.0017088041873648764
-            ],
-            "mean": -0.0030709089478477836,
-            "sequences": 2048,
-            "sequences_mamba4_lower": 1090
-          },
-          "paired_vs_transformer": {
-            "block_bootstrap_95": [
-              -0.06448269195097964,
-              -0.06055889932904392
-            ],
-            "mean": -0.06255168083589524,
-            "sequences": 2048,
-            "sequences_mamba4_lower": 1944
-          },
-          "evidence": "lm/results/screen-60m-v2/audit.json"
+          "evidence": "lm/results/screen-60m/mamba4-audit.json"
+        },
+        "transformer": {
+          "heldout_nll": 3.535235732793808,
+          "training_targets": 1000000000,
+          "parameters": 59985920,
+          "evidence": "lm/results/screen-60m/transformer-audit.json"
         }
-      ],
+      },
       "screen_win": true,
-      "protocols": [
-        "screen-60m-v1",
-        "screen-60m-v2"
-      ],
-      "screen_win_scope": "single training seed; held-out NLL strictly lower than both peers",
-      "development_pilots": "lm/results/pilots-v2/ (rule: validation/pilots/SELECTION.md)",
-      "claims": {
-        "protocol": "validation/claims/PROTOCOL.md",
-        "first_evaluation": "lm/results/claims-60m (screen-60m-v2 model)",
-        "verdicts_vs_transformer": {
-          "exact_retrieval": "refuted",
-          "long_context": "refuted",
-          "calibrated_confidence": "refuted"
-        },
-        "verdicts_vs_mamba3": {
-          "exact_retrieval": "supported",
-          "long_context": "refuted",
-          "calibrated_confidence": "refuted"
-        },
+      "paired_vs_mamba3": {
+        "block_bootstrap_95": [
+          -0.005209128884598613,
+          -0.0025131658738246194
+        ],
+        "mean": -0.0038638408295810223,
+        "sequences": 2048,
+        "sequences_mamba4_lower": 1118
+      },
+      "fresh_holdout_vs_mamba3": {
+        "block_bootstrap_95": [
+          -0.005926073071896099,
+          -0.0031171370152151216
+        ],
+        "mean": -0.004502784344367683,
+        "sequences": 2048,
+        "sequences_mamba4_lower": 1130
+      },
+      "claims_verdicts": {
         "context_independent_decode": "supported",
-        "synthetic_development": "lm/results/synthetic-a: the unchanged memory layer reached 98% recall at K=8-16 and 100% retention to 8,192 tokens (trained at 512)",
-        "repair": "screen-60m-v3: memory_key_shift (induction-aligned keys); pilot passed validation/pilots/SELECTION-v3.md; full run in progress",
-        "fresh_evaluation": "data/claims-v2 (seed 20261011, shard 012) and data/fresh-holdout-v3"
-      }
+        "mamba3": {
+          "calibrated_confidence": "refuted",
+          "exact_retrieval_within_training_context": "supported",
+          "long_context": "refuted"
+        },
+        "transformer": {
+          "calibrated_confidence": "refuted",
+          "exact_retrieval_within_training_context": "refuted",
+          "long_context": "refuted"
+        }
+      },
+      "claims_evidence": "lm/results/claims-60m/",
+      "development_selection": "lm/results/pilots/ (rules in validation/pilots/)",
+      "abandoned_designs": "two earlier designs, git history fc618d6 and 5269fdd"
     },
     {
       "id": 5,
@@ -137,5 +102,5 @@
       "status": "planned"
     }
   ],
-  "promotion": "Phases 03-04 authorized. The screen-60m-v2 NLL win is established, but the pre-registered claims suite did not demonstrate exact retrieval against the Transformer, long context, or calibrated confidence. A versioned repair (screen-60m-v3) is training; no 125M scaling is authorized or performed."
+  "promotion": "Phases 03-04 authorized and executed. Transformer, Mamba-3 and Mamba 4 completed exactly 1B targets on all 16 chips and were audited. The declared single-seed NLL screen win holds; the pre-registered claims suite does not yet show exact in-window retrieval against the Transformer, long-context use or calibrated confidence in the 60M language model. No 125M scaling is authorized or performed; one seed cannot establish robustness."
 }

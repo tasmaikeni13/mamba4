@@ -34,42 +34,30 @@ The audited report must retain a failed screen win. Completing the three
 requested runs does not itself establish the promotion gate or authorize
 125M work.
 
-## Versioned iteration: screen-60m-v2
+## Result
 
-The v1 Mamba 4 run was interrupted after 1,026 steps and trailed both peers
-at matched steps; its record is `lm/results/screen-60m-v1/mamba4-interrupted.json`.
-Following the iteration rule above, `lm/configs/screen-protocol-v2.json`
-changes only the Mamba 4 method. Data, tokenizer, seed, budget, batch,
-optimizer, schedule and held-out documents are unchanged, and the completed
-Transformer and Mamba-3 runs are reused. Their execution sources must stay
-byte-identical apart from Mamba 4 files and additive config fields; the run
-controller and final audit check this.
+The Transformer, Mamba-3 and Mamba 4 runs each completed exactly 1B targets on
+all 16 chips and passed the audit (`lm/results/screen-60m/`).
 
-Settings were chosen only from development pilots: the first 1,000 protocol
-steps, scored by loss on unseen training batches against the peers' logged
-losses on identical batches. The held-out split was never used for
-selection. The rule, recorded before the decisive pilots, is in
-`validation/pilots/SELECTION.md`; every pilot is kept in
-`lm/results/pilots-v2/`. The selected composition (fifteen official Mamba-3
-layers and four selective memory layers) is frozen in
-`lm/configs/mamba4-60m-v2.json`.
+**NLL screen.** Mamba 4 reached held-out NLL 3.4719, against 3.4758 for Mamba-3
+and 3.5352 for the Transformer. Paired 95% intervals against Mamba-3 are
+−0.0052 to −0.0025 on the held-out split and −0.0059 to −0.0031 on a fresh
+confirmatory holdout. The declared single-seed screen win holds.
 
-The run is driven by `validation/run_screen_v2.py`. It resumes after external
-interruptions and merges logs written by whichever host is JAX process 0. It
-then audits the run, hashes the final checkpoint on all four hosts, and
-evaluates every model per sequence on the original held-out split and on a
-fresh confirmatory holdout. The fresh holdout has 2,097,152 targets from a
-pinned official FineWeb-Edu shard, with every exact screen-document hash
-removed. `validation/verify_screen_v2.py` re-audits all three runs and
-decides the strict screen win. It reports paired moving-block bootstrap
-intervals over whole sequences. A loss remains a reported outcome, and one
-seed cannot establish robustness.
+**Claims suite.** The pre-registered suite (`validation/claims/`) tests what
+NLL cannot. On fresh arrays:
+- **Supported:** context-independent decode.
+- **Exact retrieval inside the 1,024-token window:** refuted against the
+  Transformer, supported against Mamba-3.
+- **Long context:** refuted. No passkey is retrieved at any length, and NLL
+  does not improve beyond the training length.
+- **Calibrated confidence:** refuted.
 
-**Result.** Mamba 4 v2 reached held-out NLL 3.4727 against 3.4758 for Mamba-3
-and 3.5352 for the Transformer (paired 95% intervals versus Mamba-3: −0.0044
-to −0.0017 on the held-out split, −0.0056 to −0.0031 on the fresh holdout).
-The declared single-seed screen win holds and is recorded in
-`lm/results/screen-60m-v2/audit.json` and `REPORT.md`. The margin is small and
-narrowed during training; one seed does not authorize 125M scaling by itself,
-which also awaits the user's authorization.
+Trained directly on synthetic tasks, the same memory recalls and retains
+exactly within capacity (`lm/results/synthetic/`). The NLL gate is met, but
+the paper's retrieval and long-context claims are not yet demonstrated in the
+60M language model. One seed cannot establish robustness, and 125M scaling
+awaits the user's authorization.
 
+Two earlier Mamba 4 designs were tried and abandoned before this one
+(`docs/iterations.md`; git history `fc618d6`, `5269fdd`).

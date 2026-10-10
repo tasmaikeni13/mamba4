@@ -48,30 +48,27 @@ prose or an entire architecture. All named original results are included.
 qualified Lean name is `Mamba4.exact_bit_budget`. All remaining listed names
 also live in `Mamba4`, except scan names in `Mamba4.AffineSummary`.
 
-## Phase-03 implementation contracts
+## Implementation contracts
 
 | Concrete implementation | Scope and cost | Evidence |
 |---|---|---|
-| Learned cyclic Gaussian LM head | Constant learned per-head gates and positive learned epsilon, differentiating initialized prior and scheduled injection. Learned neural confidence is not out-of-model calibration. | `lm/models/mamba4.py`, dense forward/gate/epsilon gradient conformance tests. |
-| Fixed-floor variable gates | Explicit full-rank prior injection and dense refactor fallback; distinct from cyclic semantics. | `gaussian_memory(..., floor="fixed")`, variable-gate and floor tests. |
-| Fused prefill | Two-level chronological evidence scan plus factorization at each token; O(N d cubed) factor work. Does not realize the ideal compatible rank-update training work bound in original claim 6.2. | `lm/kernels/mamba4.py`, multiple-chunk dense-reference tests. |
-| Cached Gaussian decode | Two quadratic cyclic rank updates; fixed-floor mode refactors. Full model also counts protected routing/maintenance and order state. | Cyclic reference, factor and full cached/prefill agreement tests. |
-| Protected neural branch | Redundant QR banks retain up to configured a<=d independent anchors per eligible bank. All-bank geometry mixture is learned and has no exact-routing guarantee; explicit retained-ID routing has the conditional left-inverse contract. | CPU cascade retained-ID/reselection comparison, isolation and missing-ID tests. |
-| Global background composition | All writes enter one discounted Gaussian state. Optional per-bank additive background merging is not implemented by this LM composition. | [Implementation contract](mamba4-implementation.md), separate Gaussian/QR state definitions. |
+| Arbitrary-gate fixed floor | For any nonnegative gates and precisions, `A_t = S_t + diag(floor)` satisfies `x^T A_t x >= min(floor) |x|^2`; latent variance lies in `[0, |q|^2/min(floor)]`. No constant-gate assumption is needed. | `selective_evidence_psd`, `diagonal_floor_bound`, `selective_precision_posDef`, `selective_floor_arbitrary_gates`, `selective_variance_bound`. |
+| Retention under the floor | One write of discounted weight `w` is read back as `w / (w + f)` of its value under an isotropic floor `f`; at most half survives once `w <= f`. | `single_write_solve`, `single_write_read`, `single_write_half`. |
+| Exact selective read | An exact solve minimizes the discounted weighted ridge loss with per-coordinate penalty `floor_j`; it is a posterior mean only under the static model without discount. | `diag_ridge_minimizes`, `selective_solve_minimizes`; dense-reference forward and all-input gradient tests. |
+| Chunked computation | The chunk-boundary affine scan equals the sequential recurrence; chunk sizes 1–16, with padding, agree with sequential dense solves. | `selective_step_is_affine`, `selective_scan_equals_sequential`; `lm/tests/test_mamba4.py`. |
+| Factor and reverse pass | The loop, blocked and unrolled schedules factor the same SPD system; the reverse pass `dq = A^-1 g`, `dA = -sym(A^-1 g y^T)` reuses the factor. `O(d^3)` per token-head; no explicit inverse. | Backend parity, custom-derivative and gradient tests; kernel timings in `lm/results/kernels/`. |
+| Key alignment | Each value is written under the key of the preceding position, and queries use the current one; no parameters are added. | Causality, gradient and decode-versus-prefill tests with the shift. |
+| Cached decode | Exact `O(d^3 + p d)` refactor per token; Mamba-3 layers use the pinned official step recurrence; the cache size does not depend on context length. | Decode-versus-prefill tests; decode timings to 65,536 tokens. |
+| Hybrid composition | Four memory layers with fifteen unmodified official Mamba-3 layers, matched within 1% in parameters. Results belong to this composition, not to the memory layer alone. | Parameter ledger, pilots, peer source-identity checks. |
+| Protected banks | Not part of the language model; no trained protected-bank claim. The operator contracts above them are unchanged. | Phase-02 operator studies. |
 
-These implementation entries do not certify trained-model quality, device speed
-or a completed phase-03/04 gate. Measured hardware and training evidence must
-be recorded separately.
+## Trained evaluation (60M, 1B tokens, one seed)
 
-## Screen-60m-v2 contracts
-
-| Claim | Scope and cost | Evidence |
+| Claim | Result | Evidence |
 |---|---|---|
-| Arbitrary-gate fixed floor | For any nonnegative gates and precisions, `A_t = S_t + diag(floor)` satisfies `x^T A_t x >= min(floor) |x|^2`; latent variance lies in `[0, |q|^2/min(floor)]`. Constant gates are not required. | `selective_evidence_psd`, `diagonal_floor_bound`, `selective_precision_posDef`, `selective_floor_arbitrary_gates`, `selective_variance_bound`. |
-| Exact selective read | An exact solve of the discounted design system minimizes the weighted ridge loss with per-coordinate penalty `floor_j`; it is a posterior mean only under the static model (no discount). | `diag_ridge_minimizes`, `selective_solve_minimizes`; dense-reference forward and all-input gradient tests. |
-| Chunked computation | The chunk-boundary affine scan equals the sequential recurrence; chunk sizes 1–16 (with padding) agree with sequential dense solves within float32 tolerance. | `selective_step_is_affine`, `selective_scan_equals_sequential`; `lm/tests/test_mamba4_selective.py`. |
-| Lane-major factor and reverse pass | Same SPD system for loop, blocked and unrolled schedules; reverse pass `dq = A^-1 g`, `dA = -sym(A^-1 g y^T)` reuses the factor; no explicit inverse. `O(d^3)` per token-head. | Backend parity, custom-derivative and blocked-gradient tests; TPU block timings. |
-| Cached decode | Exact `O(d^3 + p d)` refactor per token; hybrid Mamba-3 layers use the pinned step recurrence and official parameter tree. | Decode-versus-prefill tests for pure, hybrid, rotary and wide-head models. |
-| Hybrid composition | Four selective memory layers with fifteen unmodified official Mamba-3 layers, parameter-matched within 1%. The measured result belongs to this composition; it does not isolate the conjugate layer from the hybrid effect. | Parameter ledger, pilot table (iteration H), peer-source identity check. |
-| Protected banks in v2 | Not used by the v2 language model; no trained protected-bank claim. Operator contracts above are unchanged. | `docs/mamba4-implementation.md`, v1 conformance evidence. |
-| Screen outcome | Strict win established for this single seed: held-out NLL 3.4727 vs 3.4758 (Mamba-3) and 3.5352 (Transformer); paired interval vs Mamba-3 -0.0044 to -0.0017. | `lm/results/screen-60m-v2/audit.json`, `REPORT.md`. |
+| Language modelling | Held-out NLL 3.4719, against 3.4758 (Mamba-3) and 3.5352 (Transformer). Paired 95% interval against Mamba-3 is −0.0052 to −0.0025; the fresh holdout gives −0.0059 to −0.0031. The strict screen win holds for this seed. | `lm/results/screen-60m/` |
+| Exact retrieval inside the window | Refuted against the Transformer: copying 16 random words, 11.8% against 42.3%. Supported against Mamba-3 (5.7%). Frozen 8-way recall diagnostic: 69/128, against 18 and 30. | `lm/results/claims-60m/`, `docs/trained-recall.md` |
+| Long context | Refuted: no passkey retrieved at any length (the Transformer reaches 68.8% at 512 tokens and 0% beyond 1,024). Long-document NLL is the lowest of the three at every position beyond 128, but it does not improve beyond the 1,024-token training length. | `lm/results/claims-60m/` |
+| Calibrated confidence | Refuted under the frozen rule (answer-slot ECE is worse on passkey prompts). The memory variance is not a consistent predictor of errors. | `lm/results/claims-60m/` |
+| Context-independent decode | Supported: 5.3 ms per token from 1K to 64K context (7.3 MiB cache per sequence), against 4.6 ms rising to 904 ms (22.9 MiB rising to 1.4 GiB) for the Transformer. | `lm/results/claims-60m/` |
+| Mechanism under direct training | See the synthetic and regression studies. | `lm/results/synthetic/`, `lm/results/regression/` |

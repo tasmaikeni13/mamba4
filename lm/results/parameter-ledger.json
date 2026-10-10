@@ -1,3169 +1,3369 @@
 {
   "mamba3": {
-    "total": 59968896,
     "embedding": 25731584,
     "non_embedding": 34237312,
     "parameters": [
       {
+        "count": 512,
         "name": "final_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_0/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_0/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_0/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_0/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_0/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_0/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_0/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_0/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_0/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_1/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_1/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_1/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_1/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_1/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_1/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_1/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_1/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_1/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_10/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_10/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_10/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_10/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_10/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_10/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_10/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_10/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_10/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_11/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_11/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_11/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_11/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_11/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_11/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_11/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_11/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_11/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_12/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_12/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_12/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_12/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_12/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_12/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_12/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_12/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_12/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_13/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_13/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_13/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_13/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_13/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_13/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_13/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_13/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_13/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_14/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_14/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_14/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_14/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_14/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_14/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_14/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_14/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_14/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_15/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_15/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_15/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_15/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_15/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_15/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_15/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_15/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_15/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_16/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_16/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_16/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_16/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_16/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_16/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_16/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_16/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_16/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_17/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_17/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_17/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_17/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_17/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_17/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_17/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_17/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_17/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_18/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_18/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_18/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_18/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_18/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_18/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_18/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_18/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_18/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_19/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_19/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_19/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_19/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_19/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_19/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_19/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_19/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_19/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_2/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_2/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_2/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_2/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_2/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_2/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_2/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_2/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_2/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_3/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_3/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_3/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_3/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_3/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_3/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_3/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_3/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_3/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_4/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_4/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_4/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_4/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_4/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_4/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_4/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_4/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_4/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_5/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_5/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_5/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_5/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_5/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_5/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_5/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_5/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_5/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_6/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_6/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_6/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_6/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_6/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_6/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_6/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_6/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_6/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_7/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_7/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_7/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_7/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_7/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_7/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_7/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_7/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_7/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_8/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_8/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_8/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_8/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_8/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_8/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_8/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_8/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_8/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_9/mixer/B_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_9/mixer/B_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 1536,
         "name": "layer_9/mixer/C_bias",
         "shape": [
           16,
           1,
           96
-        ],
-        "count": 1536
+        ]
       },
       {
+        "count": 96,
         "name": "layer_9/mixer/C_norm/scale",
         "shape": [
           96
-        ],
-        "count": 96
+        ]
       },
       {
+        "count": 16,
         "name": "layer_9/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 16,
         "name": "layer_9/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
+        "count": 1183744,
         "name": "layer_9/mixer/in_proj/kernel",
         "shape": [
           512,
           2312
-        ],
-        "count": 1183744
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_9/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
+        "count": 512,
         "name": "layer_9/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 25731584,
         "name": "tokens/embedding/embedding",
         "shape": [
           50257,
           512
-        ],
-        "count": 25731584
+        ]
       }
-    ]
+    ],
+    "total": 59968896
   },
   "mamba4": {
-    "total": 59989408,
     "embedding": 25731584,
-    "non_embedding": 34257824,
+    "non_embedding": 34161632,
     "parameters": [
       {
+        "count": 512,
         "name": "final_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_0/memory/confidence_scale",
+        "count": 1536,
+        "name": "layer_0/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_0/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_0/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_0/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_0/mixer/D",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
-        "name": "layer_0/memory/decay",
+        "count": 16,
+        "name": "layer_0/mixer/dt_bias",
         "shape": [
           16
-        ],
-        "count": 16
+        ]
       },
       {
-        "name": "layer_0/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_0/memory/key/kernel",
+        "count": 1183744,
+        "name": "layer_0/mixer/in_proj/kernel",
         "shape": [
           512,
-          256
-        ],
-        "count": 131072
+          2312
+        ]
       },
       {
-        "name": "layer_0/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_0/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_0/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_0/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_0/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_0/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_0/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_0/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_0/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_0/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_0/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_0/memory_norm/scale",
+        "count": 512,
+        "name": "layer_0/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_0/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_1/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_1/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_1/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_1/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_1/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_1/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_0/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_0/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_1/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_1/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_1/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_1/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_1/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_1/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_1/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_1/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_1/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_1/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_1/memory_norm/scale",
+        "count": 512,
+        "name": "layer_1/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_1/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_10/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_10/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_10/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_10/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_10/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_10/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_10/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_1/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_1/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_2/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_2/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_2/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_2/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_2/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_2/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_2/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_10/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_2/memory/output_gate/kernel",
+        "count": 512,
+        "name": "layer_10/norm/scale",
         "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
+          512
+        ]
       },
       {
-        "name": "layer_2/memory/precision/kernel",
+        "count": 8,
+        "name": "layer_11/memory/D",
         "shape": [
-          512,
-          16
-        ],
-        "count": 8192
+          8
+        ]
       },
       {
-        "name": "layer_2/memory/protected_mix",
+        "count": 8,
+        "name": "layer_11/memory/a_log",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
-        "name": "layer_2/memory/protected_route_strength",
+        "count": 8,
+        "name": "layer_11/memory/beta_bias",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
-        "name": "layer_2/memory/query/kernel",
+        "count": 8,
+        "name": "layer_11/memory/confidence_scale",
         "shape": [
-          512,
-          256
-        ],
-        "count": 131072
+          8
+        ]
       },
       {
-        "name": "layer_2/memory/read_norm/scale",
+        "count": 2048,
+        "name": "layer_11/memory/conv_bias",
         "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_11/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_11/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_11/memory/floor",
+        "shape": [
+          8,
           64
-        ],
-        "count": 64
+        ]
       },
       {
-        "name": "layer_2/memory/value/kernel",
+        "count": 1585152,
+        "name": "layer_11/memory/in_proj/kernel",
         "shape": [
           512,
-          1024
-        ],
-        "count": 524288
+          3096
+        ]
       },
       {
-        "name": "layer_2/memory_norm/scale",
+        "count": 8,
+        "name": "layer_11/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_11/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_11/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_11/memory_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_2/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_12/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_12/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_12/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_12/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_12/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_12/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_12/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_2/mlp/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_12/mixer/out_proj/kernel",
         "shape": [
-          1272,
+          1024,
           512
-        ],
-        "count": 651264
+        ]
       },
       {
-        "name": "layer_2/mlp_norm/scale",
+        "count": 512,
+        "name": "layer_12/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1536,
+        "name": "layer_13/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_13/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_13/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_13/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_13/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_13/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_13/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_13/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_13/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_14/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_14/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_14/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_14/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_14/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_14/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_14/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_14/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_14/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/confidence_scale",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 2048,
+        "name": "layer_15/memory/conv_bias",
+        "shape": [
+          2048
+        ]
+      },
+      {
+        "count": 8192,
+        "name": "layer_15/memory/conv_weight",
+        "shape": [
+          4,
+          2048
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_15/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_15/memory/in_proj/kernel",
+        "shape": [
+          512,
+          3096
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_15/memory/order_mix",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_15/memory/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 128,
+        "name": "layer_15/memory/read_norm/scale",
+        "shape": [
+          128
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_15/memory_norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_16/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_16/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_16/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_16/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_16/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_16/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_16/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_16/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_16/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_17/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_17/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_17/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_17/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_17/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_17/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_17/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_17/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_17/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_18/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_18/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_18/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_18/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_18/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_18/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_18/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_18/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_18/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_2/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_2/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_2/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_2/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_2/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_2/mixer/in_proj/kernel",
+        "shape": [
+          512,
+          2312
+        ]
+      },
+      {
+        "count": 524288,
+        "name": "layer_2/mixer/out_proj/kernel",
+        "shape": [
+          1024,
+          512
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_2/norm/scale",
+        "shape": [
+          512
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/D",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/a_log",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
+        "name": "layer_3/memory/beta_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 8,
         "name": "layer_3/memory/confidence_scale",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
-        "name": "layer_3/memory/decay",
+        "count": 2048,
+        "name": "layer_3/memory/conv_bias",
         "shape": [
-          16
-        ],
-        "count": 16
+          2048
+        ]
       },
       {
-        "name": "layer_3/memory/epsilon",
+        "count": 8192,
+        "name": "layer_3/memory/conv_weight",
         "shape": [
-          16
-        ],
-        "count": 16
+          4,
+          2048
+        ]
       },
       {
-        "name": "layer_3/memory/key/kernel",
+        "count": 8,
+        "name": "layer_3/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_3/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_3/memory/in_proj/kernel",
         "shape": [
           512,
-          256
-        ],
-        "count": 131072
+          3096
+        ]
       },
       {
-        "name": "layer_3/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
+        "count": 8,
         "name": "layer_3/memory/order_mix",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_3/memory/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_3/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_3/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_3/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_3/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_3/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
+        "count": 128,
         "name": "layer_3/memory/read_norm/scale",
         "shape": [
-          64
-        ],
-        "count": 64
+          128
+        ]
       },
       {
-        "name": "layer_3/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
+        "count": 512,
         "name": "layer_3/memory_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_3/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_4/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_4/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_4/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_4/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_4/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_4/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_3/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_3/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_4/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_4/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_4/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_4/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_4/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_4/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_4/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_4/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_4/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_4/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_4/memory_norm/scale",
+        "count": 512,
+        "name": "layer_4/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_4/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_5/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_5/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_5/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_5/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_5/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_5/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_4/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_4/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_5/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_5/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_5/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_5/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_5/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_5/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_5/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_5/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_5/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_5/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_5/memory_norm/scale",
+        "count": 512,
+        "name": "layer_5/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_5/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_6/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_6/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_6/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_6/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_6/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_6/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_5/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_5/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_6/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_6/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_6/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_6/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_6/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_6/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_6/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_6/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_6/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_6/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_6/memory_norm/scale",
+        "count": 512,
+        "name": "layer_6/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_6/mlp/in_proj/kernel",
+        "count": 8,
+        "name": "layer_7/memory/D",
         "shape": [
-          512,
-          2544
-        ],
-        "count": 1302528
+          8
+        ]
       },
       {
-        "name": "layer_6/mlp/out_proj/kernel",
+        "count": 8,
+        "name": "layer_7/memory/a_log",
         "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
+          8
+        ]
       },
       {
-        "name": "layer_6/mlp_norm/scale",
+        "count": 8,
+        "name": "layer_7/memory/beta_bias",
         "shape": [
-          512
-        ],
-        "count": 512
+          8
+        ]
       },
       {
+        "count": 8,
         "name": "layer_7/memory/confidence_scale",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
-        "name": "layer_7/memory/decay",
+        "count": 2048,
+        "name": "layer_7/memory/conv_bias",
         "shape": [
-          16
-        ],
-        "count": 16
+          2048
+        ]
       },
       {
-        "name": "layer_7/memory/epsilon",
+        "count": 8192,
+        "name": "layer_7/memory/conv_weight",
         "shape": [
-          16
-        ],
-        "count": 16
+          4,
+          2048
+        ]
       },
       {
-        "name": "layer_7/memory/key/kernel",
+        "count": 8,
+        "name": "layer_7/memory/dt_bias",
+        "shape": [
+          8
+        ]
+      },
+      {
+        "count": 512,
+        "name": "layer_7/memory/floor",
+        "shape": [
+          8,
+          64
+        ]
+      },
+      {
+        "count": 1585152,
+        "name": "layer_7/memory/in_proj/kernel",
         "shape": [
           512,
-          256
-        ],
-        "count": 131072
+          3096
+        ]
       },
       {
-        "name": "layer_7/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
+        "count": 8,
         "name": "layer_7/memory/order_mix",
         "shape": [
-          16
-        ],
-        "count": 16
+          8
+        ]
       },
       {
+        "count": 524288,
         "name": "layer_7/memory/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_7/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_7/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_7/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_7/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_7/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
+        "count": 128,
         "name": "layer_7/memory/read_norm/scale",
         "shape": [
-          64
-        ],
-        "count": 64
+          128
+        ]
       },
       {
-        "name": "layer_7/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
+        "count": 512,
         "name": "layer_7/memory_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_7/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_8/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_8/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_8/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_8/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_8/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_8/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_7/mlp/out_proj/kernel",
-        "shape": [
-          1272,
-          512
-        ],
-        "count": 651264
-      },
-      {
-        "name": "layer_7/mlp_norm/scale",
-        "shape": [
-          512
-        ],
-        "count": 512
-      },
-      {
-        "name": "layer_8/memory/confidence_scale",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/decay",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/epsilon",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/key/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_8/memory/order_decay/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_8/memory/order_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_8/mixer/out_proj/kernel",
         "shape": [
           1024,
           512
-        ],
-        "count": 524288
+        ]
       },
       {
-        "name": "layer_8/memory/output_gate/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_8/memory/precision/kernel",
-        "shape": [
-          512,
-          16
-        ],
-        "count": 8192
-      },
-      {
-        "name": "layer_8/memory/protected_mix",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/protected_route_strength",
-        "shape": [
-          16
-        ],
-        "count": 16
-      },
-      {
-        "name": "layer_8/memory/query/kernel",
-        "shape": [
-          512,
-          256
-        ],
-        "count": 131072
-      },
-      {
-        "name": "layer_8/memory/read_norm/scale",
-        "shape": [
-          64
-        ],
-        "count": 64
-      },
-      {
-        "name": "layer_8/memory/value/kernel",
-        "shape": [
-          512,
-          1024
-        ],
-        "count": 524288
-      },
-      {
-        "name": "layer_8/memory_norm/scale",
+        "count": 512,
+        "name": "layer_8/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
-        "name": "layer_8/mlp/in_proj/kernel",
+        "count": 1536,
+        "name": "layer_9/mixer/B_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_9/mixer/B_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 1536,
+        "name": "layer_9/mixer/C_bias",
+        "shape": [
+          16,
+          1,
+          96
+        ]
+      },
+      {
+        "count": 96,
+        "name": "layer_9/mixer/C_norm/scale",
+        "shape": [
+          96
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_9/mixer/D",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 16,
+        "name": "layer_9/mixer/dt_bias",
+        "shape": [
+          16
+        ]
+      },
+      {
+        "count": 1183744,
+        "name": "layer_9/mixer/in_proj/kernel",
         "shape": [
           512,
-          2544
-        ],
-        "count": 1302528
+          2312
+        ]
       },
       {
-        "name": "layer_8/mlp/out_proj/kernel",
+        "count": 524288,
+        "name": "layer_9/mixer/out_proj/kernel",
         "shape": [
-          1272,
+          1024,
           512
-        ],
-        "count": 651264
+        ]
       },
       {
-        "name": "layer_8/mlp_norm/scale",
+        "count": 512,
+        "name": "layer_9/norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 25731584,
         "name": "token_embedding/embedding/embedding",
         "shape": [
           50257,
           512
-        ],
-        "count": 25731584
+        ]
       }
-    ]
+    ],
+    "total": 59893216
   },
   "transformer": {
-    "total": 59985920,
     "embedding": 25731584,
     "non_embedding": 34254336,
     "parameters": [
       {
+        "count": 512,
         "name": "final_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 512,
         "name": "layer_0/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_0/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_0/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_0/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_0/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_0/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_1/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_1/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_1/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_1/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_1/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_1/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_10/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_10/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_10/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_10/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_10/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_10/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_2/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_2/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_2/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_2/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_2/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_2/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_3/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_3/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_3/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_3/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_3/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_3/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_4/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_4/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_4/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_4/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_4/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_4/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_5/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_5/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_5/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_5/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_5/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_5/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_6/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_6/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_6/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_6/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_6/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_6/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_7/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_7/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_7/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_7/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_7/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_7/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_8/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_8/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_8/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_8/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_8/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_8/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 512,
         "name": "layer_9/attention_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 1376256,
         "name": "layer_9/ffn/in_proj/kernel",
         "shape": [
           512,
           2688
-        ],
-        "count": 1376256
+        ]
       },
       {
+        "count": 688128,
         "name": "layer_9/ffn/out_proj/kernel",
         "shape": [
           1344,
           512
-        ],
-        "count": 688128
+        ]
       },
       {
+        "count": 512,
         "name": "layer_9/ffn_norm/scale",
         "shape": [
           512
-        ],
-        "count": 512
+        ]
       },
       {
+        "count": 262144,
         "name": "layer_9/out_proj/kernel",
         "shape": [
           512,
           512
-        ],
-        "count": 262144
+        ]
       },
       {
+        "count": 786432,
         "name": "layer_9/qkv_proj/kernel",
         "shape": [
           512,
           1536
-        ],
-        "count": 786432
+        ]
       },
       {
+        "count": 25731584,
         "name": "tokens/embedding/embedding",
         "shape": [
           50257,
           512
-        ],
-        "count": 25731584
+        ]
       }
-    ]
+    ],
+    "total": 59985920
   }
 }

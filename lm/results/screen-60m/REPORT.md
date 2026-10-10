@@ -1,10 +1,12 @@
-# 60M, 1B-token, single-seed screen (protocol screen-60m-v3)
+# 60M, 1B-token, single-seed screen
 
 | Model | Parameters | Held-out NLL | Fresh-holdout NLL | Train tokens/s | Recall accuracy |
 |---|---:|---:|---:|---:|---:|
-| transformer | 59,985,920 | 3.535236 | 3.496043 | 1,379,725 | 0.141 |
-| mamba3 | 59,968,896 | 3.475755 | 3.437771 | 152,335 | 0.234 |
-| mamba4 | 59,893,216 | 3.471891 | 3.433268 | 93,393 | 0.539 |
+| Transformer | 59,985,920 | 3.535236 | 3.496043 | 1,379,725 | 0.141 |
+| Mamba-3 | 59,968,896 | 3.475755 | 3.437771 | 152,335 | 0.234 |
+| Mamba 4 | 59,893,216 | 3.471891 | 3.433268 | 93,393 | 0.539 |
+
+Ablation, the same model without key alignment: held-out NLL 3.472684 (`lm/results/ablation-no-key-shift/`).
 
 Declared Mamba 4 screen win: **True**.
 
@@ -15,7 +17,7 @@ Declared Mamba 4 screen win: **True**.
 
 Scheduled held-out NLL at matched optimizer steps:
 
-| Step | Transformer | Mamba-3 | Mamba 4 v3 |
+| Step | Transformer | Mamba-3 | Mamba 4 |
 |---:|---:|---:|---:|
 | 500 | 4.9144 | 4.7641 | 4.7552 |
 | 1,000 | 4.3596 | 4.2364 | 4.1927 |
@@ -37,7 +39,7 @@ Learned memory at every probe: minimum precision eigenvalue 0.7208 against floor
 
 ![Learning curves](learning-curves.png)
 
-Peers are the audited screen-60m-v1 runs; their execution sources are
-byte-identical to v3 apart from Mamba 4 files and additive config fields.
+The peers' execution sources are byte-identical to the Mamba 4 run's apart
+from Mamba 4 files and additive config fields.
 Intervals treat whole 1,024-token sequences in blocks of eight as units.
 One training seed cannot establish robustness. No 125M run was performed.

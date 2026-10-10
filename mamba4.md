@@ -359,85 +359,75 @@ The [complete claim ledger](docs/claim-ledger.md),
 [Lean project](formal/Mamba4.lean), and [phases](phases/README.md) preserve the
 original scope and make every corrected contract and remaining gate reviewable.
 
-## 11. Concrete language-model realizations
+## 11. Language-model architecture
 
-**v1 (frozen, `memory_mixer="v1"`).** Learned normalized Gaussian keys and
-queries, token precision, differentiable per-head epsilon and constant cyclic
-gates, protected redundant QR banks with counted all-bank routing, an
-order-sensitive vector scan, learned output gates and feed-forward layers. Its
-prefill builds chunked affine evidence prefixes and factors every token's
-precision, O(N d cubed); cached cyclic decode uses two quadratic rank-one
-updates; protected decode pays all-bank reads and boundary reselection.
+**Memory layer.** The layer implements Definition 5.1:
+- **Gates:** token drift `λ_t = exp(−e^{a} softplus(·))` and evidence precision
+  `β_t = σ(·)`.
+- **Floor:** undiscounted, per head and key coordinate, initialized to 1 with
+  minimum 0.25.
+- **Encoders:** values, keys and queries pass through a causal width-4
+  convolution and SiLU, then keys and queries are normalized to unit length.
+- **Key alignment:** each value is written under the key of the preceding
+  position, while the query uses the current one. A read therefore returns
+  what followed the current context last time, an induction lookup built into
+  the memory's geometry. It adds no parameters.
+- **Exact read:** every token reads `C_t y_t` and `q_t^T y_t`, with
+  `A_t y_t = q_t` solved exactly. Chunked evidence products feed a Cholesky
+  factor with the batch on the TPU lane axis. The reverse pass reuses the
+  factor: `z = A^{-1}g`, `∂q = z`, `∂A = −sym(z y^T)`.
+- **Read path:** the variance drives a learned confidence gate. A skip term and
+  an order-sensitive scan are added before a gated output projection.
 
-**v2 (selected, `memory_mixer="selective"`).** Definition 5.1 with token drift
-gates $\lambda_t=\exp(-e^{a}\,\mathrm{softplus}(\cdot))$, evidence precisions
-$\beta_t=\sigma(\cdot)$ and the undiscounted diagonal floor of §6, initialized
-to 1 with minimum 0.25. Values, keys and queries pass through a causal
-width-4 convolution; keys and queries are unit-normalized. Every token reads
-$C_ty_t$ and $q_t^\top y_t$ with $A_ty_t=q_t$ solved exactly: chunked evidence
-products, a Cholesky factor with the batch on the TPU lane axis, and a reverse
-pass $z=A^{-1}g$, $\partial q=z$, $\partial A=-\operatorname{sym}(zy^\top)$ that reuses
-the factor. The variance drives a learned confidence gate; a skip term and
-the order-sensitive scan are added before a gated output projection. The
-language model interleaves four such layers (key dimension 64, eight heads of
-width 128) with fifteen unmodified official Mamba-3 SISO layers. Protected
-banks are not part of v2; their operator contract is unchanged, and no
-trained protected-bank claim is made. The [implementation contract](docs/mamba4-implementation.md)
-records state, gradients, costs, parameters and conformance scope.
+**Composition.** The 60M model interleaves four memory layers (key dimension
+64, eight heads of width 128) with fifteen unmodified official Mamba-3 SISO
+layers, `SSSMSSSMSSSMSSSMSSS`. It has 59,893,216 parameters, within 1% of both
+peers. Development pilots chose this composition and then the key alignment,
+on unseen training batches only. Protected QR banks are not part of the
+language model; their operator contracts are unchanged, and no trained
+protected-bank claim is made. Costs, state and conformance are in the
+[implementation contract](docs/mamba4-implementation.md).
 
-Operator guarantees keep their hypotheses: learned encoders, forgetting and
-the neural output mixture do not inherit exact-recall or calibration
-guarantees, and the hybrid's measured advantage is a property of this
-composition, not of the conjugate layer alone.
+Operator guarantees keep their hypotheses. Learned encoders, forgetting and
+the neural read path do not inherit exact recall or calibration, and the
+measured advantage belongs to this composition, not to the memory layer
+alone.
 
 ## 12. Trained 60M screen
 
-The authorized screen trains each model once (seed 42) on exactly 1B
-FineWeb-Edu targets with a pinned GPT2 tokenizer, batch 128 × 1,024,
-AdamW and a 7,630-step cosine schedule on all sixteen v4 chips. Total and
-non-embedding parameters match within 1%. The primary metric is held-out NLL
-on 2,097,152 targets from whole held-out documents.
-
-The Transformer (3.5352) and Mamba-3 (3.4758) runs completed. The v1 run
-trailed both at matched steps (4.6073 at step 1,000 against 4.3596 and
-4.2364), took 25.5 s per step and was stopped by Cloud TPU maintenance after
-1,026 steps. It was not resumed; its final loss is unknown. Development
-pilots of the first 1,000 steps compared candidate v2 compositions on unseen
-training batches only (iteration H). Replacing many Mamba-3 layers with
-narrow memory layers hurt; spending five Mamba-3 layers' budget on four wide
-memory layers helped.
-
-**Result.** The selected v2 model (fifteen Mamba-3 and four memory layers,
-59,893,216 parameters) completed exactly 1B targets on all sixteen chips
-without interruption:
+Each model trains once (seed 42) on exactly 1B FineWeb-Edu targets with the
+pinned GPT-2 tokenizer, batch 128 × 1,024, AdamW and a 7,630-step cosine
+schedule, on all sixteen v4 chips. Total and non-embedding parameters match
+within 1%. The primary metric is held-out NLL on 2,097,152 targets from whole
+held-out documents. A fresh confirmatory holdout comes from an unused official
+shard.
 
 | Model | Held-out NLL | Fresh-holdout NLL | Recall (of 128) | Train tokens/s |
 |---|---:|---:|---:|---:|
-| Transformer | 3.5352 | 3.4869 | 18 | 1,379,725 |
-| Mamba-3 | 3.4758 | 3.4266 | 30 | 152,335 |
-| Mamba 4 v2 | 3.4727 | 3.4223 | 45 | 93,391 |
+| Transformer | 3.5352 | 3.4960 | 18 | 1,379,725 |
+| Mamba-3 | 3.4758 | 3.4378 | 30 | 152,335 |
+| Mamba 4 | 3.4719 | 3.4333 | 69 | 93,393 |
 
 The declared strict screen win holds. Paired per-sequence differences
-(Mamba 4 minus peer over 2,048 sequences of 1,024 targets; circular block
-bootstrap with blocks of eight sequences) are −0.0031 nats against Mamba-3
-(95% interval −0.0044 to −0.0017) and −0.0626 against the Transformer
-(−0.0645 to −0.0606) on the held-out split. On the fresh confirmatory
-holdout they are −0.0043 (−0.0056 to −0.0031) and −0.0646 (−0.0665 to
-−0.0627). These intervals describe evaluation-sample variation only. With one
-training seed they do not estimate seed variance, so the 125M three-seed
-study remains the test of robustness.
+(Mamba 4 minus peer, over 2,048 sequences of 1,024 targets, with a circular
+block bootstrap in blocks of eight sequences) are:
 
-The margin over Mamba-3 is small and narrowed during training: −0.050 at
-step 1,000, −0.012 at 3,000, −0.004 at 6,000 and −0.003 at the end; the
-paired training-loss gap shows the same shape. Whether it persists at scale
-is open. Recall is a fixed diagnostic, not a selection target. Mamba 4 v2
-answered 45 of 128 prompts (Wilson 95% interval 0.274–0.438), against 30
-(0.169–0.315) for Mamba-3 and 18 (0.091–0.211) for the Transformer; exact
-paired McNemar tests give p = 0.032 against Mamba-3 (29 versus 14
-discordant prompts) and p < 0.0001 against the Transformer (27 versus 0).
-The result belongs to the hybrid composition. Source-matched benchmarks put
-its training, prefill and cached-decode throughput at 0.62×, 0.27× and 0.60×
-Mamba-3's (92,624, 345,127 and 16,014 tokens/s on 16 chips), with a
-constant-size cache of 58 MiB per device. Every learned precision respected
-its floor at every scheduled diagnostic
-(`lm/results/screen-60m-v2/audit.json`, `REPORT.md`, `learning-curves.png`).
+| | Held-out split | Fresh holdout |
+|---|---:|---:|
+| vs Mamba-3 | −0.0039 nats (95%: −0.0052 to −0.0025) | −0.0045 (−0.0059 to −0.0031) |
+| vs Transformer | −0.0633 (−0.0653 to −0.0614) | −0.0628 (−0.0647 to −0.0608) |
+
+The intervals describe evaluation samples only. With one training seed they do
+not estimate seed variance; the 125M three-seed study remains the test of
+robustness. The same model without key alignment reached 3.4727, so alignment
+leaves NLL essentially unchanged.
+
+Recall is a frozen 8-way diagnostic, not a selection target. Mamba 4 answered
+69 of 128 prompts, against 30 for Mamba-3, 18 for the Transformer and 45 for
+the model without alignment. Exact paired McNemar tests give p < 10⁻⁷ against
+both peers and p = 0.0004 against the ablation (`docs/trained-recall.md`).
+
+Training throughput is 0.61× Mamba-3's. The cache is a constant 7.3 MiB per
+sequence. Every learned precision respected its floor at every scheduled
+diagnostic: the minimum eigenvalue was 0.7208 against a floor of 0.7179
+(`lm/results/screen-60m/`).

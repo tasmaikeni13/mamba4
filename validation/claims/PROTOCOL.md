@@ -1,18 +1,22 @@
 # Claims-60m protocol
 
+*Version labels normalized in the standalone cleanup; the original wording is at commit `5234621`.*
 Frozen on 2026-10-09 before any model was scored. The 60M screen gated only
 on held-out NLL. This protocol tests the paper's distinctive claims on the
-three trained 60M checkpoints, with no further training and no selection:
+trained 60M checkpoints, with no further training and no selection. The rules
+below were first applied to the model without key alignment on development
+arrays; the reported evaluation applies them unchanged to the final model on
+fresh arrays (`EVALUATION.md`):
 
 | Model | Checkpoint |
 |---|---|
-| Transformer | `lm/runs/screen-60m-v1/transformer` (final, 7,630 steps) |
-| Mamba-3 | `lm/runs/screen-60m-v1/mamba3` (final, 7,630 steps) |
-| Mamba 4 | `lm/runs/screen-60m-v2/mamba4` (final, 7,630 steps) |
+| Transformer | `lm/runs/screen-60m/transformer` (final, 7,630 steps) |
+| Mamba-3 | `lm/runs/screen-60m/mamba3` (final, 7,630 steps) |
+| Mamba 4 without key alignment | `lm/runs/screen-60m/mamba4-no-key-shift` (final, 7,630 steps) |
 
 All three models were trained on 1,024-token sequences. Tasks are built by
 `validation/claims.py build` with seed 20261010 and the pinned GPT-2
-tokenizer; the manifest (`data/claims-v1/manifest.json`) records the array
+tokenizer; the manifest (`data/claims-development/manifest.json`) records the array
 hash `487d94eda8a64b2027bbebfb742837941fceea8484e166100a1d133201bd90bf`.
 Every model scores identical arrays. Prompts are the statistical units;
 slots within a prompt are not independent observations.

@@ -19,14 +19,15 @@ in `analysis/results/formal-audit.json` and `formal-axioms.txt`. No extra axiom
 or admitted proof is used. `.lake/` is a disposable downloaded build/cache
 directory and is excluded from Git.
 
-The 16 modules cover general scan/fold algebra, deterministic bit and linear
+The 17 modules (74 theorems) cover general scan/fold algebra, deterministic bit and linear
 capacity, invariant-space embeddings, log-kernel conjugacy, PSD/ridge evidence,
 matrix read/interpolation identities, finite-sum ridge optimality, an end-to-end
 weighted ridge solver, variational confidence, finite-distribution risk,
 bounded scalar evidence/decay, cyclic prior bounds, hop envelopes, cascade
 count invariants, exact counterexample witnesses, and the selective
-fixed-floor memory of the v2 language model (arbitrary-gate floor, variance
-bound, anisotropic ridge optimality of the exact solve, scan equivalence).
+fixed-floor memory of the Mamba 4 language model (arbitrary-gate floor, variance
+bound, anisotropic ridge optimality of the exact solve, scan equivalence) and
+the retention of one write under that floor (`Retention.lean`).
 
 Formal scope is precise: a theorem's supplied normal/solve/moment hypotheses
 are not a proof of a stronger statistical premise. `Regression.lean` does

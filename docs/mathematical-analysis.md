@@ -411,7 +411,9 @@ minimizes \(\sum_i a_{i,t}(m^\top k_i-v_i)^2+\sum_jf_jm_j^2\) for every value
 coordinate. `Selective.lean` proves these statements, the end-to-end solve
 optimality and the equality of the chunked affine scan with the sequential
 recurrence. The cost is an exact per-token refactor, \(O(d^3+pd)\) at decode;
-the screen-60m-v2 language model uses this floor.
+the Mamba 4 language model uses this floor. `Retention.lean` adds its cost: a
+single write of discounted weight \(w\) is read back as \(w/(w+f)\) of its value
+under an isotropic floor \(f\).
 
 ## 11. Work, gradients and hardware
 

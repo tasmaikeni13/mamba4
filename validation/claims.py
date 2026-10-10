@@ -1169,6 +1169,10 @@ def report(options):
         if (raw / "decode.json").exists()
         else None
     )
+    if decoding:
+        decoding["models"] = {
+            LABELS.get(name, name): entry for name, entry in decoding["models"].items()
+        }
     summary = {
         "protocol": "claims-60m",
         "protocol_sha256": sha256_file(ROOT / "validation/claims/PROTOCOL.md"),
