@@ -538,3 +538,608 @@ def mamba3_flash(
         heads_per_step=heads_per_step,
     )
     return output[..., None, :], final
+
+
+# ---------------------------------------------------------------------------
+# Layout-native fused path: rotation, phase and scan in one kernel pair.
+# ---------------------------------------------------------------------------
+
+
+def _partner(x):
+    """(-x[2i+1] at 2i, x[2i] at 2i+1) from two lane rotations (exact)."""
+    width = x.shape[-1]
+    lanes = lax.broadcasted_iota(jnp.int32, x.shape, x.ndim - 1)
+    later = pltpu.roll(x, width - 1, x.ndim - 1)
+    earlier = pltpu.roll(x, 1, x.ndim - 1)
+    return jnp.where(lanes % 2 == 0, -later, earlier)
+
+
+def _rotated(c_ref, b_ref, qb, kb, theta):
+    """Bias-added, model-dtype-rounded queries and keys rotated by theta.
+
+    Returns the model-dtype operands and their float32 values before
+    rounding (the derivative of the rotation needs the latter).
+    """
+    cosine, sine = jnp.cos(theta), jnp.sin(theta)
+    q = (c_ref[...].astype(F32) + qb).astype(c_ref.dtype).astype(F32)
+    k = (b_ref[...].astype(F32) + kb).astype(b_ref.dtype).astype(F32)
+    q_rot = q * cosine + _partner(q) * sine
+    k_rot = k * cosine + _partner(k) * sine
+    return q_rot, k_rot, cosine, sine
+
+
+def _fused_forward_kernel(
+    c_ref,
+    b_ref,
+    x_ref,
+    angle_ref,
+    qb_ref,
+    kb_ref,
+    p_ref,
+    gamma_ref,
+    scale_ref,
+    tail_ref,
+    end_ref,
+    dt_ref,
+    y_ref,
+    starts_ref,
+    phase0_ref,
+    final_ref,
+    state_ref,
+    phase_ref,
+):
+    index, block = pl.program_id(1), pl.program_id(2)
+    last_index = pl.num_programs(1) - 1
+    heads, chunk = qb_ref.shape[0], c_ref.shape[0]
+    width = x_ref.shape[-1] // heads
+
+    @pl.when(index == 0)
+    def _():
+        state_ref[block] = jnp.zeros(state_ref.shape[1:], F32)
+        phase_ref[block] = jnp.zeros(phase_ref.shape[1:], F32)
+
+    lower, diagonal = _masks(chunk)
+    inclusive = jnp.where(lower | diagonal, 1.0, 0.0)
+    angles = angle_ref[...]
+    for head in range(heads):
+        dt_col = _column(dt_ref[head], diagonal)
+        start_phase = phase_ref[block, head]
+        theta = start_phase + jnp.dot(
+            inclusive, angles * dt_col, precision=HIGHEST, preferred_element_type=F32
+        )
+        phase0_ref[head] = start_phase
+        phase_ref[block, head] = theta[chunk - 1 :]
+        q_rot, k_rot, _, _ = _rotated(c_ref, b_ref, qb_ref[head], kb_ref[head], theta)
+        q, k = q_rot.astype(c_ref.dtype), k_rot.astype(b_ref.dtype)
+        lanes = slice(head * width, (head + 1) * width)
+        v = x_ref[:, lanes]
+        p_col, _, weights, source_col = _chunk_terms(
+            p_ref[head],
+            gamma_ref[head],
+            scale_ref[head],
+            tail_ref[head],
+            lower,
+            diagonal,
+        )
+        scores = lax.dot_general(q, k, TRANS_B, preferred_element_type=F32)
+        within = jnp.dot(
+            (scores * weights).astype(v.dtype), v, preferred_element_type=F32
+        )
+        state = state_ref[block, head]
+        starts_ref[head] = state
+        inherited = jnp.dot(q, state.astype(q.dtype), preferred_element_type=F32)
+        y_ref[:, lanes] = (within + jnp.exp(p_col) * inherited).astype(y_ref.dtype)
+        weighted = (v.astype(F32) * source_col).astype(v.dtype)
+        update = jnp.dot(_transpose(k), weighted, preferred_element_type=F32)
+        state = end_ref[head] * state + update
+        state_ref[block, head] = state
+
+        @pl.when(index == last_index)
+        def _():
+            final_ref[head] = state
+
+
+def _fused_backward_kernel(
+    c_ref,
+    b_ref,
+    x_ref,
+    angle_ref,
+    qb_ref,
+    kb_ref,
+    p_ref,
+    gamma_ref,
+    scale_ref,
+    tail_ref,
+    end_ref,
+    dt_ref,
+    start_ref,
+    phase0_ref,
+    dy_ref,
+    d_final_ref,
+    dc_ref,
+    db_ref,
+    dx_ref,
+    d_angle_ref,
+    dqb_ref,
+    dkb_ref,
+    dp_ref,
+    d_gamma_ref,
+    d_scale_ref,
+    flow_ref,
+    d_end_ref,
+    d_dt_ref,
+    carry_ref,
+    later_ref,
+):
+    index, block = pl.program_id(1), pl.program_id(2)
+    heads, chunk = qb_ref.shape[0], c_ref.shape[0]
+    width = x_ref.shape[-1] // heads
+
+    @pl.when(index == 0)
+    def _():
+        carry_ref[block] = d_final_ref[...]
+        later_ref[block] = jnp.zeros(later_ref.shape[1:], F32)
+
+    # Query, key and angle gradients sum over every head of the chunk.
+    @pl.when(block == 0)
+    def _():
+        dc_ref[...] = jnp.zeros(dc_ref.shape, F32)
+        db_ref[...] = jnp.zeros(db_ref.shape, F32)
+        d_angle_ref[...] = jnp.zeros(d_angle_ref.shape, F32)
+
+    lower, diagonal = _masks(chunk)
+    inclusive = jnp.where(lower | diagonal, 1.0, 0.0)
+    suffix = jnp.where(lower, 0.0, 1.0)  # [t, s] = 1 for s >= t
+    angles = angle_ref[...]
+    for head in range(heads):
+        dt_col = _column(dt_ref[head], diagonal)
+        theta = phase0_ref[head] + jnp.dot(
+            inclusive, angles * dt_col, precision=HIGHEST, preferred_element_type=F32
+        )
+        q_rot, k_rot, cosine, sine = _rotated(
+            c_ref, b_ref, qb_ref[head], kb_ref[head], theta
+        )
+        q, k = q_rot.astype(c_ref.dtype), k_rot.astype(b_ref.dtype)
+        lanes = slice(head * width, (head + 1) * width)
+        v, dy = x_ref[:, lanes], dy_ref[:, lanes]
+        scale_row, tail_row = scale_ref[head], tail_ref[head]
+        p_col, decay, weights, source_col = _chunk_terms(
+            p_ref[head], gamma_ref[head], scale_row, tail_row, lower, diagonal
+        )
+        end = carry_ref[block, head]
+        start = start_ref[head]
+        end_decay = end_ref[head]
+        scores = lax.dot_general(q, k, TRANS_B, preferred_element_type=F32)
+        d_mixed = lax.dot_general(dy, v, TRANS_B, preferred_element_type=F32)
+        mixed = scores * weights
+        dv = jnp.dot(mixed.T.astype(v.dtype), dy, preferred_element_type=F32)
+        d_scores = d_mixed * weights
+        dq = jnp.dot(d_scores.astype(q.dtype), k, preferred_element_type=F32)
+        dk = jnp.dot(d_scores.T.astype(q.dtype), q, preferred_element_type=F32)
+        d_weights = d_mixed * scores
+        carried = jnp.exp(p_col)
+        scaled_dy = (dy.astype(F32) * carried).astype(dy.dtype)
+        dq += lax.dot_general(
+            scaled_dy, start.astype(q.dtype), TRANS_B, preferred_element_type=F32
+        )
+        inherited = jnp.dot(q, start.astype(q.dtype), preferred_element_type=F32)
+        dp_col = carried * jnp.sum(dy.astype(F32) * inherited, axis=1, keepdims=True)
+        d_start = jnp.dot(_transpose(q), scaled_dy, preferred_element_type=F32)
+        d_start += end_decay * end
+        end_low = end.astype(v.dtype)
+        v_end = lax.dot_general(v, end_low, TRANS_B, preferred_element_type=F32)
+        dk += source_col * v_end
+        dv += source_col * jnp.dot(k, end_low, preferred_element_type=F32)
+        d_source = jnp.sum(k.astype(F32) * v_end, axis=1, keepdims=True)
+        flow = d_source * source_col
+        off = jnp.where(lower, d_weights * weights, 0.0)
+        dp_col += jnp.sum(off, axis=1, keepdims=True) - flow
+        dp_ref[head] = _row(dp_col, diagonal) - jnp.sum(off, axis=0, keepdims=True)
+        d_gamma_ref[head] = jnp.sum(
+            jnp.where(diagonal, d_weights, 0.0), axis=0, keepdims=True
+        )
+        d_scale_ref[head] = _row(d_source * _column(tail_row, diagonal), diagonal) + (
+            jnp.sum(d_weights * decay, axis=0, keepdims=True)
+        )
+        flow_ref[head] = _row(flow, diagonal)
+        d_end_ref[head] = end_decay * jnp.sum(end * start, axis=0, keepdims=True)
+        dx_ref[:, lanes] = dv.astype(dx_ref.dtype)
+        carry_ref[block, head] = d_start
+
+        # Through the rotation: q_rot = R(theta) q, so dq_pre = R(theta)^T dq
+        # and d theta = dq . J q_rot, with J the pairwise quarter turn.
+        dq_pre = dq * cosine - _partner(dq) * sine
+        dk_pre = dk * cosine - _partner(dk) * sine
+        dc_ref[...] += dq_pre
+        db_ref[...] += dk_pre
+        dqb_ref[head] = jnp.sum(dq_pre, axis=0, keepdims=True)
+        dkb_ref[head] = jnp.sum(dk_pre, axis=0, keepdims=True)
+        d_theta = dq * _partner(q_rot) + dk * _partner(k_rot)
+        # theta_t sums earlier increments, so each increment collects the
+        # phase gradient of its own and every later position.
+        d_increment = later_ref[block, head] + jnp.dot(
+            suffix, d_theta, precision=HIGHEST, preferred_element_type=F32
+        )
+        later_ref[block, head] = later_ref[block, head] + jnp.sum(
+            d_theta, axis=0, keepdims=True
+        )
+        d_angle_ref[...] += d_increment * dt_col
+        d_dt_ref[head] = _row(
+            jnp.sum(d_increment * angles, axis=1, keepdims=True), diagonal
+        )
+
+
+def _fused_specs(heads, width, chunks, chunk, state_dim, value_dim, reverse=False):
+    """Specs over a (batch, chunk, head block) grid; heads is the block size."""
+
+    def at(i):
+        return chunks - 1 - i if reverse else i
+
+    shared = pl.BlockSpec((None, chunk, state_dim), lambda b, i, h: (b, at(i), 0))
+    values = pl.BlockSpec((None, chunk, heads * width), lambda b, i, h: (b, at(i), h))
+    bias = pl.BlockSpec((heads, 1, state_dim), lambda b, i, h: (h, 0, 0))
+
+    def row(length=chunk):
+        return pl.BlockSpec(
+            (None, heads, None, 1, length), lambda b, i, h: (b, h, at(i), 0, 0)
+        )
+
+    start = pl.BlockSpec(
+        (None, heads, None, state_dim, value_dim), lambda b, i, h: (b, h, at(i), 0, 0)
+    )
+    whole = pl.BlockSpec(
+        (None, heads, state_dim, value_dim), lambda b, i, h: (b, h, 0, 0)
+    )
+    partial_bias = pl.BlockSpec(
+        (None, None, heads, 1, state_dim), lambda b, i, h: (b, at(i), h, 0, 0)
+    )
+    return shared, values, bias, row, start, whole, partial_bias
+
+
+def _fused_layout(c, b, x, angles, dt, log_decay, gamma, scale, chunk):
+    batch, length, state_dim = c.shape
+    heads = dt.shape[-1]
+    value_dim = x.shape[-1] // heads
+    padding = (-length) % chunk
+    chunks = (length + padding) // chunk
+
+    def tokens(array):
+        return jnp.pad(array, [(0, 0), (0, padding)] + [(0, 0)] * (array.ndim - 2))
+
+    def rows(array):
+        array = jnp.swapaxes(tokens(array.astype(F32)), 1, 2)
+        return array.reshape(batch, heads, chunks, 1, chunk)
+
+    a = rows(log_decay)
+    p = cumulative(a[..., 0, :])[..., None, :]
+    tail = jnp.exp(p[..., -1:] - p)
+    end = jnp.broadcast_to(
+        jnp.exp(p[..., 0, -1])[..., None, None], (batch, heads, chunks, 1, value_dim)
+    )
+    inputs = (
+        tokens(c),
+        tokens(b),
+        tokens(x),
+        tokens(angles.astype(F32)),
+        p,
+        rows(gamma),
+        rows(scale),
+        tail,
+        end,
+        rows(dt),
+    )
+    return inputs, chunks
+
+
+def _block_size(heads, value_dim, limit):
+    """Heads per grid step: divides H and fills whole 128-lane value tiles."""
+    for size in range(1, heads + 1):
+        if heads % size == 0 and (size * value_dim) % 128 == 0 and size >= limit:
+            return size
+    return heads
+
+
+@partial(jax.custom_vjp, nondiff_argnums=(10, 11, 12))
+def fused_scan(
+    c,
+    b,
+    x,
+    q_bias,
+    k_bias,
+    angles,
+    dt,
+    log_decay,
+    gamma,
+    scale,
+    chunk=CHUNK,
+    interpret=False,
+    heads_per_step=2,
+):
+    """Rotated SISO Mamba-3 scan in the projection layout.
+
+    c, b [B,T,N]: queries and keys shared by every head before their head's
+    bias [H,1,N] and rotation; x [B,T,H*P] values; angles [B,T,N] per-pair
+    angle rates already duplicated onto both coordinates of each pair (zero
+    on fixed coordinates); dt, log_decay, gamma, scale [B,T,H]. The phase
+    is the running sum of angles * dt. Returns y [B,T,H*P], final [B,H,N,P].
+    """
+    y, final, _ = _fused_forward_pass(
+        c,
+        b,
+        x,
+        q_bias,
+        k_bias,
+        angles,
+        dt,
+        log_decay,
+        gamma,
+        scale,
+        chunk,
+        interpret,
+        heads_per_step,
+    )
+    return y, final
+
+
+def _fused_forward_pass(
+    c,
+    b,
+    x,
+    q_bias,
+    k_bias,
+    angles,
+    dt,
+    log_decay,
+    gamma,
+    scale,
+    chunk,
+    interpret,
+    heads_per_step,
+):
+    batch, length, state_dim = c.shape
+    heads = dt.shape[-1]
+    value_dim = x.shape[-1] // heads
+    hb = heads_per_step
+    inputs, chunks = _fused_layout(c, b, x, angles, dt, log_decay, gamma, scale, chunk)
+    shared, values, bias, row, start, whole, _ = _fused_specs(
+        hb, value_dim, chunks, chunk, state_dim, value_dim
+    )
+    padded = chunks * chunk
+    y, starts, phase0, final = pl.pallas_call(
+        _fused_forward_kernel,
+        grid=(batch, chunks, heads // hb),
+        in_specs=[
+            shared,
+            shared,
+            values,
+            shared,
+            bias,
+            bias,
+            row(),
+            row(),
+            row(),
+            row(),
+            row(value_dim),
+            row(),
+        ],
+        out_specs=[values, start, row(state_dim), whole],
+        out_shape=[
+            jax.ShapeDtypeStruct((batch, padded, heads * value_dim), x.dtype),
+            jax.ShapeDtypeStruct((batch, heads, chunks, state_dim, value_dim), F32),
+            jax.ShapeDtypeStruct((batch, heads, chunks, 1, state_dim), F32),
+            jax.ShapeDtypeStruct((batch, heads, state_dim, value_dim), F32),
+        ],
+        scratch_shapes=[
+            pltpu.VMEM((heads // hb, hb, state_dim, value_dim), F32),
+            pltpu.VMEM((heads // hb, hb, 1, state_dim), F32),
+        ],
+        compiler_params=pltpu.CompilerParams(
+            dimension_semantics=("parallel", "arbitrary", "arbitrary")
+        ),
+        interpret=interpret,
+    )(*inputs[:4], q_bias.astype(F32), k_bias.astype(F32), *inputs[4:])
+    residuals = (inputs, q_bias, k_bias, starts, phase0, length)
+    return y[:, :length], final, residuals
+
+
+def _fused_forward(
+    c,
+    b,
+    x,
+    q_bias,
+    k_bias,
+    angles,
+    dt,
+    log_decay,
+    gamma,
+    scale,
+    chunk,
+    interpret,
+    heads_per_step,
+):
+    y, final, residuals = _fused_forward_pass(
+        c,
+        b,
+        x,
+        q_bias,
+        k_bias,
+        angles,
+        dt,
+        log_decay,
+        gamma,
+        scale,
+        chunk,
+        interpret,
+        heads_per_step,
+    )
+    y = checkpoint_name(y, "ssd_scan")
+    return (y, final), residuals
+
+
+def _fused_backward(chunk, interpret, heads_per_step, residuals, cotangents):
+    inputs, q_bias, k_bias, starts, phase0, length = residuals
+    d_y, d_final = cotangents
+    c, b, x = inputs[:3]
+    batch, padded, state_dim = c.shape
+    heads = q_bias.shape[0]
+    value_dim = x.shape[-1] // heads
+    chunks = padded // chunk
+    hb = heads_per_step
+    shared, values, bias, row, start, whole, partial_bias = _fused_specs(
+        hb, value_dim, chunks, chunk, state_dim, value_dim, reverse=True
+    )
+    dy = jnp.pad(d_y.astype(x.dtype), [(0, 0), (0, padded - length), (0, 0)])
+    rows_shape = jax.ShapeDtypeStruct((batch, heads, chunks, 1, chunk), F32)
+    shared_shape = jax.ShapeDtypeStruct((batch, padded, state_dim), F32)
+    bias_shape = jax.ShapeDtypeStruct((batch, chunks, heads, 1, state_dim), F32)
+    outputs = pl.pallas_call(
+        _fused_backward_kernel,
+        grid=(batch, chunks, heads // hb),
+        in_specs=[
+            shared,
+            shared,
+            values,
+            shared,
+            bias,
+            bias,
+            row(),
+            row(),
+            row(),
+            row(),
+            row(value_dim),
+            row(),
+            start,
+            row(state_dim),
+            values,
+            whole,
+        ],
+        out_specs=[
+            shared,
+            shared,
+            values,
+            shared,
+            partial_bias,
+            partial_bias,
+            row(),
+            row(),
+            row(),
+            row(),
+            row(value_dim),
+            row(),
+        ],
+        out_shape=[
+            shared_shape,
+            shared_shape,
+            jax.ShapeDtypeStruct(x.shape, x.dtype),
+            shared_shape,
+            bias_shape,
+            bias_shape,
+            rows_shape,
+            rows_shape,
+            rows_shape,
+            rows_shape,
+            jax.ShapeDtypeStruct((batch, heads, chunks, 1, value_dim), F32),
+            rows_shape,
+        ],
+        scratch_shapes=[
+            pltpu.VMEM((heads // hb, hb, state_dim, value_dim), F32),
+            pltpu.VMEM((heads // hb, hb, 1, state_dim), F32),
+        ],
+        compiler_params=pltpu.CompilerParams(
+            dimension_semantics=("parallel", "arbitrary", "arbitrary")
+        ),
+        interpret=interpret,
+    )(
+        *inputs[:4],
+        q_bias.astype(F32),
+        k_bias.astype(F32),
+        *inputs[4:],
+        starts,
+        phase0,
+        dy,
+        d_final.astype(F32),
+    )
+    dc, db, dx, d_angle, dqb, dkb, dp, d_gamma, d_scale, flow, d_end, d_dt = outputs
+
+    def per_token(rows_array):
+        array = rows_array[..., 0, :].reshape(batch, heads, padded)
+        return jnp.swapaxes(array, 1, 2)[:, :length]
+
+    d_last = jnp.sum(flow[..., 0, :], axis=-1) + jnp.sum(d_end[..., 0, :], axis=-1)
+    dp = dp[..., 0, :].at[..., -1].add(d_last)
+    d_log_decay = cumulative(dp, reverse=True)[..., None, :]
+    return (
+        dc[:, :length].astype(c.dtype),
+        db[:, :length].astype(b.dtype),
+        dx[:, :length],
+        jnp.sum(dqb, axis=(0, 1)).astype(q_bias.dtype),
+        jnp.sum(dkb, axis=(0, 1)).astype(k_bias.dtype),
+        d_angle[:, :length],
+        per_token(d_dt),
+        per_token(d_log_decay),
+        per_token(d_gamma),
+        per_token(d_scale),
+    )
+
+
+fused_scan.defvjp(_fused_forward, _fused_backward)
+
+
+def angle_rates(angles, state_dim):
+    """[B,T,A] rates on both coordinates of their pair, zero on fixed ones."""
+    count = angles.shape[-1]
+    duplicate = np.zeros((count, state_dim), np.float32)
+    for i in range(count):
+        duplicate[i, 2 * i] = duplicate[i, 2 * i + 1] = 1.0
+    return jnp.matmul(angles.astype(F32), jnp.asarray(duplicate), precision=HIGHEST)
+
+
+def mamba3_fused(
+    c,
+    b,
+    x,
+    adt,
+    dt,
+    trap_logits,
+    angles,
+    *,
+    q_bias,
+    k_bias,
+    chunk_size=CHUNK,
+    interpret=None,
+    heads_per_step=None,
+):
+    """SISO Mamba-3 with one shared query and key per token (one group).
+
+    c, b [B,T,N]; x [B,T,H*P]; adt, dt, trap_logits [B,T,H]; angles [B,T,A]
+    shared rates; q_bias, k_bias [H,1,N]. Returns y [B,T,H*P] and the final
+    state. Mathematically identical to mamba3_chunked with heads repeating
+    the group's B and C.
+    """
+    if interpret is None:
+        interpret = jax.default_backend() != "tpu"
+    heads = dt.shape[-1]
+    value_dim = x.shape[-1] // heads
+    if heads_per_step is None:
+        heads_per_step = _block_size(heads, value_dim, HEADS_PER_STEP)
+    trap = jax.nn.sigmoid(trap_logits.astype(F32))
+    gamma = dt.astype(F32) * trap
+    previous_weight = dt.astype(F32) * (1 - trap)
+    scale = gamma + jnp.concatenate(
+        (previous_weight[:, 1:], jnp.zeros_like(previous_weight[:, :1])), axis=1
+    )
+    return fused_scan(
+        c,
+        b,
+        x,
+        q_bias,
+        k_bias,
+        angle_rates(angles, c.shape[-1]),
+        dt.astype(F32),
+        adt,
+        gamma,
+        scale,
+        chunk_size,
+        interpret,
+        heads_per_step,
+    )

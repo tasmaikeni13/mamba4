@@ -99,13 +99,16 @@ def launch(options):
     import subprocess
     import sys
 
-    from scripts.pod import ROOT
-    from validation.run_screen import clear_caches, wait_for_hosts
+    from scripts.pod import HOSTS, ROOT
+    from validation.run_screen import clear_caches, remote, wait_for_hosts
 
     environment = os.environ.copy()
     environment.pop("JAX_PLATFORMS", None)
     raw = Path(options.raw)
     raw.mkdir(parents=True, exist_ok=True)
+    # scripts.pod collects --output from every worker; create it everywhere.
+    for host in HOSTS[1:]:
+        remote(host, f"mkdir -p {ROOT / raw}")
     for path in options.configs:
         name = Path(path).stem
         if (raw / f"{name}.json").exists():

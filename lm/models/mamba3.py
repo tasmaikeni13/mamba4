@@ -12,7 +12,7 @@ from flax import linen as nn
 import jax
 import jax.numpy as jnp
 
-from lm.kernels.flashmamba import mamba3_flash_heads
+from lm.kernels.flashmamba import mamba3_fused
 from lm.kernels.mamba3 import mamba3_chunked
 from lm.kernels.mamba3_fast import mamba3_fast
 from lm.models.common import (
@@ -72,11 +72,13 @@ class Mamba3Mixer(nn.Module):
             cursor += size
         z, x, b, c, raw_dt, raw_a, trap, angles = sections
         if config.ssd_kernel == "flash":
-            if rank != 1:
-                raise ValueError("FlashMamba implements rank-one (SISO) heads")
-            # [B,T,G,N] and then heads, with no singleton rank axis (TPU tiling
-            # would pad it 8-fold); parameters keep their shapes and order.
-            b = b.reshape(*u.shape[:2], config.n_groups, config.d_state)
+            if rank != 1 or config.n_groups != 1:
+                raise ValueError("FlashMamba fuses rank-one heads with one B/C group")
+            # Every array stays in the projection's lane-dense layout: B and C
+            # are shared [B,T,N] rows, values and outputs [B,T,H*P]; heads,
+            # biases and rotations are applied inside the kernel. Parameters
+            # keep their shapes and creation order.
+            b = b.reshape(*u.shape[:2], config.d_state)
             c = c.reshape(b.shape)
             b = RMSNorm(
                 config.d_state, config.norm_eps, dtype, param_dtype, name="B_norm"
@@ -84,8 +86,6 @@ class Mamba3Mixer(nn.Module):
             c = RMSNorm(
                 config.d_state, config.norm_eps, dtype, param_dtype, name="C_norm"
             )(c)
-            b = jnp.repeat(b, heads // config.n_groups, axis=2)
-            c = jnp.repeat(c, heads // config.n_groups, axis=2)
             b_bias = self.param(
                 "B_bias",
                 nn.initializers.ones,
@@ -101,13 +101,7 @@ class Mamba3Mixer(nn.Module):
             dt_bias = self.param("dt_bias", timestep_bias_init, (heads,), jnp.float32)
             dt = jax.nn.softplus(raw_dt.astype(jnp.float32) + dt_bias)
             a = -jnp.maximum(heavy_tail_activation(raw_a.astype(jnp.float32)), 1e-4)
-            angles = jnp.broadcast_to(
-                angles.astype(jnp.float32)[..., None, :],
-                (*u.shape[:2], heads, angles_count),
-            )
-            x = x.reshape(*u.shape[:2], heads, config.head_dim)
-            z = z.reshape(x.shape)
-            y, _ = mamba3_flash_heads(
+            y, _ = mamba3_fused(
                 c,
                 b,
                 x,
@@ -115,13 +109,12 @@ class Mamba3Mixer(nn.Module):
                 dt,
                 trap,
                 angles,
-                q_bias=c_bias[:, 0],
-                k_bias=b_bias[:, 0],
+                q_bias=c_bias.astype(jnp.float32),
+                k_bias=b_bias.astype(jnp.float32),
             )
             skip = self.param("D", nn.initializers.ones, (heads,), param_dtype)
-            y = (
-                y.astype(jnp.float32)
-                + x.astype(jnp.float32) * skip[None, None, :, None]
+            y = y.astype(jnp.float32) + x.astype(jnp.float32) * jnp.repeat(
+                skip, config.head_dim
             )
             if config.mamba3_outproj_norm:
                 weight = self.param(
@@ -130,12 +123,13 @@ class Mamba3Mixer(nn.Module):
                     (heads, config.head_dim),
                     param_dtype,
                 )
+                y = y.reshape(*u.shape[:2], heads, config.head_dim)
                 y *= jax.lax.rsqrt(
                     jnp.mean(jnp.square(y), axis=-1, keepdims=True) + config.norm_eps
                 )
-                y *= weight[None, None]
+                y = (y * weight[None, None]).reshape(*u.shape[:2], inner)
             y *= jax.nn.silu(z.astype(jnp.float32))
-            y = y.reshape(*u.shape[:2], inner).astype(dtype)
+            y = y.astype(dtype)
         else:
             b = b.reshape(*u.shape[:2], rank, config.n_groups, config.d_state)
             c = c.reshape(b.shape)
