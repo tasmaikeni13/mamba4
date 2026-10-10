@@ -557,9 +557,10 @@ def _mask_dot(mask, x):
     rest = x - high.astype(F32)
     middle = rest.astype(jnp.bfloat16)
     low = (rest - middle.astype(F32)).astype(jnp.bfloat16)
-    total = jnp.dot(weights, high, preferred_element_type=F32)
-    total += jnp.dot(weights, middle, preferred_element_type=F32)
-    return total + jnp.dot(weights, low, preferred_element_type=F32)
+    exact = dict(precision=lax.Precision.DEFAULT, preferred_element_type=F32)
+    total = jnp.dot(weights, high, **exact)
+    total += jnp.dot(weights, middle, **exact)
+    return total + jnp.dot(weights, low, **exact)
 
 
 def _partner(x):
