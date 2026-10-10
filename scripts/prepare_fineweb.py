@@ -52,7 +52,9 @@ def atomic_json(path: Path, value: dict) -> None:
     temp.replace(path)
 
 
-def download_file(item: dict, directory: Path, revision: str) -> dict:
+def download_file(
+    item: dict, directory: Path, revision: str, repo: str = DATASET_REPO
+) -> dict:
     path = directory / Path(item["path"]).name
     expected = item.get("lfs", {}).get("oid")
     if (
@@ -63,8 +65,7 @@ def download_file(item: dict, directory: Path, revision: str) -> dict:
         log(f"Verified cached source {path.name}")
     else:
         url = (
-            f"https://huggingface.co/datasets/{DATASET_REPO}/resolve/"
-            f"{revision}/{item['path']}"
+            f"https://huggingface.co/datasets/{repo}/resolve/{revision}/{item['path']}"
         )
         temp = path.with_suffix(".download")
         for attempt in range(5):
@@ -194,19 +195,40 @@ def tokenize_shard(task: tuple[str, str, str]) -> dict:
     return meta
 
 
+def earlier_hashes(paths) -> set:
+    """Document SHA256 digests recorded by earlier evaluation sets."""
+    digests = set()
+    for path in paths:
+        record = json.loads(Path(path).read_text())
+        if "long_documents" in record:
+            digests |= {
+                bytes.fromhex(h) for h in record["long_documents"]["document_sha256"]
+            }
+        else:
+            digests |= {bytes.fromhex(row[4]) for row in record["rows"]}
+    return digests
+
+
 def split_documents(
-    ledger: np.ndarray, seed: int, eval_targets: int
+    ledger: np.ndarray, seed: int, eval_targets: int, excluded_hashes=frozenset()
 ) -> tuple[np.ndarray, np.ndarray, dict]:
-    """Hold out whole content-hash groups before ordering training documents."""
+    """Hold out whole content-hash groups before ordering training documents.
+
+    Documents whose hash is in ``excluded_hashes`` (earlier evaluation sets)
+    enter neither stream.
+    """
     hashes = ledger["sha256"].copy().view("S32").reshape(-1)
     unique, representative, inverse = np.unique(
         hashes, return_index=True, return_inverse=True
     )
+    banned = np.asarray([digest in excluded_hashes for digest in unique.tolist()])
     rng = np.random.default_rng(seed)
     permutation = rng.permutation(len(unique))
     holdout_groups = []
     heldout_tokens = 0
     for group in permutation:
+        if banned[group]:
+            continue
         holdout_groups.append(group)
         heldout_tokens += int(ledger[representative[group]]["length"])
         if heldout_tokens >= eval_targets + 1:
@@ -216,13 +238,14 @@ def split_documents(
     heldout_group_mask = np.zeros(len(unique), dtype=bool)
     heldout_group_mask[holdout_groups] = True
     excluded = heldout_group_mask[inverse]
+    removed = banned[inverse]
     # Evaluation uses one representative per hash, avoiding duplicated eval text.
     eval_order = representative[np.asarray(holdout_groups)]
-    train_candidates = np.flatnonzero(~excluded)
+    train_candidates = np.flatnonzero(~excluded & ~removed)
     train_order = rng.permutation(train_candidates)
     if train_order.size == 0:
         raise ValueError("No training documents remain after holdout exclusion")
-    ledger["split"] = excluded.astype(np.uint8)
+    ledger["split"] = excluded.astype(np.uint8) + 2 * removed.astype(np.uint8)
     summary = {
         "algorithm": "numpy-PCG64 seed; sorted content SHA256 groups; permutation",
         "seed": seed,
@@ -235,7 +258,8 @@ def split_documents(
         "heldout_unique_documents": len(eval_order),
         "heldout_source_documents_excluded": int(excluded.sum()),
         "heldout_tokens_available": heldout_tokens,
-        "split_values_in_ledger": {"0": "train", "1": "heldout"},
+        "earlier_evaluation_documents_removed": int(removed.sum()),
+        "split_values_in_ledger": {"0": "train", "1": "heldout", "2": "removed"},
     }
     return train_order, eval_order, summary
 
@@ -354,8 +378,8 @@ def prepare(args: argparse.Namespace) -> dict:
     sources.mkdir(exist_ok=True)
     tokenized.mkdir(exist_ok=True)
     metadata_url = (
-        f"https://huggingface.co/api/datasets/{DATASET_REPO}/tree/"
-        f"{DATASET_REVISION}/data?recursive=true&expand=true"
+        f"https://huggingface.co/api/datasets/{args.repo}/tree/"
+        f"{args.revision}/{args.prefix}?recursive=true&expand=true"
     )
     with urllib.request.urlopen(metadata_url, timeout=120) as response:
         tree = json.load(response)
@@ -363,8 +387,13 @@ def prepare(args: argparse.Namespace) -> dict:
         (item for item in tree if item["path"].endswith(".parquet")),
         key=lambda item: item["path"],
     )
-    if len(files) != 10:
-        raise ValueError("Pinned source must contain all ten parquet shards")
+    if args.files:
+        wanted = set(args.files)
+        files = [item for item in files if Path(item["path"]).name in wanted]
+        if len(files) != len(wanted):
+            raise ValueError("Some requested parquet shards are not in the pin")
+    elif len(files) != args.expected_files:
+        raise ValueError("Pinned source must contain every expected parquet shard")
     existing_bytes = sum(
         (sources / Path(item["path"]).name).stat().st_size
         for item in files
@@ -379,7 +408,8 @@ def prepare(args: argparse.Namespace) -> dict:
     with ThreadPoolExecutor(max_workers=args.download_workers) as executor:
         source_meta = list(
             executor.map(
-                lambda item: download_file(item, sources, DATASET_REVISION), files
+                lambda item: download_file(item, sources, args.revision, args.repo),
+                files,
             )
         )
     tasks = [
@@ -408,7 +438,7 @@ def prepare(args: argparse.Namespace) -> dict:
         )
         start = end
     train_order, eval_order, split_meta = split_documents(
-        ledger, args.seed, args.eval_targets
+        ledger, args.seed, args.eval_targets, earlier_hashes(args.exclude)
     )
     np.save(directory / "documents.npy", ledger, allow_pickle=False)
     log(
@@ -433,8 +463,9 @@ def prepare(args: argparse.Namespace) -> dict:
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "dtype": "<u2",
         "dataset": {
-            "repo": DATASET_REPO,
-            "revision": DATASET_REVISION,
+            "repo": args.repo,
+            "revision": args.revision,
+            "prefix": args.prefix,
             "files": source_meta,
             "source_tokens_including_eos": sum(
                 item["tokens_including_eos"] for item in shard_meta
@@ -480,6 +511,14 @@ def prepare(args: argparse.Namespace) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="data/fineweb-edu-1b")
+    parser.add_argument("--repo", default=DATASET_REPO)
+    parser.add_argument("--revision", default=DATASET_REVISION)
+    parser.add_argument("--prefix", default="data", help="parquet folder in the repo")
+    parser.add_argument("--files", nargs="*", default=[], help="parquet shard names")
+    parser.add_argument("--expected-files", type=int, default=10)
+    parser.add_argument(
+        "--exclude", nargs="*", default=[], help="earlier evaluation document lists"
+    )
     parser.add_argument("--train-targets", type=int, default=1_000_000_000)
     parser.add_argument("--eval-targets", type=int, default=2_097_152)
     parser.add_argument("--seed", type=int, default=42)
