@@ -85,3 +85,20 @@ Declared outcome for the primary metric:
 - **Loss:** the mean is higher and all three seed differences favour the
   Transformer.
 - **Inconclusive:** any other pattern.
+
+## Implementation settings (recorded before any sweep run)
+
+Kernels and rematerialization change speed and memory, never the model
+function; each architecture runs its fastest exact implementation, chosen
+from full training-step benchmarks (`scripts/step_benchmark.py`, records in
+`lm/results/speed-125m/`).
+- **Transformer:** JAX Pallas FlashAttention with 512-token tiles and no
+  rematerialization: 1.55–1.58M tokens/s on the 16 chips (stock 128-token
+  tiles with rematerialization: 0.82M).
+- **Mamba 4:** FlashMamba scan and the fused memory read with stored
+  Cholesky factors. The rematerialization policy and further kernel work are
+  fixed before its sweep starts. Kernel versions are exact to float32
+  rounding against the reference implementations (`lm/tests`).
+
+The Transformer's sweep runs first, while Mamba 4's kernels are finished;
+both sweeps use the rule and grid above.

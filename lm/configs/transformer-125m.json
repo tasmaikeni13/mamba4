@@ -12,9 +12,9 @@
     "norm_eps": 1e-05,
     "dropout_rate": 0.0,
     "max_seq_len": 1024,
-    "remat": true,
+    "remat": false,
     "attention_kernel": "flash",
-    "attention_block": 0
+    "attention_block": 512
   },
   "training": {
     "seed": 42,
