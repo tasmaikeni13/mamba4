@@ -1,5 +1,5 @@
 {
-  "protocol_id": "lm-125m",
+  "protocol_id": "lm-125m-sweep",
   "model": {
     "architecture": "transformer",
     "vocab_size": 50257,
@@ -18,10 +18,10 @@
   },
   "training": {
     "seed": 42,
-    "token_budget": 3000000000,
+    "token_budget": 300000000,
     "global_batch": 256,
     "sequence_length": 1024,
-    "learning_rate": 0.0012,
+    "learning_rate": 0.0024,
     "min_lr_ratio": 0.1,
     "warmup_steps": 300,
     "weight_decay": 0.1,
