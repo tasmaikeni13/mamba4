@@ -13,6 +13,7 @@ import jax
 import jax.numpy as jnp
 
 from lm.kernels.mamba3 import mamba3_chunked
+from lm.kernels.mamba3_fast import mamba3_fast
 from lm.models.common import (
     RMSNorm,
     TokenEmbedding,
@@ -118,7 +119,8 @@ class Mamba3Mixer(nn.Module):
             gates = (z[..., None, :] * mimo_z.astype(dtype)).astype(dtype)
         else:
             values, gates = x[..., None, :], z[..., None, :]
-        y, _ = mamba3_chunked(
+        kernel = mamba3_fast if config.ssd_kernel == "fast" else mamba3_chunked
+        y, _ = kernel(
             c,
             b,
             values,

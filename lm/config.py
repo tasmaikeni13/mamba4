@@ -25,6 +25,8 @@ class ModelConfig:
     max_seq_len: int = 1024
     remat: bool = True
     mamba3_outproj_norm: bool = False
+    # "fast" selects the hand-derived SSD backward (identical recurrence).
+    ssd_kernel: str = "chunked"
     # Mamba 4 memory layers (lm/models/mamba4.py).
     key_dim: int = 16
     memory_mixer: str = "selective"
