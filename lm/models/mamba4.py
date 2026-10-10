@@ -489,8 +489,11 @@ class Mamba4LM(nn.Module):
         config = self.config
         embedding = TokenEmbedding(config, name="token_embedding")
         x = embedding(tokens)
+        position = 0
         for i, kind in enumerate(_layer_types(config)):
-            block = remat_block(kind, config, memory=kind is SelectiveMemoryBlock)
+            memory = kind is SelectiveMemoryBlock
+            block = remat_block(kind, config, memory=memory, position=position)
+            position += not memory
             x = block(config, name=f"layer_{i}")(x, train)
         x = RMSNorm(
             epsilon=config.norm_eps,
