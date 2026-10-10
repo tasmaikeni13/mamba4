@@ -57,13 +57,19 @@ progress.
 
 ## FlashMamba kernels
 
-`lm/kernels/flashmamba.py` is a Pallas TPU implementation of the Mamba-3
-SISO scan. It processes 128-token chunks with the state kept on chip, with a
-forward pass in chunk order and a backward pass in reverse.
-`lm/kernels/mamba4_fused.py` performs the memory read's per-token Cholesky
-solves on chip, with 128 sequences across the vector lanes, and computes
-every gradient as matrix products. Both match the reference implementations
-to float32 rounding in values and gradients (`lm/tests`).
+[FlashMamba](docs/flashmamba.md) is the set of Pallas TPU kernels behind Mamba 4.
+- **Mamba-3 scan:** one fused kernel pair evaluates a Mamba-3 layer's
+  rotation, phase and chunked scan in the projection's own layout.
+- **Memory read:** a fused kernel factors each token's 64 × 64 precision by
+  left-looking Cholesky, with 128 sequences across the vector lanes. It
+  stores the factors, so the backward pass needs only triangular solves.
+
+Both match independent references in values and every gradient, on CPU and
+on TPU. At 125M on the 16-chip v4-32 pod, Mamba 4 went from 0.22M to 0.505M
+training tokens per second. The Transformer trains at 1.55–1.62M with
+FlashAttention at 512-token tiles. That remaining gap of about 3× is real:
+Mamba 4 runs 17 scan layers and per-token Cholesky factorizations on the
+vector units.
 
 ## Reproduce
 
