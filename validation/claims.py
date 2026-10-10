@@ -1077,6 +1077,8 @@ def verdicts(families, context, calibration_report, decoding):
     }
     result = {}
     for peer in ("transformer", "mamba3"):
+        if peer not in families["copy"]["mamba4_vs"]:
+            continue
         calls = [
             families[f]["mamba4_vs"][peer][g]["verdict"]
             for f in ("copy", "mqar")
@@ -1111,6 +1113,7 @@ def verdicts(families, context, calibration_report, decoding):
         ece_calls = [
             calibration_report["mamba4"][f][f"ece_minus_{peer}"]["verdict"]
             for f in FAMILIES
+            if f"ece_minus_{peer}" in calibration_report["mamba4"][f]
         ]
         result[peer] = {
             "exact_retrieval_within_training_context": retrieval,
@@ -1220,6 +1223,210 @@ def report(options):
     atomic_json(output / "per-row.json", per_row)
     (output / "REPORT.md").write_text(markdown(summary))
     print(json.dumps(summary["verdicts"], indent=2))
+
+
+def _seed_views(names):
+    """{seed: {canonical name: stored name}} for 'mamba4-s42', 'mamba4-s42_no_read'."""
+    views = {}
+    for name in names:
+        base, _, probe = name.partition("_")
+        architecture, _, seed = base.rpartition("-s")
+        canonical = architecture + (f"_{probe}" if probe else "")
+        views.setdefault(int(seed), {})[canonical] = name
+    return views
+
+
+def _pooled_families(per_seed_rows, rng):
+    """Paired tests of seed-averaged prompt rows (prompts are the units)."""
+    names = list(next(iter(per_seed_rows.values())))
+    report = {}
+    for family in FAMILIES:
+        metric = "exact" if family == "passkey" else "accuracy"
+        groups = sorted(next(iter(per_seed_rows.values()))["mamba4"][family])
+        averaged = {
+            name: {
+                group: np.mean(
+                    [
+                        [float(row[metric]) for row in rows[name][family][group]]
+                        for rows in per_seed_rows.values()
+                    ],
+                    axis=0,
+                )
+                for group in groups
+            }
+            for name in names
+        }
+        comparisons = {}
+        for peer in names:
+            if peer == "mamba4":
+                continue
+            tests = {
+                group: paired_test(
+                    averaged["mamba4"][group], averaged[peer][group], rng
+                )
+                for group in groups
+            }
+            adjusted = holm(np.array([tests[group]["p"] for group in groups]))
+            for group, value in zip(groups, adjusted):
+                tests[group]["holm_p"] = float(value)
+                mean = tests[group]["mean"]
+                tests[group]["verdict"] = (
+                    "matches"
+                    if value >= 0.05
+                    else ("exceeds" if mean > 0 else "trails")
+                )
+            comparisons[peer] = tests
+        table = {
+            group: {name: float(averaged[name][group].mean()) for name in names}
+            for group in groups
+        }
+        report[family] = {"metric": metric, "groups": table, "mamba4_vs": comparisons}
+    return report
+
+
+def report_seeds(options):
+    """Per-seed verdicts under the frozen rules, and pooled verdicts."""
+    arrays, manifest = load_tasks(options.tasks)
+    raw = Path(options.raw)
+    evaluation = json.loads((raw / "evaluation.json").read_text())
+    if evaluation["task_array_sha256"] != manifest["array_sha256"]:
+        raise ValueError("Evaluation used different task arrays")
+    rows, longs = {}, {}
+    for name, entry in evaluation["models"].items():
+        path = raw / Path(entry["raw"]).name
+        if sha256_file(path) != entry["raw_sha256"]:
+            raise ValueError(f"Raw scores for {name} changed after evaluation")
+        with np.load(path) as stored:
+            data = {key: stored[key] for key in stored.files}
+        rows[name] = row_metrics(arrays, data)
+        longs[name] = {k: v for k, v in data.items() if k.startswith("long_")}
+    decoding = (
+        json.loads((raw / "decode.json").read_text())
+        if (raw / "decode.json").exists()
+        else None
+    )
+    views = _seed_views(rows)
+    per_seed, per_seed_rows = {}, {}
+    for seed, view in sorted(views.items()):
+        rng = np.random.default_rng(BOOTSTRAP_SEED)
+        seed_rows = {canonical: rows[name] for canonical, name in view.items()}
+        seed_long = {canonical: longs[name] for canonical, name in view.items()}
+        families = compare_families(seed_rows, rng)
+        context, _ = long_context(seed_long, rng)
+        calibration_report = calibration(seed_rows, seed_long, rng)
+        seed_decoding = None
+        if decoding:
+            seed_decoding = {
+                "models": {
+                    canonical: decoding["models"][name]
+                    for canonical, name in view.items()
+                    if name in decoding["models"]
+                }
+            }
+        per_seed[seed] = {
+            "families": families,
+            "long_context": context,
+            "calibration": calibration_report,
+            "decode": seed_decoding["models"] if seed_decoding else None,
+            "verdicts": verdicts(families, context, calibration_report, seed_decoding),
+        }
+        per_seed_rows[seed] = seed_rows
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
+    pooled_families = _pooled_families(per_seed_rows, rng)
+    pooled_long = {}
+    for canonical in views[min(views)]:
+        stored = [longs[views[seed][canonical]] for seed in sorted(views)]
+        pooled_long[canonical] = {
+            key: np.mean([s[key] for s in stored], axis=0) for key in stored[0]
+        }
+    pooled_context, curves = long_context(pooled_long, rng)
+    summary = {
+        "protocol": "claims (validation/claims/PROTOCOL.md), per training seed",
+        "protocol_sha256": sha256_file(ROOT / "validation/claims/PROTOCOL.md"),
+        "task_manifest": manifest["array_sha256"],
+        "seeds": sorted(views),
+        "per_seed": {str(seed): entry for seed, entry in per_seed.items()},
+        "pooled": {"families": pooled_families, "long_context": pooled_context},
+    }
+    output = Path(options.output)
+    atomic_json(output / "summary.json", summary)
+    np.savez_compressed(
+        output / "long-context-curves.npz",
+        **{name: np.asarray(curve, np.float32) for name, curve in curves.items()},
+    )
+    (output / "REPORT.md").write_text(markdown_seeds(summary))
+    print(markdown_seeds(summary))
+
+
+def markdown_seeds(summary):
+    seeds = summary["seeds"]
+    lines = [
+        f"# Claims at 125M ({len(seeds)} training seeds)",
+        "",
+        "Frozen claims protocol (`validation/claims/PROTOCOL.md`) on the fresh task",
+        "arrays, applied to each seed's Transformer and Mamba 4. Pooled tests use",
+        "prompt rows (or documents) averaged over seeds as the sampling units.",
+        "",
+        "## Verdicts against the Transformer",
+        "",
+        "| Claim | " + " | ".join(f"seed {s}" for s in seeds) + " |",
+        "|---" + "|---" * len(seeds) + "|",
+    ]
+    claims = (
+        "exact_retrieval_within_training_context",
+        "long_context",
+        "calibrated_confidence",
+    )
+    for claim in claims:
+        cells = [
+            summary["per_seed"][str(s)]["verdicts"]["transformer"][claim] for s in seeds
+        ]
+        lines.append(f"| {claim.replace('_', ' ')} | " + " | ".join(cells) + " |")
+    decode = [
+        summary["per_seed"][str(s)]["verdicts"].get("context_independent_decode", "—")
+        for s in seeds
+    ]
+    lines.append("| context-independent decode | " + " | ".join(decode) + " |")
+    pooled = summary["pooled"]["families"]
+    for family, title in (
+        ("copy", "Exact copy: top-1 accuracy, seed-averaged"),
+        ("mqar", "Associative recall: top-1 accuracy, seed-averaged"),
+        ("passkey", "Passkey: exact match, seed-averaged"),
+    ):
+        entry = pooled[family]
+        names = list(next(iter(entry["groups"].values())))
+        lines += [
+            "",
+            f"## {title}",
+            "",
+            "| Group | "
+            + " | ".join(NAMES.get(n, n) for n in names)
+            + " | vs T (pooled) |",
+            "|---:" + "|---:" * len(names) + "|---|",
+        ]
+        for group, values in entry["groups"].items():
+            verdict = entry["mamba4_vs"].get("transformer", {}).get(group, {})
+            lines.append(
+                f"| {group} | "
+                + " | ".join(f"{100 * values[n]:.1f}%" for n in names)
+                + f" | {verdict.get('verdict', '—')} |"
+            )
+    context = summary["pooled"]["long_context"]
+    names = list(context["nll_by_bucket"])
+    lines += [
+        "",
+        "## Long-document NLL by position, seed-averaged",
+        "",
+        "| Positions | " + " | ".join(NAMES.get(n, n) for n in names) + " |",
+        "|---" + "|---:" * len(names) + "|",
+    ]
+    for bucket in next(iter(context["nll_by_bucket"].values())):
+        lines.append(
+            f"| {bucket} | "
+            + " | ".join(f"{context['nll_by_bucket'][n][bucket]:.3f}" for n in names)
+            + " |"
+        )
+    return "\n".join(lines) + "\n"
 
 
 NAMES = {
@@ -1433,6 +1640,10 @@ def main():
         run.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))
         run.add_argument("--output", required=True)
         run.add_argument("models", nargs="+", help="name=config.json,run_directory")
+    seeded = sub.add_parser("report-seeds")
+    seeded.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))
+    seeded.add_argument("--raw", required=True)
+    seeded.add_argument("--output", required=True)
     summarize = sub.add_parser("report")
     summarize.add_argument("--tasks", default=str(TASKS.relative_to(ROOT)))
     summarize.add_argument("--raw", default=str(RAW.relative_to(ROOT)))
@@ -1448,6 +1659,7 @@ def main():
         "evaluate": evaluate,
         "decode": decode,
         "report": report,
+        "report-seeds": report_seeds,
         "launch": launch,
     }[options.action](options)
 
