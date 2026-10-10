@@ -1,0 +1,38 @@
+{
+  "protocol_id": "lm-125m-sweep",
+  "model": {
+    "architecture": "transformer",
+    "vocab_size": 50257,
+    "d_model": 768,
+    "n_layers": 12,
+    "n_heads": 12,
+    "d_ff": 2048,
+    "dtype": "bfloat16",
+    "param_dtype": "float32",
+    "norm_eps": 1e-05,
+    "dropout_rate": 0.0,
+    "max_seq_len": 1024,
+    "remat": false,
+    "attention_kernel": "flash",
+    "attention_block": 512
+  },
+  "training": {
+    "seed": 42,
+    "token_budget": 300000000,
+    "global_batch": 256,
+    "sequence_length": 1024,
+    "learning_rate": 0.0006,
+    "min_lr_ratio": 0.1,
+    "warmup_steps": 300,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "adam_epsilon": 1e-08,
+    "clip_norm": 1.0,
+    "eval_every": 1000,
+    "eval_tokens": 2097152,
+    "checkpoint_every": 1000,
+    "log_every": 10,
+    "parameter_target": 123551232
+  }
+}
