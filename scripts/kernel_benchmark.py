@@ -139,6 +139,24 @@ def part_benchmarks(results, batch, length, heads=24, state=128, width=64):
         tuple(range(9)),
         results,
     )
+    shared = (
+        q[:, :, 0, 0],
+        k[:, :, 0, 0],
+        v[..., 0, :].reshape(batch, length, heads * width),
+        adt,
+        dt,
+        trap,
+        angles[:, :, 0],
+        qb,
+        kb,
+    )
+    both(
+        "part/mamba3-fused",
+        lambda *a: flashmamba.mamba3_fused(*a[:7], q_bias=a[7], k_bias=a[8]),
+        shared,
+        tuple(range(9)),
+        results,
+    )
     gamma = dt * 0.5
     core = (q[..., 0, :], k[..., 0, :], v[..., 0, :], adt, gamma, gamma)
     both(
