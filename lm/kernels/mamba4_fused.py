@@ -46,15 +46,16 @@ def _substitute(tile_of, value, dim):
     """Solve L L^T y = value from the lower factor L, held as 8-row tiles.
 
     tile_of(j, b) returns tile b (rows 8b..8b+7) of column j for b >= j // 8,
-    whose row j holds the pivot. value is a list of [8, L] tiles. Every pick
-    is a static slice, and each column touches only the tiles at or below it.
+    whose row j holds the reciprocal pivot 1 / L_jj, so no step divides.
+    value is a list of [8, L] tiles. Every pick is a static slice, and each
+    column touches only the tiles at or below it.
     """
     rows = lax.broadcasted_iota(jnp.int32, (8, 1), 0)
     blocks = dim // 8
     for j in range(dim):
         first, local = j // 8, j % 8
-        diagonal = tile_of(j, first)[local : local + 1]
-        step = value[first][local : local + 1] / diagonal
+        reciprocal = tile_of(j, first)[local : local + 1]
+        step = value[first][local : local + 1] * reciprocal
         for b in range(first, blocks):
             column = tile_of(j, b)
             index = rows + 8 * b
@@ -68,8 +69,8 @@ def _substitute(tile_of, value, dim):
             term = jnp.where(index > j, tile_of(j, b) * value[b], 0.0)
             total = term if total is None else total + term
         total = jnp.sum(total, axis=0, keepdims=True)
-        diagonal = tile_of(j, first)[local : local + 1]
-        new = (value[first][local : local + 1] - total) / diagonal
+        reciprocal = tile_of(j, first)[local : local + 1]
+        new = (value[first][local : local + 1] - total) * reciprocal
         value[first] = jnp.where(rows + 8 * first == j, new, value[first])
     return value
 
@@ -81,7 +82,9 @@ def _factor_token(e_ref, a_ref, key, lam, beta, floor, dim):
     column's 8-row tile down are kept current: the lower triangle plus a few
     finite entries above it that no step reads. The factorization runs over a
     dynamic pivot column; its trailing update is unrolled over 8-column blocks
-    behind dynamic guards, about d^3/24 vector operations.
+    behind dynamic guards, about d^3/24 vector operations. The diagonal keeps
+    1 / L_jj (one reciprocal square root), so neither the factorization nor
+    the solves divide.
     """
     blocks = dim // 8
     rows = lax.broadcasted_iota(jnp.int32, (dim, 1), 0)
@@ -94,9 +97,11 @@ def _factor_token(e_ref, a_ref, key, lam, beta, floor, dim):
 
     def column(j, carry):
         col = a_ref[j]
-        pivot = jnp.sqrt(jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True))
-        below = jnp.where(rows > j, col / pivot, 0.0)
-        a_ref[j] = jnp.where(rows == j, pivot, below)
+        reciprocal = lax.rsqrt(
+            jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True)
+        )
+        below = jnp.where(rows > j, col * reciprocal, 0.0)
+        a_ref[j] = jnp.where(rows == j, reciprocal, below)
         for block in range(blocks):
 
             @pl.when(j < 8 * block + 7)
