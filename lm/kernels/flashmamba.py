@@ -27,6 +27,9 @@ from jax.ad_checkpoint import checkpoint_name
 from jax.experimental import pallas as pl
 from jax.experimental.pallas import tpu as pltpu
 import jax.numpy as jnp
+import numpy as np
+
+from lm.kernels.prefix import cumulative, prefix_sum
 
 
 CHUNK = 128
@@ -37,46 +40,43 @@ F32 = jnp.float32
 HIGHEST = lax.Precision.HIGHEST
 
 
+def _pair_matrices(width, count):
+    """Signed swap of adjacent coordinates and duplication of each angle.
+
+    partner = x @ swap gives -x[2i+1] at 2i and x[2i] at 2i+1, and
+    angles @ duplicate repeats angle i at 2i and 2i+1. Entries are 0 and +-1,
+    so both products are exact.
+    """
+    swap = np.zeros((width, width), np.float32)
+    for i in range(0, width, 2):
+        swap[i + 1, i] = -1.0
+        swap[i, i + 1] = 1.0
+    duplicate = np.zeros((count, width), np.float32)
+    for i in range(count):
+        duplicate[i, 2 * i] = duplicate[i, 2 * i + 1] = 1.0
+    fixed = np.zeros(width, np.float32)
+    fixed[2 * count :] = 1.0
+    return swap, duplicate, fixed
+
+
 def _rotate_pairs(x, angles):
-    """`lm.kernels.mamba3.rotate` with pairwise=True, without size-2 axes.
+    """`lm.kernels.mamba3.rotate` with pairwise=True as exact matrix products.
 
     Adjacent coordinates (2i, 2i+1) rotate by angle i; coordinates beyond the
-    angles stay fixed. Each coordinate's partner comes from a lane roll, and
-    the cosine and sine are evaluated once per angle.
+    angles stay fixed. The partner coordinate and the per-coordinate cosine
+    and sine come from fixed 0/+-1 matrices, so no lane shuffle, repeat or
+    narrow slice appears in either direction of autodiff.
     """
     width, count = x.shape[-1], angles.shape[-1]
-    cosine = jnp.repeat(jnp.cos(angles), 2, axis=-1)
-    sine = jnp.repeat(jnp.sin(angles), 2, axis=-1)
-    rest = width - 2 * count
-    if rest:
-        shape = (*angles.shape[:-1], rest)
-        cosine = jnp.concatenate((cosine, jnp.ones(shape, F32)), axis=-1)
-        sine = jnp.concatenate((sine, jnp.zeros(shape, F32)), axis=-1)
-    x32 = x.astype(F32)
-    even = jnp.arange(width) % 2 == 0
-    partner = jnp.where(even, -jnp.roll(x32, -1, axis=-1), jnp.roll(x32, 1, axis=-1))
-    return (x32 * cosine + partner * sine).astype(x.dtype)
-
-
-def prefix_sum(x, chunk=CHUNK):
-    """Inclusive cumulative sum over axis 1 by chunked triangular products.
-
-    XLA lowers jnp.cumsum on TPU to a full-length reduce-window whose reverse
-    (its transpose) runs in quadratic time. Here each chunk's prefix is one
-    float32-accurate product with a lower-triangular matrix of ones, and chunk
-    totals carry forward by a short cumulative sum; the transpose is the same
-    kind of product.
-    """
-    length = x.shape[1]
-    padding = (-length) % chunk
-    padded = jnp.pad(x.astype(F32), [(0, 0), (0, padding)] + [(0, 0)] * (x.ndim - 2))
-    blocks = padded.reshape(x.shape[0], -1, chunk, *x.shape[2:])
-    ones = jnp.tril(jnp.ones((chunk, chunk), F32))
-    within = jnp.einsum("ts,bns...->bnt...", ones, blocks, precision=HIGHEST)
-    totals = within[:, :, -1]
-    carried = jnp.cumsum(totals, axis=1) - totals
-    output = within + carried[:, :, None]
-    return output.reshape(padded.shape)[:, :length]
+    swap, duplicate, fixed = _pair_matrices(width, count)
+    precision = HIGHEST if x.dtype == F32 else lax.Precision.DEFAULT
+    partner = jnp.matmul(
+        x, jnp.asarray(swap, x.dtype), precision=precision, preferred_element_type=F32
+    )
+    duplicate = jnp.asarray(duplicate)
+    cosine = jnp.matmul(jnp.cos(angles), duplicate, precision=HIGHEST) + fixed
+    sine = jnp.matmul(jnp.sin(angles), duplicate, precision=HIGHEST)
+    return (x.astype(F32) * cosine + partner * sine).astype(x.dtype)
 
 
 def _rotary_frame_pairs(q, k, dt, angles, q_bias, k_bias):
@@ -300,7 +300,7 @@ def _layout(q, k, v, log_decay, gamma, scale, chunk):
         return x.reshape(batch, heads, chunks, 1, chunk)
 
     a, g, s = (tokens(x.astype(F32)) for x in (log_decay, gamma, scale))
-    p = jnp.cumsum(a.reshape(batch, heads, chunks, chunk), axis=-1)
+    p = cumulative(a.reshape(batch, heads, chunks, chunk))
     tail = jnp.exp(p[..., -1:] - p)
     end = jnp.broadcast_to(
         jnp.exp(p[..., -1])[..., None, None], (batch, heads, chunks, 1, value_dim)
@@ -450,7 +450,7 @@ def _ssd_backward(chunk, interpret, heads_per_step, residuals, cotangents):
     # Every chunk's last position also carries the chunk-end decay's gradient.
     d_last = jnp.sum(flow[..., 0, :], axis=-1) + jnp.sum(d_end[..., 0, :], axis=-1)
     dp = dp[..., 0, :].at[..., -1].add(d_last)
-    d_log_decay = jnp.cumsum(dp[..., ::-1], axis=-1)[..., ::-1]
+    d_log_decay = cumulative(dp, reverse=True)
     return (
         tokens_out(dq),
         tokens_out(dk),
