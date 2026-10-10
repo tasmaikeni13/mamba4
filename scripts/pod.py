@@ -1,4 +1,7 @@
-"""Deploy and run the existing four-host v4-32 pod; never allocates resources."""
+"""Deploy and run the existing four-host v4-32 pod; never allocates resources.
+
+``local`` runs a module on host 0's four chips alone, under the same lock.
+"""
 
 import argparse
 import fcntl
@@ -150,6 +153,35 @@ def execute(module, args, tag):
         )
 
 
+# Host 0's four chips as an independent single-host slice.
+LOCAL_SLICE = {
+    "TPU_CHIPS_PER_PROCESS_BOUNDS": "2,2,1",
+    "TPU_PROCESS_BOUNDS": "1,1,1",
+    "TPU_VISIBLE_CHIPS": "0,1,2,3",
+    "TPU_PROCESS_PORT": "8476",
+    "TPU_PROCESS_ADDRESSES": "localhost:8476",
+    "CLOUD_TPU_TASK_ID": "0",
+}
+
+
+def execute_local(module, args, tag):
+    """Run on host 0's chips only, holding the pod lock (kernel debugging)."""
+    output = ROOT / "lm/runs" / tag
+    output.mkdir(parents=True, exist_ok=True)
+    lock_file = (ROOT / "lm/runs/pod.lock").open("w")
+    fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    environment = {k: v for k, v in os.environ.items() if k != "JAX_PLATFORMS"}
+    environment.update(LOCAL_SLICE)
+    command = [str(ROOT / ".venv/bin/python"), "-u", "-m", module] + args
+    with (output / "host-0.log").open("a") as handle:
+        code = subprocess.run(
+            command, cwd=ROOT, env=environment, stdout=handle, stderr=handle
+        ).returncode
+    lock_file.close()
+    if code:
+        raise RuntimeError(f"Local execution failed: {code}; see {output}")
+
+
 def collect(args):
     """JAX process0 can be any physical host; preserve every host's evidence."""
     paths = ["lm/results"]
@@ -182,13 +214,16 @@ def main():
     sub = parser.add_subparsers(dest="action", required=True)
     sync = sub.add_parser("sync")
     sync.add_argument("--data", action="store_true")
-    run = sub.add_parser("run")
-    run.add_argument("--tag", required=True)
-    run.add_argument("module")
-    run.add_argument("args", nargs=argparse.REMAINDER)
+    for action in ("run", "local"):
+        run = sub.add_parser(action)
+        run.add_argument("--tag", required=True)
+        run.add_argument("module")
+        run.add_argument("args", nargs=argparse.REMAINDER)
     options = parser.parse_args()
     if options.action == "sync":
         deploy(options.data)
+    elif options.action == "local":
+        execute_local(options.module, options.args, options.tag)
     else:
         execute(options.module, options.args, options.tag)
 
