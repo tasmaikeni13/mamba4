@@ -617,13 +617,18 @@ def _fused_forward_kernel(
 
     lower, diagonal = _masks(chunk)
     inclusive = jnp.where(lower | diagonal, 1.0, 0.0)
+    last_row = lax.broadcasted_iota(jnp.int32, (chunk, 1), 0) == chunk - 1
     angles = angle_ref[...]
     for head in range(heads):
         dt_col = _column(dt_ref[head], diagonal)
         start_phase = phase_ref[block, head]
         theta = start_phase + _mask_dot(inclusive, angles * dt_col)
         phase0_ref[head] = start_phase
-        phase_ref[block, head] = theta[chunk - 1 :]
+        # The last row by selection: a slice would keep sublane offset 7,
+        # which this Mosaic version cannot store into the [1, N] carry.
+        phase_ref[block, head] = jnp.sum(
+            jnp.where(last_row, theta, 0.0), axis=0, keepdims=True
+        )
         q_rot, k_rot, _, _ = _rotated(c_ref, b_ref, qb_ref[head], kb_ref[head], theta)
         q, k = q_rot.astype(c_ref.dtype), k_rot.astype(b_ref.dtype)
         lanes = slice(head * width, (head + 1) * width)
