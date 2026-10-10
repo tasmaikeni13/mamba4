@@ -32,91 +32,161 @@ LANES = 128
 HIGHEST = lax.Precision.HIGHEST
 
 
-def _solve_kernel(
-    s0_ref, k_ref, beta_ref, lam_ref, floor_ref, rhs_ref, y_ref, e_ref, a_ref
-):
-    """Lane-major blocks: s0 [d,d,L]; k, rhs, y [c,d,L]; beta, lam [c,1,L]; floor [d,L].
+def _packed_offsets(dim):
+    """Column c keeps rows 8*(c//8)..dim; offsets of each column when packed."""
+    offsets, total = [], 0
+    for column in range(dim):
+        offsets.append(total)
+        total += dim - 8 * (column // 8)
+    return offsets, total
 
-    e_ref[j] and a_ref[j] hold column j of the evidence and of the working
-    matrix, rows on sublanes. Only rows from the column's 8-row tile down are
-    kept current: the lower triangle plus a few finite entries above it that
-    no step reads. The factorization runs over a dynamic pivot column; its
-    trailing update is unrolled over 8-column blocks behind dynamic guards,
-    so it costs about d^3/24 vector operations instead of d^3. Triangular
-    solves are fully unrolled, which turns every element pick into a static
-    sublane slice.
+
+def _substitute(tile_of, value, dim):
+    """Solve L L^T y = value from the lower factor L, held as 8-row tiles.
+
+    tile_of(j, b) returns tile b (rows 8b..8b+7) of column j for b >= j // 8,
+    whose row j holds the pivot. value is a list of [8, L] tiles. Every pick
+    is a static slice, and each column touches only the tiles at or below it.
     """
-    chunk, dim = k_ref.shape[0], k_ref.shape[1]
+    rows = lax.broadcasted_iota(jnp.int32, (8, 1), 0)
+    blocks = dim // 8
+    for j in range(dim):
+        first, local = j // 8, j % 8
+        diagonal = tile_of(j, first)[local : local + 1]
+        step = value[first][local : local + 1] / diagonal
+        for b in range(first, blocks):
+            column = tile_of(j, b)
+            index = rows + 8 * b
+            tile = jnp.where(index > j, value[b] - column * step, value[b])
+            value[b] = jnp.where(index == j, step, tile) if b == first else tile
+    for j in reversed(range(dim)):
+        first, local = j // 8, j % 8
+        total = None
+        for b in range(first, blocks):
+            index = rows + 8 * b
+            term = jnp.where(index > j, tile_of(j, b) * value[b], 0.0)
+            total = term if total is None else total + term
+        total = jnp.sum(total, axis=0, keepdims=True)
+        diagonal = tile_of(j, first)[local : local + 1]
+        new = (value[first][local : local + 1] - total) / diagonal
+        value[first] = jnp.where(rows + 8 * first == j, new, value[first])
+    return value
+
+
+def _factor_token(e_ref, a_ref, key, lam, beta, floor, dim):
+    """Evidence update E = lam E + beta k k^T, then Cholesky of E + diag(floor).
+
+    e_ref[j] and a_ref[j] hold column j, rows on sublanes. Only rows from the
+    column's 8-row tile down are kept current: the lower triangle plus a few
+    finite entries above it that no step reads. The factorization runs over a
+    dynamic pivot column; its trailing update is unrolled over 8-column blocks
+    behind dynamic guards, about d^3/24 vector operations.
+    """
     blocks = dim // 8
     rows = lax.broadcasted_iota(jnp.int32, (dim, 1), 0)
+    for c in range(dim):
+        part = slice(8 * (c // 8), dim)
+        evidence = lam * e_ref[c, part] + (beta * key[c : c + 1]) * key[part]
+        e_ref[c, part] = evidence
+        on_diagonal = rows[part] == c
+        a_ref[c, part] = evidence + jnp.where(on_diagonal, floor[c : c + 1], 0.0)
 
-    def tile(c):
-        return slice(8 * (c // 8), dim)
+    def column(j, carry):
+        col = a_ref[j]
+        pivot = jnp.sqrt(jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True))
+        below = jnp.where(rows > j, col / pivot, 0.0)
+        a_ref[j] = jnp.where(rows == j, pivot, below)
+        for block in range(blocks):
+
+            @pl.when(j < 8 * block + 7)
+            def _():
+                part = slice(8 * block, dim)
+                for c in range(8 * block, 8 * block + 8):
+                    a_ref[c, part] = a_ref[c, part] - below[part] * below[c : c + 1]
+
+        return carry
+
+    lax.fori_loop(0, dim, column, 0)
+
+
+def _solve_kernel(
+    s0_ref, k_ref, beta_ref, lam_ref, floor_ref, rhs_ref, *refs, store_factors
+):
+    """Lane-major blocks: s0 [d,d,L]; k, rhs, y [c,d,L]; beta, lam [c,1,L];
+    floor [d,L]; with store_factors, also each token's packed factor."""
+    if store_factors:
+        y_ref, factor_ref, e_ref, a_ref = refs
+    else:
+        (y_ref, e_ref, a_ref), factor_ref = refs, None
+    chunk, dim = k_ref.shape[0], k_ref.shape[1]
+    offsets, _ = _packed_offsets(dim)
 
     # The grid's second axis walks the chunk's tokens in blocks; the evidence
     # carries between them in e_ref.
     @pl.when(pl.program_id(1) == 0)
     def _():
         for c in range(dim):
-            e_ref[c, tile(c)] = s0_ref[c, tile(c)]
+            part = slice(8 * (c // 8), dim)
+            e_ref[c, part] = s0_ref[c, part]
 
     def token(t, carry):
-        key, lam, beta = k_ref[t], lam_ref[t], beta_ref[t]
-        floor = floor_ref[...]
-        for c in range(dim):
-            part = tile(c)
-            evidence = lam * e_ref[c, part] + (beta * key[c : c + 1]) * key[part]
-            e_ref[c, part] = evidence
-            on_diagonal = rows[part] == c
-            a_ref[c, part] = evidence + jnp.where(on_diagonal, floor[c : c + 1], 0.0)
-
-        def column(j, inner):
-            col = a_ref[j]
-            pivot = jnp.sqrt(
-                jnp.sum(jnp.where(rows == j, col, 0.0), axis=0, keepdims=True)
-            )
-            below = jnp.where(rows > j, col / pivot, 0.0)
-            a_ref[j] = jnp.where(rows == j, pivot, below)
-            for block in range(blocks):
-
-                @pl.when(j < 8 * block + 7)
-                def _():
-                    part = slice(8 * block, dim)
-                    for c in range(8 * block, 8 * block + 8):
-                        a_ref[c, part] = a_ref[c, part] - below[part] * below[c : c + 1]
-
-            return inner
-
-        lax.fori_loop(0, dim, column, 0)
-        value = rhs_ref[t]
-        for j in range(dim):
-            col = a_ref[j]
-            step = value[j : j + 1] / col[j : j + 1]
-            value = jnp.where(rows > j, value - col * step, value)
-            value = jnp.where(rows == j, step, value)
-        for j in reversed(range(dim)):
-            col = a_ref[j]
-            total = jnp.sum(
-                jnp.where(rows > j, col * value, 0.0), axis=0, keepdims=True
-            )
-            value = jnp.where(
-                rows == j, (value[j : j + 1] - total) / col[j : j + 1], value
-            )
-        y_ref[t] = value
+        _factor_token(
+            e_ref, a_ref, k_ref[t], lam_ref[t], beta_ref[t], floor_ref[...], dim
+        )
+        if factor_ref is not None:
+            for c in range(dim):
+                start = 8 * (c // 8)
+                factor_ref[t, offsets[c] : offsets[c] + dim - start] = a_ref[
+                    c, start:dim
+                ]
+        value = [rhs_ref[t, 8 * b : 8 * b + 8] for b in range(dim // 8)]
+        value = _substitute(lambda j, b: a_ref[j, 8 * b : 8 * b + 8], value, dim)
+        for b in range(dim // 8):
+            y_ref[t, 8 * b : 8 * b + 8] = value[b]
         return carry
 
     lax.fori_loop(0, chunk, token, 0)
 
 
-def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret):
+def _factored_kernel(factor_ref, rhs_ref, z_ref):
+    """Solve with stored packed factors: factor [c,R,L], rhs and z [c,d,L]."""
+    chunk, dim = rhs_ref.shape[0], rhs_ref.shape[1]
+    offsets, _ = _packed_offsets(dim)
+
+    def tile_of(t):
+        def tile(j, b):
+            start = offsets[j] + 8 * (b - j // 8)
+            return factor_ref[t, start : start + 8]
+
+        return tile
+
+    def token(t, carry):
+        value = [rhs_ref[t, 8 * b : 8 * b + 8] for b in range(dim // 8)]
+        value = _substitute(tile_of(t), value, dim)
+        for b in range(dim // 8):
+            z_ref[t, 8 * b : 8 * b + 8] = value[b]
+        return carry
+
+    lax.fori_loop(0, chunk, token, 0)
+
+
+def _token_block(chunk, limit):
+    return next(
+        size for size in (16, 8, 4, 2, 1) if size <= limit and chunk % size == 0
+    )
+
+
+def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret, store_factors=False):
     """Lane-major arrays whose last axis is a multiple of 128.
 
-    Grid: lane groups (parallel) by blocks of up to 16 tokens (sequential),
-    which keeps the double-buffered blocks well inside scoped VMEM.
+    Grid: lane groups (parallel) by blocks of tokens (sequential), which keeps
+    the double-buffered blocks well inside scoped VMEM. With store_factors the
+    packed factor of every token is also returned, [c, R, lanes].
     """
     dim, lanes = s0.shape[0], s0.shape[-1]
     chunk = keys.shape[0]
-    block = next(size for size in (16, 8, 4, 2, 1) if chunk % size == 0)
+    block = _token_block(chunk, 1 if store_factors else 16)
+    _, packed = _packed_offsets(dim)
 
     def whole(shape):
         leading = (0,) * (len(shape) - 1)
@@ -128,8 +198,14 @@ def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret):
             lambda i, j: (j,) + (0,) * (len(shape) - 2) + (i,),
         )
 
+    out_specs = tokens(rhs.shape)
+    out_shape = jax.ShapeDtypeStruct(rhs.shape, jnp.float32)
+    if store_factors:
+        factor_shape = (chunk, packed, lanes)
+        out_specs = [out_specs, tokens(factor_shape)]
+        out_shape = [out_shape, jax.ShapeDtypeStruct(factor_shape, jnp.float32)]
     return pl.pallas_call(
-        _solve_kernel,
+        partial(_solve_kernel, store_factors=store_factors),
         grid=(lanes // LANES, chunk // block),
         in_specs=[
             whole(s0.shape),
@@ -139,8 +215,8 @@ def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret):
             whole(floor.shape),
             tokens(rhs.shape),
         ],
-        out_specs=tokens(rhs.shape),
-        out_shape=jax.ShapeDtypeStruct(rhs.shape, jnp.float32),
+        out_specs=out_specs,
+        out_shape=out_shape,
         scratch_shapes=[
             pltpu.VMEM((dim, dim, LANES), jnp.float32),
             pltpu.VMEM((dim, dim, LANES), jnp.float32),
@@ -152,43 +228,92 @@ def _lane_solve(s0, keys, beta, lam, floor, rhs, interpret):
     )(s0, keys, beta, lam, floor, rhs)
 
 
-def batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
+def _lane_factored_solve(factors, rhs, interpret):
+    chunk, dim, lanes = rhs.shape
+    block = _token_block(chunk, 1)
+
+    def tokens(shape):
+        return pl.BlockSpec(
+            (block, *shape[1:-1], LANES),
+            lambda i, j: (j,) + (0,) * (len(shape) - 2) + (i,),
+        )
+
+    return pl.pallas_call(
+        _factored_kernel,
+        grid=(lanes // LANES, chunk // block),
+        in_specs=[tokens(factors.shape), tokens(rhs.shape)],
+        out_specs=tokens(rhs.shape),
+        out_shape=jax.ShapeDtypeStruct(rhs.shape, jnp.float32),
+        compiler_params=pltpu.CompilerParams(
+            dimension_semantics=("parallel", "parallel")
+        ),
+        interpret=interpret,
+    )(factors, rhs)
+
+
+def _lanes(x, sequences, expand=False):
+    pad = (-sequences) % LANES
+    x = jnp.moveaxis(x.astype(jnp.float32), 0, -1)
+    if expand:
+        x = x[..., None, :]
+    return jnp.pad(x, [(0, 0)] * (x.ndim - 1) + [(0, pad)])
+
+
+def _padded_dim(dim):
+    return dim + (-dim) % 8
+
+
+def _rhs_lanes(rhs, sequences):
+    extra = _padded_dim(rhs.shape[-1]) - rhs.shape[-1]
+    return _lanes(jnp.pad(rhs, [(0, 0), (0, 0), (0, extra)]), sequences)
+
+
+def _from_lanes(solved, sequences, dim):
+    return jnp.moveaxis(solved[..., :sequences], -1, 0)[..., :dim]
+
+
+def batched_solve(
+    s0, keys, beta, log_prefix, floor, rhs, interpret=False, store_factors=False
+):
     """Solve A_t y_t = rhs_t for every token of S independent chunks.
 
     s0 [S,d,d] symmetric; keys, rhs [S,c,d]; beta, log_prefix [S,c]; floor
     [S,d]. log_prefix is the inclusive prefix sum of the chunk's log decays.
+    With store_factors, also returns the packed lane-major factors, which
+    `factored_solve` reuses for further right-hand sides.
     """
     sequences, dim = s0.shape[0], s0.shape[-1]
-    pad = (-sequences) % LANES
-    extra = (-dim) % 8
+    extra = _padded_dim(dim) - dim
     lam = jnp.exp(jnp.diff(log_prefix, prepend=0.0, axis=-1))
     if extra:
         # Padded coordinates form an identity block: they solve to zero and
         # leave the true coordinates unchanged.
         s0 = jnp.pad(s0, [(0, 0), (0, extra), (0, extra)])
         keys = jnp.pad(keys, [(0, 0), (0, 0), (0, extra)])
-        rhs = jnp.pad(rhs, [(0, 0), (0, 0), (0, extra)])
         floor = jnp.pad(floor, [(0, 0), (0, extra)], constant_values=1.0)
-
-    def lane(x, expand=False):
-        x = jnp.moveaxis(x.astype(jnp.float32), 0, -1)
-        if expand:
-            x = x[..., None, :]
-        return jnp.pad(x, [(0, 0)] * (x.ndim - 1) + [(0, pad)])
-
     # Padded sequences solve the identity system and are discarded.
-    floor_lanes = lane(floor)
-    floor_lanes = floor_lanes.at[..., sequences:].set(1.0)
-    solved = _lane_solve(
-        lane(s0),
-        lane(keys),
-        lane(beta, True),
-        lane(lam, True).at[..., sequences:].set(1.0),
+    floor_lanes = _lanes(floor, sequences).at[..., sequences:].set(1.0)
+    result = _lane_solve(
+        _lanes(s0, sequences),
+        _lanes(keys, sequences),
+        _lanes(beta, sequences, True),
+        _lanes(lam, sequences, True).at[..., sequences:].set(1.0),
         floor_lanes,
-        lane(rhs),
+        _rhs_lanes(rhs, sequences),
         interpret,
+        store_factors,
     )
-    return jnp.moveaxis(solved[..., :sequences], -1, 0)[..., :dim]
+    if store_factors:
+        solved, factors = result
+        return _from_lanes(solved, sequences, dim), factors
+    return _from_lanes(result, sequences, dim)
+
+
+def factored_solve(factors, rhs, interpret=False):
+    """Solve A_t z_t = rhs_t with the factors stored by `batched_solve`."""
+    sequences, dim = rhs.shape[0], rhs.shape[-1]
+    solved = _lane_factored_solve(factors, _rhs_lanes(rhs, sequences), interpret)
+    return _from_lanes(solved, sequences, dim)
 
 
 @partial(jax.custom_vjp, nondiff_argnums=(6,))
@@ -198,15 +323,19 @@ def chunk_solve(s0, keys, beta, log_prefix, floor, rhs, interpret=False):
 
 
 def _chunk_solve_forward(s0, keys, beta, log_prefix, floor, rhs, interpret):
-    y = batched_solve(s0, keys, beta, log_prefix, floor, rhs, interpret)
-    # A "kernels" remat policy keeps this; the backward then needs no new solve.
+    y, factors = batched_solve(
+        s0, keys, beta, log_prefix, floor, rhs, interpret, store_factors=True
+    )
+    # A "kernels" remat policy keeps these, so the backward reruns no kernel
+    # and needs only triangular solves with the stored factors.
     y = checkpoint_name(y, "memory_solve")
-    return y, (s0, keys, beta, log_prefix, floor, y)
+    factors = checkpoint_name(factors, "memory_solve")
+    return y, (s0, keys, beta, log_prefix, floor, y, factors)
 
 
 def _chunk_solve_backward(interpret, saved, grad):
-    s0, keys, beta, log_prefix, floor, y = saved
-    z = batched_solve(s0, keys, beta, log_prefix, floor, grad, interpret)
+    s0, keys, beta, log_prefix, floor, y, factors = saved
+    z = factored_solve(factors, grad, interpret)
     chunk = keys.shape[1]
     causal = jnp.arange(chunk)[:, None] >= jnp.arange(chunk)[None, :]
     difference = log_prefix[:, :, None] - log_prefix[:, None, :]

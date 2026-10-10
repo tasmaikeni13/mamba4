@@ -13,8 +13,8 @@ exactly recovers associations and their signed linear combinations. Positive
 ridge introduces bias, and fixed state cannot retain unbounded arbitrary
 associations.
 
-We audit the original monograph, formalize 70 algebraic and finite-dimensional
-results across 16 Lean 4 modules, and run a reproducible NumPy/SciPy study
+We audit the original monograph, formalize 74 algebraic and finite-dimensional
+results across 17 Lean 4 modules, and run a reproducible NumPy/SciPy study
 against softmax, Mamba-3 recurrence primitives and additional memories. The
 study supports signed-query retrieval and in-model calibration, and exposes
 failures under overloaded or ill-conditioned keys, model mismatch and cascade
@@ -22,17 +22,18 @@ merges. Protected QR anchors, redundant cascade banks and an initialized
 cyclic anisotropic prior provide explicit repairs with different resource
 and statistical contracts.
 
-A 60M-parameter, 1B-token, single-seed language-model screen against a
-Transformer and official Mamba-3 is then reported in full (§12). The first
-realization, with constant cyclic gates, trailed both peers and was 33 times
-slower than Mamba-3; the interrupted run is retained. Restoring the original
-token-dependent gates with an undiscounted floor, exact lane-major solves and
-a composition with Mamba-3 layers gives the second realization. On the frozen
-held-out split it reaches NLL 3.4727, against 3.4758 for Mamba-3 and 3.5352
-for the Transformer, a narrow but paired-significant win over evaluation
-sequences that a fresh holdout confirms; it also answers markedly more
-synthetic recall prompts. No universal peer-dominance claim is made, and one
-training seed cannot establish robustness.
+The language model interleaves memory layers with token-dependent gates, an
+undiscounted floor, exact Cholesky reads and keys aligned to the preceding
+context with official Mamba-3 layers (§11). In a 60M-parameter, 1B-token,
+single-seed screen against a Transformer and official Mamba-3 (§12), it
+reaches held-out NLL 3.4719, against 3.4758 and 3.5352. That is a narrow,
+paired-significant win over evaluation sequences, which a fresh holdout
+confirms. It also answers markedly more synthetic recall prompts. A frozen
+claims protocol (§13) refutes exact retrieval against the Transformer and
+long-context use inside this language model. Small models trained directly
+on the tasks show that the memory itself recalls and retains exactly and
+approaches Bayes in in-context regression. No universal peer-dominance claim
+is made, and one training seed cannot establish robustness.
 
 ## 1. Hypothesis and existing work
 
@@ -475,3 +476,29 @@ memory's capacity, while attention keeps every token. Retention beyond the
 training length is not trained at 1,024 tokens. `Retention.lean` quantifies the
 remaining mechanism: a single decayed write competes with an undiscounted
 floor.
+
+**The mechanism under direct training.** Small matched models (two blocks of
+width 128) were trained from scratch on synthetic tasks under a design
+recorded before the runs (`validation/synthetic-protocol.md`; one training
+seed each, separate development and evaluation seeds):
+- **Associative recall:** Mamba 4 (keys of dimension 32) recalls every pair
+  for up to 32 stored pairs and 87.5% at 128. The Transformer manages at most
+  33.7% and Mamba-3 21.1%.
+- **Retention:** eight pairs among distractors, trained at 512 tokens, are
+  recalled exactly by Mamba 4 at every length to 8,192 tokens. Mamba-3 is
+  exact at 512 and fails beyond it; the Transformer reaches 30.8% at 512.
+- **Successor lookups:** exact at one and two hops for every graph size; for
+  Mamba-3, 59–97% at one hop.
+- **Never-stored keys:** Mamba 4 answers stored keys better at low load
+  (95.1% against 39.6% at eight pairs), but its stored-key accuracy collapses
+  beyond 32 pairs. Mamba-3 separates absent keys better (AUROC near 1, against
+  0.74–0.98).
+- **In-context regression with uncertainty:** against the exact Bayes
+  predictive, Mamba 4's NLL on late examples is 0.978 against 0.941, with
+  Mamba-3 at 1.141 and the Transformer at 1.766; all reach 90% coverage
+  within 0.4 points.
+
+The operator therefore delivers exact recall, length-robust retention and
+near-Bayes in-context regression when training asks for them. The 60M
+language model did not learn to use those properties in text
+(`lm/results/synthetic/`, `lm/results/regression/`).

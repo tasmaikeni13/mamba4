@@ -110,6 +110,89 @@ def ssd_benchmarks(results, shapes):
             both(f"ssd/{label}/{name}", kernel, args, tuple(range(9)), results)
 
 
+def part_benchmarks(results, batch, length, heads=24, state=128, width=64):
+    """Pieces of one Mamba-3 layer's scan and one memory layer's read."""
+    from lm.kernels import flashmamba
+    from lm.kernels.mamba3 import _rotary_frame
+    from lm.kernels.mamba4_fused import batched_solve
+
+    q, k, v, adt, dt, trap, angles, qb, kb = ssd_inputs(
+        batch, length, heads, state, width
+    )
+
+    def rotary(q, k, dt, angles, qb, kb):
+        rotated_q, rotated_k, _ = _rotary_frame(q, k, dt, angles, qb, kb, True)
+        return rotated_q, rotated_k
+
+    both("part/rotary-frame", rotary, (q, k, dt, angles, qb, kb), (0, 1, 2, 3), results)
+    both(
+        "part/rotary-pairs",
+        flashmamba._rotary_frame_pairs,
+        (q, k, dt, angles, qb, kb),
+        (0, 1, 2, 3),
+        results,
+    )
+    both(
+        "part/mamba3-flash",
+        lambda *a: flashmamba.mamba3_flash(*a[:7], q_bias=a[7], k_bias=a[8]),
+        (q, k, v, adt, dt, trap, angles, qb, kb),
+        tuple(range(9)),
+        results,
+    )
+    gamma = dt * 0.5
+    core = (q[..., 0, :], k[..., 0, :], v[..., 0, :], adt, gamma, gamma)
+    both(
+        "part/flash-scan",
+        lambda *a: flashmamba.ssd(*a, 128, False, 1),
+        core,
+        tuple(range(6)),
+        results,
+    )
+    rng = np.random.default_rng(1)
+    sequences, chunk, dim = batch * (length // 64) * 12, 64, 64
+    g = rng.normal(size=(sequences, dim, dim)) / 8
+    s0 = jnp.asarray(g @ np.swapaxes(g, 1, 2), jnp.float32)
+    keys = rng.normal(size=(sequences, chunk, dim))
+    keys = jnp.asarray(keys / np.linalg.norm(keys, axis=-1, keepdims=True), jnp.float32)
+    beta = jnp.asarray(rng.uniform(0.1, 1, size=(sequences, chunk)), jnp.float32)
+    prefix = jnp.asarray(
+        np.cumsum(-rng.uniform(0, 0.05, size=(sequences, chunk)), axis=-1), jnp.float32
+    )
+    floor = jnp.ones((sequences, dim), jnp.float32)
+    rhs = jnp.asarray(rng.normal(size=(sequences, chunk, dim)), jnp.float32)
+    device = jax.local_devices()[0]
+    arrays = jax.device_put((s0, keys, beta, prefix, floor, rhs), device)
+    from lm.kernels.mamba4_fused import factored_solve
+
+    def store(*a):
+        return batched_solve(*a, store_factors=True)
+
+    pieces = {
+        "part/memory-solve": (lambda *a: batched_solve(*a), arrays),
+        "part/memory-solve-store": (store, arrays),
+    }
+    for name, (function, inputs) in pieces.items():
+        try:
+            results[name] = {"forward": measure(function, *inputs)}
+        except Exception as error:
+            results[name] = {"error": f"{type(error).__name__}: {str(error)[:3000]}"}
+        print(name, json.dumps(results[name])[:600], flush=True)
+    try:
+        _, factors = jax.jit(store)(*arrays)
+        results["part/memory-factored"] = {
+            "forward": measure(lambda f, r: factored_solve(f, r), factors, arrays[-1])
+        }
+    except Exception as error:
+        results["part/memory-factored"] = {
+            "error": f"{type(error).__name__}: {str(error)[:3000]}"
+        }
+    print(
+        "part/memory-factored",
+        json.dumps(results["part/memory-factored"])[:600],
+        flush=True,
+    )
+
+
 def memory_inputs(batch, length, heads, dim, width, seed=0):
     rng = np.random.default_rng(seed)
     k = rng.normal(size=(batch, length, heads, dim))
@@ -250,6 +333,8 @@ def main():
                 "60m": (max(batch // 2, 1), length, 16, 96, 64),
             },
         )
+    if "parts" in options.groups:
+        part_benchmarks(results, batch, length)
     if "memory" in options.groups:
         memory_benchmarks(results, {"125m": (batch, length, 12, 64, 128)})
     if "attention" in options.groups:
