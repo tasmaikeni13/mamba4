@@ -1,11 +1,12 @@
-# Matched 60M language-model screen
+# Language-model workflow
+
+## Matched 60M screen
 
 The screen compares a Transformer, official Mamba-3 SISO and Mamba 4 on the
 existing four-host v4-32 pod. Each model has about 60M parameters, a tied GPT-2
 embedding and exactly 1,000,000,000 training targets with seed 42.
 [The frozen protocol](configs/screen-protocol.json) declares the metrics,
-matching, data provenance and win criterion before training. There is no 125M
-run in the current scope.
+matching, data provenance and win criterion before training.
 
 | Model | Total parameters | Non-embedding parameters |
 |---|---:|---:|
@@ -77,3 +78,49 @@ counts as complete only with:
 
 The recorded runs were produced and audited at commit `5234621`. The audits
 compare execution sources byte for byte, so re-run them from that commit.
+
+## 125M, 3B tokens, three seeds
+
+The protocol in `docs/scaling-125m.md` was fixed before any 125M step. It
+covers the models, data, sweep rule, evaluations and outcome rule. The
+corpus is FineWeb-Edu `sample/10BT` shards 000–004, with every claims and
+fresh-holdout document removed by exact hash.
+
+```sh
+uv run python scripts/prepare_fineweb.py --output data/fineweb-edu-3b \
+  --repo HuggingFaceFW/fineweb-edu --revision 87f09149ef4734204d70ed1d046ddc9ca3f2b8f9 \
+  --prefix sample/10BT --files 000_00000.parquet 001_00000.parquet 002_00000.parquet \
+  003_00000.parquet 004_00000.parquet --train-targets 3000000000 \
+  --eval-targets 2097152 --seed 125 --exclude data/claims-development/manifest.json \
+  data/claims/manifest.json data/fresh-holdout-earlier/documents.json \
+  data/fresh-holdout/documents.json
+uv run python -m validation.downstream prepare      # pinned zero-shot benchmark files
+uv run python -m validation.pipeline_125m           # sweeps, configs, six runs, evaluations
+uv run python -m validation.downstream report --raw lm/runs/lm-125m/evaluations/downstream \
+  --output lm/results/lm-125m/downstream \
+  --groups transformer=transformer-s42,transformer-s43,transformer-s44 \
+  mamba4=mamba4-s42,mamba4-s43,mamba4-s44
+uv run python -m validation.claims report-seeds --raw lm/runs/lm-125m/evaluations/claims \
+  --output lm/results/lm-125m/claims
+uv run python -m validation.report_125m
+```
+
+`validation.pipeline_125m` runs unattended:
+1. The learning-rate sweep (`validation.sweep`): rule-triggered grid
+   extensions, then the selected rates and per-seed configurations
+   (`lm/configs/125m/`), committed before any main-run step.
+2. The six runs through `validation.run_125m`: resume after interruptions,
+   audit each run and hash its final checkpoint on every host.
+3. Sequence NLL, downstream and claims evaluations.
+
+Progress is recorded in `lm/runs/lm-125m/pipeline.json`.
+
+## Speed tools
+
+- `scripts.step_benchmark`: full training steps of configuration variants.
+- `scripts.kernel_benchmark`: single kernels, layer pieces and blocks.
+- `scripts.profile_step`: per-operation device time from a trace.
+
+`python -m scripts.pod local` runs a module on host 0's chips alone, under
+the pod lock, for compiler probes (`scripts.mosaic_probe`). See
+`docs/flashmamba.md`.
